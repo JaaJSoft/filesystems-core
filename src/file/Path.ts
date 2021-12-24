@@ -1,5 +1,5 @@
 import {URI} from "../net/URI";
-import {LocalPath} from "./fs/LocalPath";
+import {LocalPath} from "./fs/local/LocalPath";
 
 export abstract class Path {
 }
