@@ -1,4 +1,4 @@
-export abstract class UserPrincipalLookupService {
+export abstract class UserPrincipalLookupService { // TODO Maybe
     protected constructor() {
     }
 

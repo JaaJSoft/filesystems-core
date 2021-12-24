@@ -4,6 +4,15 @@ import {FileSystem} from "./FileSystem";
 import {LinkOption} from "./LinkOption";
 
 export abstract class Path {
+
+    public static of(first: string, more?: string[]): Path {
+        return new LocalPath();
+    }
+
+    public static ofURI(uri: URI): Path {
+        return new LocalPath();
+    }
+
     public abstract getFileSystem(): FileSystem;
 
     public abstract isAbsolute(): boolean;
@@ -159,12 +168,4 @@ export abstract class Path {
     public abstract equals(other: Path): boolean;
 
     public abstract compareTo(other: Path): number;
-}
-
-export function of(first: string, more: string[]): Path {
-    return new LocalPath();
-}
-
-export function ofURI(uri: URI): Path {
-    return new LocalPath();
 }
