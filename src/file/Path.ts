@@ -5,6 +5,9 @@ import {LinkOption} from "./LinkOption";
 
 export abstract class Path {
 
+    protected constructor() {
+    }
+
     public static of(first: string, more?: string[]): Path {
         return new LocalPath();
     }
@@ -162,8 +165,6 @@ export abstract class Path {
     public abstract toAbsolutePath(): Path;
 
     public abstract toRealPath(options?: LinkOption[]);
-
-    public abstract toString(): string;
 
     public abstract equals(other: Path): boolean;
 
