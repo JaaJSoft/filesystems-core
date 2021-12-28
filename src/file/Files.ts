@@ -1,6 +1,17 @@
-// buffer size used for reading and writing
-const BUFFER_SIZE: number = 8192;
+import {Path} from "./Path";
+import {FileSystemProvider} from "./spi/FileSystemProvider";
 
 export class Files {
+
+    // buffer size used for reading and writing
+    private static BUFFER_SIZE: number = 8192;
+
+    private constructor() {
+    }
+
+    private static provider(path: Path): FileSystemProvider {
+        return path.getFileSystem().provider();
+    }
+
 
 }

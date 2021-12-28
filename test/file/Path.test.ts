@@ -1,3 +1,6 @@
 import {Path} from "../../src/file/Path";
+import {LinkOption} from "../../src/file/LinkOption";
 
-const path = Path.of("")
+test('path', () => {
+    expect(Path.of("")).toBeUndefined()
+})
