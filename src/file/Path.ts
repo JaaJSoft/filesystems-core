@@ -1,6 +1,7 @@
 import {FileSystem} from "./FileSystem";
 import {LinkOption} from "./LinkOption";
 import {FileSystems} from "./FileSystems";
+import {FileSystemProvider} from "./spi/FileSystemProvider";
 
 export abstract class Path {
 
@@ -12,7 +13,19 @@ export abstract class Path {
     }
 
     public static ofURL(url: URL): Path {
-        return undefined;
+        const scheme = url.protocol.toLowerCase();
+        if (scheme === null) {
+            throw new Error("Missing scheme");
+        }
+        if (scheme.toLowerCase() === "file") {
+            return FileSystems.getDefault().provider().getPath(url);
+        }
+        for (const provider of FileSystemProvider.installedProviders()) {
+            if (provider.getScheme() === scheme) {
+                return provider.getPath(url);
+            }
+        }
+        throw new Error(`Provider "${scheme}" not installed`)
     }
 
     public abstract getFileSystem(): FileSystem;
