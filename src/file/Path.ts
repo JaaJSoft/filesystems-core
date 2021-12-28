@@ -1,5 +1,4 @@
 import {URI} from "../net/URI";
-import {LocalPath} from "./fs/local/LocalPath";
 import {FileSystem} from "./FileSystem";
 import {LinkOption} from "./LinkOption";
 
@@ -9,11 +8,11 @@ export abstract class Path {
     }
 
     public static of(first: string, more?: string[]): Path {
-        return new LocalPath();
+        return undefined;
     }
 
     public static ofURI(uri: URI): Path {
-        return new LocalPath();
+        return undefined;
     }
 
     public abstract getFileSystem(): FileSystem;

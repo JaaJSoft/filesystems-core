@@ -4,7 +4,7 @@
     "target": "ES6",
     "sourceMap": true,
     "outDir": "./dist",
-    "strict": true,
+    /*"strict": true,
     "strictFunctionTypes": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
@@ -13,7 +13,7 @@
     "alwaysStrict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "skipLibCheck": true,
+    "skipLibCheck": true,*/
     "declaration": true,
     "esModuleInterop": true
   },

@@ -80,8 +80,8 @@ export class LocalPath extends Path {
         return undefined;
     }
 
-    toLocaleString(): string {
-        return super.toLocaleString();
+    toString(): string {
+        return super.toString();
     }
 
 

@@ -1,3 +1,3 @@
-import {Path} from "../../src/file/path";
+import {Path} from "../../src/file/Path";
 
 const path = Path.of("")
