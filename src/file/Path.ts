@@ -1,6 +1,6 @@
-import {URI} from "../net/URI";
 import {FileSystem} from "./FileSystem";
 import {LinkOption} from "./LinkOption";
+import {FileSystems} from "./FileSystems";
 
 export abstract class Path {
 
@@ -8,10 +8,10 @@ export abstract class Path {
     }
 
     public static of(first: string, more?: string[]): Path {
-        return undefined;
+        return FileSystems.getDefault().getPath(first, more);
     }
 
-    public static ofURI(uri: URI): Path {
+    public static ofURL(url: URL): Path {
         return undefined;
     }
 
@@ -159,7 +159,7 @@ export abstract class Path {
      */
     public abstract relativize(other: Path): Path;
 
-    public abstract toUri(): URI;
+    public abstract toURL(): URL;
 
     public abstract toAbsolutePath(): Path;
 

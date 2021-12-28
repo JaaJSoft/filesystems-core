@@ -1,7 +1,6 @@
 import {Path} from "../../Path";
 import {FileSystem} from "../../FileSystem";
 import {LinkOption} from "../../LinkOption";
-import {URI} from "../../../net/URI";
 
 export class LocalPath extends Path {
 
@@ -76,7 +75,7 @@ export class LocalPath extends Path {
     toRealPath(options?: LinkOption[]) {
     }
 
-    toUri(): URI {
+    toURL(): URL {
         return undefined;
     }
 

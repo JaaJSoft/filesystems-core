@@ -1,5 +1,4 @@
 import {FileSystem} from "./FileSystem";
-import {URI} from "../net/URI";
 import {LocalFileSystem} from "./fs/local/LocalFileSystem";
 
 export class FileSystems {
@@ -7,7 +6,7 @@ export class FileSystems {
         return new LocalFileSystem();
     }
 
-    public static getFileSystem(uri: URI): FileSystem {
+    public static getFileSystem(url: URL): FileSystem {
         return new LocalFileSystem();
     }
 
