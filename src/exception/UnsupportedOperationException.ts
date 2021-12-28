@@ -1,3 +1,3 @@
-export class UnsupportedOperationException extends Error{
+export class UnsupportedOperationException extends Error {
 
 }

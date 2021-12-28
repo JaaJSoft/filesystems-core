@@ -1,3 +1,3 @@
-export class ProviderNotFoundException extends Error{
-    
+export class ProviderNotFoundException extends Error {
+
 }

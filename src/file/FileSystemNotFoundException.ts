@@ -1,3 +1,3 @@
-export class FileSystemNotFoundException extends Error{
+export class FileSystemNotFoundException extends Error {
 
 }
