@@ -29,5 +29,5 @@ export abstract class FileSystem {
 
     public abstract getUserPrincipalLookupService(): UserPrincipalLookupService;
 
-    public abstract getPath(first: string, more?: string[])
+    public abstract getPath(first: string, more?: string[]): Path
 }

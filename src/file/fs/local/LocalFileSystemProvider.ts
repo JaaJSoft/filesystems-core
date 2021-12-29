@@ -3,6 +3,7 @@ import {FileSystem} from "../../FileSystem";
 import {Path} from "../../Path";
 
 export class LocalFileSystemProvider extends FileSystemProvider {
+
     getFileSystem(url: URL): FileSystem {
         return undefined;
     }
@@ -12,7 +13,7 @@ export class LocalFileSystemProvider extends FileSystemProvider {
     }
 
     getScheme(): string {
-        return "";
+        return "file";
     }
 
 }

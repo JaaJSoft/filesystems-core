@@ -1,31 +1,49 @@
 import {Path} from "../../Path";
 import {FileSystem} from "../../FileSystem";
 import {LinkOption} from "../../LinkOption";
+import {LocalPathType} from "./LocalPathType";
 
 export class LocalPath extends Path {
+    // root component (may be empty)
+    private readonly root: string;
+    private readonly path: string;
+    private readonly type: LocalPathType;
+    private readonly fileSystem: FileSystem;
 
-    constructor() {
+    constructor(fileSystem: FileSystem, type: LocalPathType, root: string, path: string) {
         super();
+        this.fileSystem = fileSystem;
+        this.type = type;
+        this.root = root;
+        this.path = path;
     }
 
-    compareTo(other: Path): number {
-        return 0;
+    static parse(fs: FileSystem, path: string) {
+        return new LocalPath(fs, undefined, undefined, undefined);
     }
 
-    endWith(other: Path): boolean {
-        return false;
-    }
-
-    equals(other: Path): boolean {
-        return false;
+    private emptyPath(): LocalPath {
+        return new LocalPath(this.getFileSystem(), LocalPathType.RELATIVE, "", "");
     }
 
     getFileName(): Path {
-        return undefined;
+        const len = this.path.length;
+        // represents empty path
+        if (len == 0)
+            return this;
+        // represents root component only
+        if (this.root.length == len)
+            return null;
+        let off = this.path.lastIndexOf('\\');
+        if (off < this.root.length)
+            off = this.root.length;
+        else
+            off++;
+        return new LocalPath(this.getFileSystem(), LocalPathType.RELATIVE, "", this.path.substring(off));
     }
 
     getFileSystem(): FileSystem {
-        return undefined;
+        return this.fileSystem;
     }
 
     getName(index: number): Path {
@@ -37,15 +55,31 @@ export class LocalPath extends Path {
     }
 
     getParent(): Path {
-        return undefined;
+        // represents root component only
+        if (this.root.length == this.path.length)
+            return null;
+        const off = this.path.lastIndexOf('\\');
+        if (off < this.root.length)
+            return this.getRoot();
+        else
+            return new LocalPath(this.getFileSystem(),
+                this.type,
+                this.root,
+                this.path.substring(0, off));
     }
 
     getRoot(): Path {
-        return undefined;
+        if (this.root.length === 0)
+            return null;
+        return new LocalPath(this.getFileSystem(), this.type, this.root, this.root);
+    }
+
+    getType(): LocalPathType {
+        return this.type
     }
 
     isAbsolute(): boolean {
-        return false;
+        return this.type === LocalPathType.ABSOLUTE || this.type === LocalPathType.UNC
     }
 
     normalize(): Path {
@@ -64,6 +98,10 @@ export class LocalPath extends Path {
         return false;
     }
 
+    endWith(other: Path): boolean {
+        return false;
+    }
+
     subpath(beginIndex: number, endIndex: number): Path {
         return undefined;
     }
@@ -72,7 +110,8 @@ export class LocalPath extends Path {
         return undefined;
     }
 
-    toRealPath(options?: LinkOption[]) {
+    toRealPath(options?: LinkOption[]): Path {
+        return undefined;
     }
 
     toURL(): URL {
@@ -80,8 +119,34 @@ export class LocalPath extends Path {
     }
 
     toString(): string {
-        return super.toString();
+        return this.path;
     }
 
+    compareTo(other: Path): number {
+        const s1: string = this.path;
+        const s2: string = (other as LocalPath).path;
+        const n1 = s1.length;
+        const n2 = s2.length;
+        const min = Math.min(n1, n2);
+        for (let i = 0; i < min; i++) {
+            let c1: string = s1.charAt(i);
+            let c2: string = s2.charAt(i);
+            if (c1 != c2) {
+                c1 = c1.toUpperCase();
+                c2 = c2.toUpperCase();
+                if (c1 != c2) {
+                    return c1.charCodeAt(0) - c2.charCodeAt(0);
+                }
+            }
+        }
+        return n1 - n2;
+    }
+
+    equals(other: Path): boolean {
+        if ((other != null) && (other instanceof LocalPath)) {
+            return this.compareTo((other as Path)) == 0;
+        }
+        return false;
+    }
 
 }

@@ -1,33 +1,10 @@
 import {FileSystem} from "./FileSystem";
 import {LinkOption} from "./LinkOption";
-import {FileSystems} from "./FileSystems";
 import {IllegalArgumentException} from "../exception/IllegalArgumentException";
-import {FileSystemNotFoundException} from "./FileSystemNotFoundException";
-import {installedProviders} from "./spi/FileSystemProviders";
 
 export abstract class Path {
 
     protected constructor() {
-    }
-
-    public static of(first: string, more?: string[]): Path {
-        return FileSystems.getDefault().getPath(first, more);
-    }
-
-    public static ofURL(url: URL): Path {
-        const scheme = url.protocol.toLowerCase();
-        if (scheme === null) {
-            throw new IllegalArgumentException("Missing scheme");
-        }
-        if (scheme.toLowerCase() === "file") {
-            return FileSystems.getDefault().provider().getPath(url);
-        }
-        for (const provider of installedProviders()) {
-            if (provider.getScheme() === scheme) {
-                return provider.getPath(url);
-            }
-        }
-        throw new FileSystemNotFoundException(`Provider "${scheme}" not installed`)
     }
 
     public abstract getFileSystem(): FileSystem;
@@ -178,9 +155,9 @@ export abstract class Path {
 
     public abstract toAbsolutePath(): Path;
 
-    public abstract toRealPath(options?: LinkOption[]);
+    public abstract toRealPath(options?: LinkOption[]): Path;
 
     public abstract equals(other: Path): boolean;
 
-    public abstract compareTo(other: Path): number;
+    abstract compareTo(other: Path): number;
 }

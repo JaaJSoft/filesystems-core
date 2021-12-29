@@ -1,6 +1,5 @@
-import {Path} from "../../src/file/Path";
-import {LinkOption} from "../../src/file/LinkOption";
+import {Paths} from "../../src/file/Paths";
 
 test('path', () => {
-    expect(Path.of("")).toBeUndefined()
+    expect(Paths.of("")).toBeNull()
 })
