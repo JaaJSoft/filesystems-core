@@ -8,5 +8,4 @@ export abstract class FileSystemProvider {
 
     public abstract getPath(url: URL): Path;
 
-
 }

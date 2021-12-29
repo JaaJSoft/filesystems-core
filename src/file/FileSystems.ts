@@ -1,12 +1,12 @@
 import {FileSystem} from "./FileSystem";
-import {LocalFileSystem} from "./fs/local/LocalFileSystem";
 import {IllegalArgumentException} from "../exception/IllegalArgumentException";
 import {ProviderNotFoundException} from "./ProviderNotFoundException";
 import {installedProviders} from "./spi/FileSystemProviders";
+import {LocalFileSystemProvider} from "./fs/local/LocalFileSystemProvider";
 
 export class FileSystems {
     public static getDefault(): FileSystem {
-        return new LocalFileSystem();
+        return new LocalFileSystemProvider().getTheFileSystem();
     }
 
     public static getFileSystem(url: URL): FileSystem {

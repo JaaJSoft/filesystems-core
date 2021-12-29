@@ -2,6 +2,7 @@ import {Path} from "../../Path";
 import {FileSystem} from "../../FileSystem";
 import {LinkOption} from "../../LinkOption";
 import {LocalPathType} from "./LocalPathType";
+import {parse as parsePath} from "path";
 
 export class LocalPath extends Path {
     // root component (may be empty)
@@ -19,7 +20,8 @@ export class LocalPath extends Path {
     }
 
     static parse(fs: FileSystem, path: string) {
-        return new LocalPath(fs, undefined, undefined, undefined);
+        let parse = parsePath(path);
+        return new LocalPath(fs, undefined, parse.root, parse.dir);
     }
 
     private emptyPath(): LocalPath {

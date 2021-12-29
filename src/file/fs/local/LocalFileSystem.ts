@@ -7,13 +7,19 @@ import {FileSystemProvider} from "../../spi/FileSystemProvider";
 import {LocalFileSystemProvider} from "./LocalFileSystemProvider";
 import {UnsupportedOperationException} from "../../../exception/UnsupportedOperationException";
 import {LocalPath} from "./LocalPath";
+import * as path from "path";
 
 export class LocalFileSystem extends FileSystem {
     private readonly fileSystem: FileSystemProvider;
+    private readonly defaultDirectory: string;
+    private readonly defaultRoot: string;
 
-    constructor() {
+    constructor(provider: LocalFileSystemProvider, dir: string) {
         super();
-        this.fileSystem = new LocalFileSystemProvider();
+        this.fileSystem = provider;
+        const parsedPath: path.ParsedPath = path.parse(dir);
+        this.defaultDirectory = parsedPath.dir;
+        this.defaultRoot = parsedPath.root;
     }
 
     close() {
