@@ -35,7 +35,7 @@ export class LocalFileSystem extends FileSystem {
             return null;
         }
         let path: string = "";
-        if (more.length === 0) {
+        if (!more || more.length === 0) {
             path = first;
         } else {
             for (const segment of more) {

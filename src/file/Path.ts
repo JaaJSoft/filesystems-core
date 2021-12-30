@@ -160,4 +160,6 @@ export abstract class Path {
     public abstract equals(other: Path): boolean;
 
     abstract compareTo(other: Path): number;
+
+    abstract toString(): string ;
 }

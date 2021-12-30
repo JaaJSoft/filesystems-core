@@ -2,7 +2,7 @@ import {Path} from "../../Path";
 import {FileSystem} from "../../FileSystem";
 import {LinkOption} from "../../LinkOption";
 import {LocalPathType} from "./LocalPathType";
-import {parse as parsePath} from "path";
+import * as pathFs from "path";
 
 export class LocalPath extends Path {
     // root component (may be empty)
@@ -20,8 +20,8 @@ export class LocalPath extends Path {
     }
 
     static parse(fs: FileSystem, path: string) {
-        let parse = parsePath(path);
-        return new LocalPath(fs, undefined, parse.root, parse.dir);
+        let parse = pathFs.parse(path);
+        return new LocalPath(fs, undefined, parse.root, parse.dir); // TODO set type
     }
 
     private emptyPath(): LocalPath {
@@ -109,7 +109,11 @@ export class LocalPath extends Path {
     }
 
     toAbsolutePath(): Path {
-        return undefined;
+        if (this.isAbsolute()) {
+            return this;
+        }
+        const absolutePath = pathFs.parse(pathFs.resolve(this.path));
+        return new LocalPath(this.getFileSystem(), LocalPathType.ABSOLUTE, absolutePath.root, absolutePath.dir);
     }
 
     toRealPath(options?: LinkOption[]): Path {
