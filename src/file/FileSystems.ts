@@ -33,9 +33,11 @@ export class FileSystems {
             if (scheme === provider.getScheme()) {
                 try {
                     return provider.newFileSystem(uri, env);
-                } catch (uoe) {
-                    if (!(uoe instanceof UnsupportedOperationException)) {
-                        throw uoe;
+                } catch (exception) {
+                    if (exception instanceof UnsupportedOperationException) {
+                        // ignored
+                    } else {
+                        throw exception;
                     }
                 }
             }
