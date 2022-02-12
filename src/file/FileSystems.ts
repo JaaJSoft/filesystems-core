@@ -5,8 +5,10 @@ import {installedProviders} from "./spi/FileSystemProviders";
 import {LocalFileSystemProvider} from "./fs/local/LocalFileSystemProvider";
 
 export class FileSystems {
+    private static readonly defaultFileSystemProvider: LocalFileSystemProvider = new LocalFileSystemProvider();
+
     public static getDefault(): FileSystem {
-        return new LocalFileSystemProvider().getTheFileSystem();
+        return FileSystems.defaultFileSystemProvider.getTheFileSystem();
     }
 
     public static getFileSystem(url: URL): FileSystem {
@@ -19,6 +21,7 @@ export class FileSystems {
                 return provider.getFileSystem(url);
             }
         }
-        throw new ProviderNotFoundException(`Provider "${scheme}" not found`)    }
+        throw new ProviderNotFoundException(`Provider "${scheme}" not found`)
+    }
 
 }
