@@ -3,6 +3,7 @@ import {IllegalArgumentException} from "../exception/IllegalArgumentException";
 import {ProviderNotFoundException} from "./ProviderNotFoundException";
 import {installedProviders} from "./spi/FileSystemProviders";
 import {LocalFileSystemProvider} from "./fs/local/LocalFileSystemProvider";
+import {UnsupportedOperationException} from "../exception/UnsupportedOperationException";
 
 export class FileSystems {
     private static readonly defaultFileSystemProvider: LocalFileSystemProvider = new LocalFileSystemProvider();
@@ -24,4 +25,23 @@ export class FileSystems {
         throw new ProviderNotFoundException(`Provider "${scheme}" not found`)
     }
 
+    public newFileSystem(uri: URL, env: Map<string, any>): FileSystem {
+        const scheme: string = uri.protocol.toLowerCase();
+
+        // check installed providers
+        for (const provider of installedProviders()) {
+            if (scheme === provider.getScheme()) {
+                try {
+                    return provider.newFileSystem(uri, env);
+                } catch (uoe) {
+                    if (!(uoe instanceof UnsupportedOperationException)) {
+                        throw uoe;
+                    }
+                }
+            }
+        }
+        throw new ProviderNotFoundException("Provider \"" + scheme + "\" not found");
+    }
+
+    // TODO newFileSystem methods
 }

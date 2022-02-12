@@ -13,5 +13,7 @@ export class Files {
         return path.getFileSystem().provider();
     }
 
-
+    public static delete(path: Path) {
+        this.provider(path).delete(path)
+    }
 }

@@ -63,5 +63,12 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         return false;
     }
 
+    delete(path: Path) {
+    }
+
+    newFileSystem(uri: URL, env: Map<string, any>): FileSystem {
+        return undefined;
+    }
+
 
 }
