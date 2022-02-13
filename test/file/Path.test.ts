@@ -9,5 +9,5 @@ test('path', () => {
 })
 
 test("URL", () => {
-    expect(Paths.of("/").toURL()).toEqual("file:///")
+    expect(Paths.of("/").toURL().toString()).toEqual("file:///")
 })
