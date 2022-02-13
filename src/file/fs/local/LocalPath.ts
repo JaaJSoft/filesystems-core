@@ -3,6 +3,7 @@ import {FileSystem} from "../../FileSystem";
 import {LinkOption} from "../../LinkOption";
 import {LocalPathType} from "./LocalPathType";
 import * as pathFs from "path";
+import * as jsurl from "url"
 
 export class LocalPath extends Path {
     // root component (may be empty)
@@ -121,7 +122,7 @@ export class LocalPath extends Path {
     }
 
     toURL(): URL {
-        return undefined;
+        return jsurl.pathToFileURL(this.toAbsolutePath().toString());
     }
 
     toString(): string {
