@@ -4,6 +4,8 @@ import {LinkOption} from "../../LinkOption";
 import {LocalPathType} from "./LocalPathType";
 import * as pathFs from "path";
 import * as jsurl from "url"
+import fs from "fs"
+import {ProviderMismatchException} from "../../ProviderMismatchException";
 
 export class LocalPath extends Path {
     // root component (may be empty)
@@ -23,6 +25,15 @@ export class LocalPath extends Path {
     static parse(fs: FileSystem, path: string) {
         let parse = pathFs.parse(path);
         return new LocalPath(fs, undefined, parse.root, parse.dir); // TODO set type
+    }
+
+    static toLocalPath(path: Path): LocalPath {
+        if (path == null)
+            throw new TypeError(null); // TODO find a better way
+        if (!(path instanceof LocalPath)) {
+            throw new ProviderMismatchException();
+        }
+        return path as LocalPath;
     }
 
     private emptyPath(): LocalPath {
@@ -114,11 +125,13 @@ export class LocalPath extends Path {
             return this;
         }
         const absolutePath = pathFs.parse(pathFs.resolve(this.path));
-        return new LocalPath(this.getFileSystem(), LocalPathType.ABSOLUTE, absolutePath.root, absolutePath.dir);
+        return this.pathFromJsPath(absolutePath, LocalPathType.ABSOLUTE);
     }
 
     toRealPath(options?: LinkOption[]): Path {
-        return undefined;
+        // TODO handle options
+        const realPath = pathFs.parse(fs.realpathSync(this.path));
+        return this.pathFromJsPath(realPath, LocalPathType.ABSOLUTE);
     }
 
     toURL(): URL {
@@ -156,4 +169,7 @@ export class LocalPath extends Path {
         return false;
     }
 
+    private pathFromJsPath(path: pathFs.ParsedPath, pathType: LocalPathType) {
+        return new LocalPath(this.getFileSystem(), pathType, path.root, path.dir);
+    }
 }
