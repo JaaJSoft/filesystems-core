@@ -1,4 +1,5 @@
 import {Paths} from "../../src/file/Paths";
+import * as os from 'os'
 
 test('path', () => {
     expect(Paths.of("")).toBeNull();
@@ -9,5 +10,9 @@ test('path', () => {
 })
 
 test("URL", () => {
-    expect(Paths.of("/").toURL().toString()).toEqual("file:///")
+    if (os.platform() == "win32") {
+        expect(Paths.of("/").toURL().toString()).toEqual("file:///D:/")
+    } else {
+        expect(Paths.of("/").toURL().toString()).toEqual("file:///")
+    }
 })
