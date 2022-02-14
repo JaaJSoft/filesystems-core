@@ -120,12 +120,88 @@ export class LocalPath extends Path {
         return undefined;
     }
 
-    startsWith(other: Path): boolean {
+    startsWith(obj: Path): boolean {
+        let other: LocalPath;
+        try {
+            other = LocalPath.toLocalPath(obj);
+        } catch (e) {
+            if (e instanceof ProviderMismatchException) {
+                return false;
+            }
+        }
+
+        // if this path has a root component the given path's root must match
+        if (this.root.toUpperCase() !== other.root.toUpperCase()) {
+            return false;
+        }
+
+        // empty path starts with itself
+        if (other.isEmpty()) {
+            return this.isEmpty();
+        }
+
+        // roots match so compare elements
+        let thisCount = this.getNameCount();
+        let otherCount = other.getNameCount();
+        if (otherCount <= thisCount) {
+            while (--otherCount >= 0) {
+                const thisElement = this.elementAsString(otherCount);
+                const otherElement = other.elementAsString(otherCount);
+                if (thisElement.toUpperCase() !== otherElement.toUpperCase()) {
+                    return false;
+                }
+            }
+            return true;
+        }
         return false;
     }
 
-    endWith(other: Path): boolean {
-        return false;
+    endWith(obj: Path): boolean {
+        let other: LocalPath;
+        try {
+            other = LocalPath.toLocalPath(obj);
+        } catch (e) {
+            if (e instanceof ProviderMismatchException) {
+                return false;
+            }
+        }
+
+        // other path is longer
+        if (other.path.length > this.path.length) {
+            return false;
+        }
+
+        // empty path ends in itself
+        if (other.isEmpty()) {
+            return this.isEmpty();
+        }
+
+        const thisCount = this.getNameCount();
+        let otherCount = other.getNameCount();
+
+        // given path has more elements that this path
+        if (otherCount > thisCount) {
+            return false;
+        }
+
+        // compare roots
+        if (other.root.length > 0) {
+            if (otherCount < thisCount)
+                return false;
+            if (this.root.toUpperCase() !== other.root.toUpperCase())
+                return false;
+        }
+
+        // match last 'otherCount' elements
+        const off = thisCount - otherCount;
+        while (--otherCount >= 0) {
+            const thisElement = this.elementAsString(off + otherCount);
+            const otherElement = other.elementAsString(otherCount);
+            // FIXME: should compare in uppercase
+            if (thisElement.toUpperCase() !== otherElement.toUpperCase())
+                return false;
+        }
+        return true;
     }
 
     subpath(beginIndex: number, endIndex: number): Path {

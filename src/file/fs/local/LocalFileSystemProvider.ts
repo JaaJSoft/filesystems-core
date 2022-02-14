@@ -36,7 +36,7 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         return "file";
     }
 
-    checkAccess(obj: Path, modes: AccessMode[]) {
+    checkAccess(obj: Path, modes: AccessMode[]) { // TODO check exception if no right
         modes.forEach((mode) => {
             switch (mode) {
                 case AccessMode.READ:
