@@ -2,7 +2,7 @@ import {FileSystem} from "./FileSystem";
 import {LinkOption} from "./LinkOption";
 import {IllegalArgumentException} from "../exception/IllegalArgumentException";
 
-export abstract class Path {
+export abstract class Path implements Iterable<Path>{
 
     protected constructor() {
     }
@@ -162,4 +162,6 @@ export abstract class Path {
     abstract compareTo(other: Path): number;
 
     abstract toString(): string ;
+
+    abstract [Symbol.iterator](): Iterator<Path>;
 }

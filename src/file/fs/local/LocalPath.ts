@@ -6,13 +6,17 @@ import * as pathFs from "path";
 import * as jsurl from "url"
 import fs from "fs"
 import {ProviderMismatchException} from "../../ProviderMismatchException";
+import {IllegalArgumentException} from "../../../exception/IllegalArgumentException";
 
 export class LocalPath extends Path {
+
     // root component (may be empty)
     private readonly root: string;
     private readonly path: string;
     private readonly type: LocalPathType;
     private readonly fileSystem: FileSystem;
+    // offsets into name components (computed lazily)
+    private offsets: number[]
 
     constructor(fileSystem: FileSystem, type: LocalPathType, root: string, path: string) {
         super();
@@ -61,11 +65,15 @@ export class LocalPath extends Path {
     }
 
     getName(index: number): Path {
-        return undefined;
+        this.initOffsets();
+        if (index < 0 || index >= this.offsets.length)
+            throw new IllegalArgumentException();
+        return new LocalPath(this.getFileSystem(), LocalPathType.RELATIVE, "", this.elementAsString(index));
     }
 
     getNameCount(): number {
-        return 0;
+        this.initOffsets();
+        return this.offsets.length;
     }
 
     getParent(): Path {
@@ -96,6 +104,10 @@ export class LocalPath extends Path {
         return this.type === LocalPathType.ABSOLUTE || this.type === LocalPathType.UNC
     }
 
+    private isEmpty(): boolean {
+        return this.path.length == 0;
+    }
+
     normalize(): Path {
         return undefined;
     }
@@ -117,7 +129,22 @@ export class LocalPath extends Path {
     }
 
     subpath(beginIndex: number, endIndex: number): Path {
-        return undefined;
+        this.initOffsets();
+        if (beginIndex < 0)
+            throw new IllegalArgumentException();
+        if (beginIndex >= this.offsets.length)
+            throw new IllegalArgumentException();
+        if (endIndex > this.offsets.length)
+            throw new IllegalArgumentException();
+        if (beginIndex >= endIndex)
+            throw new IllegalArgumentException();
+        let path = "";
+        for (let i = beginIndex; i < endIndex; i++) {
+            path += this.elementAsString(i);
+            if (i != (endIndex - 1))
+                path += "\\";
+        }
+        return new LocalPath(this.getFileSystem(), LocalPathType.RELATIVE, "", path);
     }
 
     toAbsolutePath(): Path {
@@ -171,5 +198,43 @@ export class LocalPath extends Path {
 
     private pathFromJsPath(path: pathFs.ParsedPath, pathType: LocalPathType) {
         return new LocalPath(this.getFileSystem(), pathType, path.root, path.dir);
+    }
+
+    // generate offset array
+    private initOffsets() {
+        if (this.offsets == null) {
+            const list = [];
+            if (this.isEmpty()) {
+                // empty path considered to have one name element
+                list.push(0);
+            } else {
+                let start = this.root.length;
+                let off = this.root.length;
+                while (off < this.path.length) {
+                    if (this.path.charAt(off) != '\\') {
+                        off++;
+                    } else {
+                        list.push(start);
+                        start = ++off;
+                    }
+                }
+                if (start != off)
+                    list.push(start);
+            }
+            if (this.offsets == null)
+                this.offsets = list;
+
+        }
+    }
+
+    private elementAsString(i: number) {
+        this.initOffsets();
+        if (i == (this.offsets.length - 1))
+            return this.path.substring(this.offsets[i]);
+        return this.path.substring(this.offsets[i], this.offsets[i + 1] - 1);
+    }
+
+    [Symbol.iterator](): Iterator<Path, any, undefined> {
+        throw new Error("Method not implemented.");
     }
 }
