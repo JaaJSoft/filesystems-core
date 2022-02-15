@@ -1,3 +1,4 @@
+/* A type that represents the options for copying a file. */
 export enum CopyOption {
     /**
      * Replace an existing file if it exists.

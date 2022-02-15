@@ -2,6 +2,7 @@ import {FileSystem} from "./FileSystem";
 import {LinkOption} from "./LinkOption";
 import {IllegalArgumentException} from "../exception/IllegalArgumentException";
 
+/* `Path` is a class that represents a path in a file system. */
 export abstract class Path implements Iterable<Path>{
 
     protected constructor() {
@@ -50,6 +51,7 @@ export abstract class Path implements Iterable<Path>{
 
     public abstract startsWith(other: Path): boolean;
 
+    /* Checking if the path starts with the given string. */
     public startsWithStr(other: string): boolean {
         return this.startsWith(this.getFileSystem().getPath(other))
     }

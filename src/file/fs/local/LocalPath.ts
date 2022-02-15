@@ -8,6 +8,7 @@ import fs from "fs"
 import {ProviderMismatchException} from "../../ProviderMismatchException";
 import {IllegalArgumentException} from "../../../exception/IllegalArgumentException";
 
+/* `LocalPath` is a class that represents a path on the local file system. */
 export class LocalPath extends Path {
 
     // root component (may be empty)

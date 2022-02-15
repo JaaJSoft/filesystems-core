@@ -5,6 +5,7 @@ import {AccessMode} from "../AccessMode";
 import {NoSuchFileException} from "../NoSuchFileException";
 import {UnsupportedOperationException} from "../../exception/UnsupportedOperationException";
 
+/* A contract for file system providers. */
 export abstract class FileSystemProvider {
     public abstract getScheme(): string;
 

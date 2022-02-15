@@ -1,5 +1,6 @@
 import {FileTime} from "./FileTime";
 
+/* A type that represents the basic file attributes of a file. */
 export interface BasicFileAttributes {
     /**
      * Returns the time of last modification.
