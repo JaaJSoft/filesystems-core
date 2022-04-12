@@ -4,6 +4,7 @@ import {LinkOption} from "../../LinkOption";
 import {LocalPathType} from "./LocalPathType";
 import * as pathFs from "path";
 
+/* It's a wrapper around the Node.js path module */
 export class LocalPath extends Path {
     // root component (may be empty)
     private readonly root: string;
@@ -19,6 +20,12 @@ export class LocalPath extends Path {
         this.path = path;
     }
 
+    /**
+     * It takes a path and returns a LocalPath object
+     * @param {FileSystem} fs - The file system that the path is on.
+     * @param {string} path - The path to parse.
+     * @returns A new LocalPath object.
+     */
     static parse(fs: FileSystem, path: string) {
         let parse = pathFs.parse(path);
         return new LocalPath(fs, undefined, parse.root, parse.dir); // TODO set type
@@ -28,6 +35,10 @@ export class LocalPath extends Path {
         return new LocalPath(this.getFileSystem(), LocalPathType.RELATIVE, "", "");
     }
 
+    /**
+     * > It returns the file name of the path
+     * @returns The file name of the path.
+     */
     getFileName(): Path {
         const len = this.path.length;
         // represents empty path
