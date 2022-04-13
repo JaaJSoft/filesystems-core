@@ -54,15 +54,21 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         throw new Error("Method not implemented.");
     }
 
-    checkAccess(obj: Path, modes: AccessMode[]) {
+    checkAccess(obj: Path, modes: AccessMode[]) { // TODO finish this
         modes.forEach((mode) => {
             switch (mode) {
                 case AccessMode.READ:
-                    return fs.access(obj.toString(), fs.constants.R_OK, err => new AccessDeniedException(obj.toString()))
+                    return fs.access(obj.toString(), fs.constants.R_OK, err => {
+                        throw new AccessDeniedException(obj.toString());
+                    })
                 case AccessMode.WRITE:
-                    return fs.access(obj.toString(), fs.constants.W_OK, err => new AccessDeniedException(obj.toString()))
+                    return fs.access(obj.toString(), fs.constants.W_OK, err => {
+                        throw new AccessDeniedException(obj.toString());
+                    })
                 case AccessMode.EXECUTE:
-                    return fs.access(obj.toString(), fs.constants.X_OK, err => new AccessDeniedException(obj.toString()))
+                    return fs.access(obj.toString(), fs.constants.X_OK, err => {
+                        throw new AccessDeniedException(obj.toString());
+                    })
             }
         })
     }
