@@ -15,6 +15,10 @@ export abstract class Path {
 
     public abstract getFileName(): Path;
 
+    /**
+     * It returns the parent path of the current path
+     * @returns The parent of the path.
+     */
     public abstract getParent(): Path;
 
     public abstract getNameCount(): number;

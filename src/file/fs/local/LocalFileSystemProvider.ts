@@ -9,8 +9,10 @@ import * as jsurl from "url"
 import {AccessMode} from "../../AccessMode";
 import {CopyOption} from "../../CopyOption";
 import {AccessDeniedException} from "../../AccessDeniedException";
+import {OpenOption} from "../../OpenOption";
 
 export class LocalFileSystemProvider extends FileSystemProvider {
+
     private readonly theFileSystem: LocalFileSystem;
 
     constructor() {
@@ -34,6 +36,22 @@ export class LocalFileSystemProvider extends FileSystemProvider {
 
     getScheme(): string {
         return "file";
+    }
+
+    newFileSystemFromPath(path: Path, env: Map<string, any>): FileSystem {
+        return super.newFileSystemFromPath(path, env);
+    }
+
+    public newFileSystemFromUrl(url: URL, env: Map<string, any>) {
+        throw new Error("Method not implemented.");
+    }
+
+    protected newInputStreamImpl(path: Path, options?: OpenOption[]): ReadableStream {
+        throw new Error("Method not implemented.");
+    }
+
+    protected newOutputStreamImpl(path: Path, options?: OpenOption[]): WritableStream {
+        throw new Error("Method not implemented.");
     }
 
     checkAccess(obj: Path, modes: AccessMode[]) {

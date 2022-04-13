@@ -55,6 +55,7 @@ export class LocalPath extends Path {
         return new LocalPath(this.getFileSystem(), LocalPathType.RELATIVE, "", this.path.substring(off));
     }
 
+    /* It returns the file system that the path is on. */
     getFileSystem(): FileSystem {
         return this.fileSystem;
     }
