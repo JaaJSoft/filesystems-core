@@ -16,6 +16,10 @@ export abstract class Path implements Iterable<Path>{
 
     public abstract getFileName(): Path;
 
+    /**
+     * It returns the parent path of the current path
+     * @returns The parent of the path.
+     */
     public abstract getParent(): Path;
 
     public abstract getNameCount(): number;
@@ -68,6 +72,11 @@ export abstract class Path implements Iterable<Path>{
 
     public abstract resolve(other: Path): Path;
 
+    /**
+     * `resolveFromString` takes a string and returns a `Path` object
+     * @param {string} other - The path to resolve against this path.
+     * @returns A Path object
+     */
     public resolveFromString(other: string): Path {
         return this.resolve(this.getFileSystem().getPath(other))
     }
@@ -106,6 +115,11 @@ export abstract class Path implements Iterable<Path>{
         return (parent == null) ? other : parent.resolve(other);
     }
 
+    /**
+     * Resolves the given path against this path's parent.
+     * @param {string} other - The other path to resolve against this one.
+     * @returns A Path object.
+     */
     public resolveSiblingFromString(other: string): Path {
         return this.resolveSibling(this.getFileSystem().getPath(other));
     }
@@ -153,8 +167,10 @@ export abstract class Path implements Iterable<Path>{
      */
     public abstract relativize(other: Path): Path;
 
+    /* Converting the path to a URL. */
     public abstract toURL(): URL;
 
+    /* Converting the path to an absolute path. */
     public abstract toAbsolutePath(): Path;
 
     public abstract toRealPath(options?: LinkOption[]): Path;

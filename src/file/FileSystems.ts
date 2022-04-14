@@ -5,13 +5,23 @@ import {installedProviders} from "./spi/FileSystemProviders";
 import {LocalFileSystemProvider} from "./fs/local/LocalFileSystemProvider";
 import {UnsupportedOperationException} from "../exception/UnsupportedOperationException";
 
+/* FileSystems is a class that provides access to a FileSystem. */
 export class FileSystems {
     private static readonly defaultFileSystemProvider: LocalFileSystemProvider = new LocalFileSystemProvider();
 
+    /**
+     * Get the default file system.
+     * @returns The default file system.
+     */
     public static getDefault(): FileSystem {
         return FileSystems.defaultFileSystemProvider.getTheFileSystem();
     }
 
+    /**
+     * It returns a FileSystem object for the given URL
+     * @param {URL} url - URL
+     * @returns A FileSystem object
+     */
     public static getFileSystem(url: URL): FileSystem {
         const scheme = url.protocol.toLowerCase();
         if (scheme === null) {
@@ -32,7 +42,7 @@ export class FileSystems {
         for (const provider of installedProviders()) {
             if (scheme === provider.getScheme()) {
                 try {
-                    return provider.newFileSystem(uri, env);
+                    return provider.newFileSystemFromUrl(uri, env);
                 } catch (exception) {
                     if (exception instanceof UnsupportedOperationException) {
                         // ignored

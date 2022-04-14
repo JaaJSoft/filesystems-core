@@ -9,8 +9,10 @@ import * as jsurl from "url"
 import {AccessMode} from "../../AccessMode";
 import {CopyOption} from "../../CopyOption";
 import {AccessDeniedException} from "../../AccessDeniedException";
+import {OpenOption} from "../../OpenOption";
 
 export class LocalFileSystemProvider extends FileSystemProvider {
+
     private readonly theFileSystem: LocalFileSystem;
 
     constructor() {
@@ -36,15 +38,37 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         return "file";
     }
 
-    checkAccess(obj: Path, modes: AccessMode[]) { // TODO check exception if no right
+    newFileSystemFromPath(path: Path, env: Map<string, any>): FileSystem {
+        return super.newFileSystemFromPath(path, env);
+    }
+
+    public newFileSystemFromUrl(url: URL, env: Map<string, any>) {
+        throw new Error("Method not implemented.");
+    }
+
+    protected newInputStreamImpl(path: Path, options?: OpenOption[]): ReadableStream {
+        throw new Error("Method not implemented.");
+    }
+
+    protected newOutputStreamImpl(path: Path, options?: OpenOption[]): WritableStream {
+        throw new Error("Method not implemented.");
+    }
+
+    checkAccess(obj: Path, modes: AccessMode[]) { // TODO finish this
         modes.forEach((mode) => {
             switch (mode) {
                 case AccessMode.READ:
-                    return fs.access(obj.toString(), fs.constants.R_OK, err => new AccessDeniedException(obj.toString()))
+                    return fs.access(obj.toString(), fs.constants.R_OK, err => {
+                        throw new AccessDeniedException(obj.toString());
+                    })
                 case AccessMode.WRITE:
-                    return fs.access(obj.toString(), fs.constants.W_OK, err => new AccessDeniedException(obj.toString()))
+                    return fs.access(obj.toString(), fs.constants.W_OK, err => {
+                        throw new AccessDeniedException(obj.toString());
+                    })
                 case AccessMode.EXECUTE:
-                    return fs.access(obj.toString(), fs.constants.X_OK, err => new AccessDeniedException(obj.toString()))
+                    return fs.access(obj.toString(), fs.constants.X_OK, err => {
+                        throw new AccessDeniedException(obj.toString());
+                    })
             }
         })
     }

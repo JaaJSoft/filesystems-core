@@ -18,6 +18,7 @@ export abstract class FileSystem {
 
     public abstract isReadOnly(): boolean;
 
+    /* It returns the separator used by the file system. */
     public abstract getSeparator(): string;
 
     public abstract getRootDirectories(): Iterable<Path>;
