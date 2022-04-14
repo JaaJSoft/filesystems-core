@@ -42,7 +42,7 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         return super.newFileSystemFromPath(path, env);
     }
 
-    public newFileSystemFromUrl(url: URL, env: Map<string, any>) {
+    public newFileSystemFromUrl(url: URL, env: Map<string, any>): FileSystem {
         throw new Error("Method not implemented.");
     }
 
@@ -74,9 +74,11 @@ export class LocalFileSystemProvider extends FileSystemProvider {
     }
 
     copy(source: Path, target: Path, options: CopyOption[]) {
+        throw new Error("Method not implemented.");
     }
 
     move(source: Path, target: Path, options: CopyOption[]) {
+        throw new Error("Method not implemented.");
     }
 
     isHidden(obj: Path): boolean {
@@ -88,11 +90,7 @@ export class LocalFileSystemProvider extends FileSystemProvider {
     }
 
     delete(path: Path) {
+        throw new Error("Method not implemented.");
     }
-
-    newFileSystem(uri: URL, env: Map<string, any>): FileSystem {
-        return undefined;
-    }
-
 
 }
