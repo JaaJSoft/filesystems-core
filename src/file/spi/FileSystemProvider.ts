@@ -139,9 +139,9 @@ export abstract class FileSystemProvider {
         }
     }
 
-    public abstract copy(source: Path, target: Path, options: CopyOption[]);
+    public abstract copy(source: Path, target: Path, options?: CopyOption[]);
 
-    public abstract move(source: Path, target: Path, options: CopyOption[]);
+    public abstract move(source: Path, target: Path, options?: CopyOption[]);
 
     public abstract isSameFile(obj1: Path, obj2: Path): boolean;
 
