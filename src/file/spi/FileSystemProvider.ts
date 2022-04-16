@@ -6,6 +6,9 @@ import {NoSuchFileException} from "../NoSuchFileException";
 import {UnsupportedOperationException} from "../../exception/UnsupportedOperationException";
 import {OpenOption} from "../OpenOption";
 import {IllegalArgumentException} from "../../exception/IllegalArgumentException";
+import {BasicFileAttributes} from "../attribute/BasicFileAttributes";
+import {FileAttribute} from "../attribute/FileAttribute";
+import {FileStore} from "../FileStore";
 
 /* A contract for file system providers. */
 export abstract class FileSystemProvider {
@@ -32,7 +35,6 @@ export abstract class FileSystemProvider {
             }
 
         }
-        // TODO Chennels de mort
         return this.newInputStreamImpl(path, options);
     }
 
@@ -65,17 +67,66 @@ export abstract class FileSystemProvider {
 
     protected abstract newOutputStreamImpl(path: Path, options?: OpenOption[]): WritableStream; // TODO replace this by channels if possible
 
-    public abstract copy(source: Path, target: Path, options: CopyOption[]);
+    public abstract createFile(dir: Path, attrs?: FileAttribute<any>[]);
 
-    public abstract move(source: Path, target: Path, options: CopyOption[]);
+    public abstract createDirectory(dir: Path, attrs?: FileAttribute<any>[]);
 
-    public abstract checkAccess(obj: Path, modes?: AccessMode[]);
+    /**
+     * Creates a symbolic link to a target. This method works in exactly the
+     * manner specified by the {@link Files#createSymbolicLink} method.
+     *
+     * <p> The default implementation of this method throws {@code
+     * UnsupportedOperationException}.
+     *
+     * @param   link
+     *          the path of the symbolic link to create
+     * @param   target
+     *          the target of the symbolic link
+     * @param   attrs
+     *          the array of attributes to set atomically when creating the
+     *          symbolic link
+     *
+     * @throws  UnsupportedOperationException
+     *          if the implementation does not support symbolic links or the
+     *          array contains an attribute that cannot be set atomically when
+     *          creating the symbolic link
+     * @throws  FileAlreadyExistsException
+     *          if a file with the name already exists <i>(optional specific
+     *          exception)</i>
+     */
+    public createSymbolicLink(link: Path, target: Path, attrs?: FileAttribute<any>[]) {
+        throw new UnsupportedOperationException();
+    }
 
-    public abstract isSameFile(obj1: Path, obj2: Path): boolean;
+    /**
+     * Creates a new link (directory entry) for an existing file. This method
+     * works in exactly the manner specified by the {@link Files#createLink}
+     * method.
+     *
+     * <p> The default implementation of this method throws {@code
+     * UnsupportedOperationException}.
+     *
+     * @param   link
+     *          the link (directory entry) to create
+     * @param   existing
+     *          a path to an existing file
+     *
+     * @throws  UnsupportedOperationException
+     *          if the implementation does not support adding an existing file
+     *          to a directory
+     * @throws  FileAlreadyExistsException
+     *          if the entry could not otherwise be created because a file of
+     *          that name already exists <i>(optional specific exception)</i>
+     */
+    public createLink(link: Path, existing: Path) {
+        throw new UnsupportedOperationException();
+    }
 
-    public abstract isHidden(obj: Path): boolean;
+    public readSymbolicLink(link: Path): Path {
+        throw new UnsupportedOperationException();
+    }
 
-    public abstract delete(path: Path) ;
+    public abstract delete(path: Path);
 
     public deleteIfExists(path: Path): boolean {
         try {
@@ -87,5 +138,19 @@ export abstract class FileSystemProvider {
             }
         }
     }
+
+    public abstract copy(source: Path, target: Path, options: CopyOption[]);
+
+    public abstract move(source: Path, target: Path, options: CopyOption[]);
+
+    public abstract isSameFile(obj1: Path, obj2: Path): boolean;
+
+    public abstract isHidden(obj: Path): boolean;
+
+    public abstract getFileStore(path: Path): FileStore;
+
+    public abstract checkAccess(obj: Path, modes?: AccessMode[]);
+
+    // TODO readAttributes getFileAttributeView setAttribute
 
 }

@@ -10,6 +10,8 @@ import {AccessMode} from "../../AccessMode";
 import {CopyOption} from "../../CopyOption";
 import {AccessDeniedException} from "../../AccessDeniedException";
 import {OpenOption} from "../../OpenOption";
+import {FileAttribute} from "../../attribute/FileAttribute";
+import {FileStore} from "../../FileStore";
 
 export class LocalFileSystemProvider extends FileSystemProvider {
 
@@ -51,6 +53,18 @@ export class LocalFileSystemProvider extends FileSystemProvider {
     }
 
     protected newOutputStreamImpl(path: Path, options?: OpenOption[]): WritableStream {
+        throw new Error("Method not implemented.");
+    }
+
+    public createFile(dir: Path, attrs?: FileAttribute<any>[]) {
+        throw new Error("Method not implemented.");
+    }
+
+    public createDirectory(dir: Path, attrs?: FileAttribute<any>[]) {
+        throw new Error("Method not implemented.");
+    }
+
+    public getFileStore(path: Path): FileStore {
         throw new Error("Method not implemented.");
     }
 
