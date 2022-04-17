@@ -17,30 +17,30 @@ export class LocalFileSystemProvider extends FileSystemProvider {
 
     private readonly theFileSystem: LocalFileSystem;
 
-    constructor() {
+    public constructor() {
         super();
         this.theFileSystem = new LocalFileSystem(this, os.homedir());
     }
 
-    getTheFileSystem(): LocalFileSystem {
+    public getTheFileSystem(): LocalFileSystem {
         return this.theFileSystem;
     }
 
-    getFileSystem(url: URL): FileSystem {
+    public getFileSystem(url: URL): FileSystem {
         const urlToPath = jsurl.fileURLToPath(url);
         return this.theFileSystem.getPath(urlToPath).getFileSystem();
     }
 
-    getPath(url: URL): Path {
+    public getPath(url: URL): Path {
         const urlToPath = jsurl.fileURLToPath(url);
         return this.theFileSystem.getPath(urlToPath);
     }
 
-    getScheme(): string {
+    public getScheme(): string {
         return "file";
     }
 
-    newFileSystemFromPath(path: Path, env: Map<string, any>): FileSystem {
+    public newFileSystemFromPath(path: Path, env: Map<string, any>): FileSystem {
         return super.newFileSystemFromPath(path, env);
     }
 
@@ -68,7 +68,7 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         throw new Error("Method not implemented.");
     }
 
-    checkAccess(obj: Path, modes: AccessMode[]) { // TODO finish this
+    public checkAccess(obj: Path, modes: AccessMode[]) { // TODO finish this
         modes.forEach((mode) => {
             switch (mode) {
                 case AccessMode.READ:
@@ -87,23 +87,23 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         })
     }
 
-    copy(source: Path, target: Path, options?: CopyOption[]) {
+    public copy(source: Path, target: Path, options?: CopyOption[]) {
         throw new Error("Method not implemented.");
     }
 
-    move(source: Path, target: Path, options?: CopyOption[]) {
+    public move(source: Path, target: Path, options?: CopyOption[]) {
         throw new Error("Method not implemented.");
     }
 
-    isHidden(obj: Path): boolean {
+    public isHidden(obj: Path): boolean {
         return false;
     }
 
-    isSameFile(obj1: Path, obj2: Path): boolean {
+    public isSameFile(obj1: Path, obj2: Path): boolean {
         return false;
     }
 
-    delete(path: Path) {
+    public delete(path: Path) {
         throw new Error("Method not implemented.");
     }
 

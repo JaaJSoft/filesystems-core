@@ -19,7 +19,7 @@ export class LocalPath extends Path {
     // offsets into name components (computed lazily)
     private offsets: number[]
 
-    constructor(fileSystem: FileSystem, type: LocalPathType, root: string, path: string) {
+    public constructor(fileSystem: FileSystem, type: LocalPathType, root: string, path: string) {
         super();
         this.fileSystem = fileSystem;
         this.type = type;
@@ -33,12 +33,12 @@ export class LocalPath extends Path {
      * @param {string} path - The path to parse.
      * @returns A new LocalPath object.
      */
-    static parse(fs: FileSystem, path: string) {
+    public static parse(fs: FileSystem, path: string) {
         let parse = pathFs.parse(path);
         return new LocalPath(fs, undefined, parse.root, parse.dir); // TODO set type
     }
 
-    static toLocalPath(path: Path): LocalPath {
+    public static toLocalPath(path: Path): LocalPath {
         if (path == null)
             throw new TypeError(null); // TODO find a better way
         if (!(path instanceof LocalPath)) {
@@ -55,7 +55,7 @@ export class LocalPath extends Path {
      * > It returns the file name of the path
      * @returns The file name of the path.
      */
-    getFileName(): Path {
+    public getFileName(): Path {
         const len = this.path.length;
         // represents empty path
         if (len == 0)
@@ -72,23 +72,23 @@ export class LocalPath extends Path {
     }
 
     /* It returns the file system that the path is on. */
-    getFileSystem(): FileSystem {
+    public getFileSystem(): FileSystem {
         return this.fileSystem;
     }
 
-    getName(index: number): Path {
+    public getName(index: number): Path {
         this.initOffsets();
         if (index < 0 || index >= this.offsets.length)
             throw new IllegalArgumentException();
         return new LocalPath(this.getFileSystem(), LocalPathType.RELATIVE, "", this.elementAsString(index));
     }
 
-    getNameCount(): number {
+    public getNameCount(): number {
         this.initOffsets();
         return this.offsets.length;
     }
 
-    getParent(): Path {
+    public getParent(): Path {
         // represents root component only
         if (this.root.length == this.path.length)
             return null;
@@ -102,17 +102,17 @@ export class LocalPath extends Path {
                 this.path.substring(0, off));
     }
 
-    getRoot(): Path {
+    public getRoot(): Path {
         if (this.root.length === 0)
             return null;
         return new LocalPath(this.getFileSystem(), this.type, this.root, this.root);
     }
 
-    getType(): LocalPathType {
+    public getType(): LocalPathType {
         return this.type
     }
 
-    isAbsolute(): boolean {
+    public isAbsolute(): boolean {
         return this.type === LocalPathType.ABSOLUTE || this.type === LocalPathType.UNC
     }
 
@@ -120,19 +120,19 @@ export class LocalPath extends Path {
         return this.path.length == 0;
     }
 
-    normalize(): Path {
+    public normalize(): Path {
         return undefined;
     }
 
-    relativize(other: Path): Path {
+    public relativize(other: Path): Path {
         return undefined;
     }
 
-    resolve(other: Path): Path {
+    public resolve(other: Path): Path {
         return undefined;
     }
 
-    startsWith(obj: Path): boolean {
+    public startsWith(obj: Path): boolean {
         let other: LocalPath;
         try {
             other = LocalPath.toLocalPath(obj);
@@ -168,7 +168,7 @@ export class LocalPath extends Path {
         return false;
     }
 
-    endWith(obj: Path): boolean {
+    public endWith(obj: Path): boolean {
         let other: LocalPath;
         try {
             other = LocalPath.toLocalPath(obj);
@@ -216,7 +216,7 @@ export class LocalPath extends Path {
         return true;
     }
 
-    subpath(beginIndex: number, endIndex: number): Path {
+    public subpath(beginIndex: number, endIndex: number): Path {
         this.initOffsets();
         if (beginIndex < 0)
             throw new IllegalArgumentException();
@@ -235,7 +235,7 @@ export class LocalPath extends Path {
         return new LocalPath(this.getFileSystem(), LocalPathType.RELATIVE, "", path);
     }
 
-    toAbsolutePath(): Path {
+    public toAbsolutePath(): Path {
         if (this.isAbsolute()) {
             return this;
         }
@@ -243,21 +243,21 @@ export class LocalPath extends Path {
         return this.pathFromJsPath(absolutePath, LocalPathType.ABSOLUTE);
     }
 
-    toRealPath(options?: LinkOption[]): Path {
+    public toRealPath(options?: LinkOption[]): Path {
         // TODO handle options
         const realPath = pathFs.parse(fs.realpathSync(this.path));
         return this.pathFromJsPath(realPath, LocalPathType.ABSOLUTE);
     }
 
-    toURL(): URL {
+    public toURL(): URL {
         return jsurl.pathToFileURL(this.toAbsolutePath().toString());
     }
 
-    toString(): string {
+    public toString(): string {
         return this.path;
     }
 
-    compareTo(other: Path): number {
+    public compareTo(other: Path): number {
         const s1: string = this.path;
         const s2: string = (other as LocalPath).path;
         const n1 = s1.length;
@@ -277,7 +277,7 @@ export class LocalPath extends Path {
         return n1 - n2;
     }
 
-    equals(other: Path): boolean {
+    public equals(other: Path): boolean {
         if ((other != null) && (other instanceof LocalPath)) {
             return this.compareTo((other as Path)) == 0;
         }
