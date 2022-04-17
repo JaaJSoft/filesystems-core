@@ -64,6 +64,10 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         throw new Error("Method not implemented.");
     }
 
+    public createDirectories(dir: Path, attrs?: FileAttribute<any>[]) {
+        throw new Error("Method not implemented.");
+    }
+
     public getFileStore(path: Path): FileStore {
         throw new Error("Method not implemented.");
     }
@@ -106,5 +110,6 @@ export class LocalFileSystemProvider extends FileSystemProvider {
     public delete(path: Path) {
         throw new Error("Method not implemented.");
     }
+
 
 }

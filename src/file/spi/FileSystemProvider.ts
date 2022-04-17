@@ -72,6 +72,13 @@ export abstract class FileSystemProvider {
     public abstract createDirectory(dir: Path, attrs?: FileAttribute<any>[]);
 
     /**
+     * Creates a directory by creating all nonexistent parent directories first.
+     * @param {Path} dir - Path
+     * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
+     */
+    public abstract createDirectories(dir: Path, attrs?: FileAttribute<any>[]);
+
+    /**
      * Creates a symbolic link to a target. This method works in exactly the
      * manner specified by the {@link Files#createSymbolicLink} method.
      *
