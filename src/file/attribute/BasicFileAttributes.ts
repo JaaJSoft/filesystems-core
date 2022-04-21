@@ -26,8 +26,6 @@ export interface BasicFileAttributes {
      *
      * @return  a {@code FileTime} representing the time of last access
      */
-    FileTime
-
     lastAccessTime(): FileTime;
 
     /**
@@ -108,8 +106,7 @@ export interface BasicFileAttributes {
      *
      * @return an object that uniquely identifies the given file, or {@code null}
      *
-     * @see java.nio.file.Files#walkFileTree
+     * @see file.Files#walkFileTree
      */
-
     fileKey(): Object;
 }
