@@ -9,6 +9,7 @@ export class Files {
     private static BUFFER_SIZE: number = 8192;
 
     private constructor() {
+      // static
     }
 
     /**

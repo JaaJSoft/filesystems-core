@@ -29,13 +29,13 @@ export class LocalPath extends Path {
 
     /**
      * It takes a path and returns a LocalPath object
-     * @param {FileSystem} fs - The file system that the path is on.
+     * @param {FileSystem} fileSystem - The file system that the path is on.
      * @param {string} path - The path to parse.
      * @returns A new LocalPath object.
      */
-    public static parse(fs: FileSystem, path: string) {
+    public static parse(fileSystem: FileSystem, path: string) {
         let parse = pathFs.parse(path);
-        return new LocalPath(fs, undefined, parse.root, parse.dir); // TODO set type
+        return new LocalPath(fileSystem, undefined, parse.root, parse.dir); // TODO set type
     }
 
     public static toLocalPath(path: Path): LocalPath {
@@ -44,7 +44,7 @@ export class LocalPath extends Path {
         if (!(path instanceof LocalPath)) {
             throw new ProviderMismatchException();
         }
-        return path as LocalPath;
+        return path;
     }
 
     private emptyPath(): LocalPath {
@@ -209,7 +209,6 @@ export class LocalPath extends Path {
         while (--otherCount >= 0) {
             const thisElement = this.elementAsString(off + otherCount);
             const otherElement = other.elementAsString(otherCount);
-            // FIXME: should compare in uppercase
             if (thisElement.toUpperCase() !== otherElement.toUpperCase())
                 return false;
         }

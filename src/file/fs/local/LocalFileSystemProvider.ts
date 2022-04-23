@@ -4,7 +4,7 @@ import {Path} from "../../Path";
 import {LocalFileSystem} from "./LocalFileSystem";
 import * as os from "os";
 import * as fs from "fs";
-import * as path from "path";
+import * as jsPath from "path";
 import * as jsurl from "url"
 import {AccessMode} from "../../AccessMode";
 import {CopyOption} from "../../CopyOption";
