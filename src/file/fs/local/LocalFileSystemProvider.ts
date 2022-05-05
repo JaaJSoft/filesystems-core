@@ -27,13 +27,11 @@ export class LocalFileSystemProvider extends FileSystemProvider {
     }
 
     public getFileSystem(url: URL): FileSystem {
-        const urlToPath = jsurl.fileURLToPath(url);
-        return this.theFileSystem.getPath(urlToPath).getFileSystem();
+        return this.theFileSystem.getPath(url.pathname).getFileSystem();
     }
 
     public getPath(url: URL): Path {
-        const urlToPath = jsurl.fileURLToPath(url);
-        return this.theFileSystem.getPath(urlToPath);
+        return this.theFileSystem.getPath(url.pathname);
     }
 
     public getScheme(): string {

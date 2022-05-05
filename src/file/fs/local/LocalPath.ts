@@ -35,7 +35,7 @@ export class LocalPath extends Path {
      */
     public static parse(fileSystem: FileSystem, path: string) {
         let parse = pathFs.parse(path);
-        return new LocalPath(fileSystem, undefined, parse.root, parse.dir); // TODO set type
+        return new LocalPath(fileSystem, undefined, parse.root, path); // TODO set type
     }
 
     public static toLocalPath(path: Path): LocalPath {
