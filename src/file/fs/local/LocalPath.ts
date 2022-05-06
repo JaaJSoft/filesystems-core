@@ -238,14 +238,16 @@ export class LocalPath extends Path {
         if (this.isAbsolute()) {
             return this;
         }
-        const absolutePath = pathFs.parse(pathFs.resolve(this.path));
-        return this.pathFromJsPath(absolutePath, LocalPathType.ABSOLUTE);
+        const resolvedPath = pathFs.resolve(this.path);
+        const absolutePath = pathFs.parse(resolvedPath);
+        return this.pathFromJsPath(absolutePath, resolvedPath, LocalPathType.ABSOLUTE);
     }
 
     public toRealPath(options?: LinkOption[]): Path {
         // TODO handle options
-        const realPath = pathFs.parse(fs.realpathSync(this.path));
-        return this.pathFromJsPath(realPath, LocalPathType.ABSOLUTE);
+        const realpath = fs.realpathSync(this.path);
+        const realPathParsed = pathFs.parse(realpath);
+        return this.pathFromJsPath(realPathParsed, realpath, LocalPathType.ABSOLUTE);
     }
 
     public toURL(): URL {
@@ -283,8 +285,8 @@ export class LocalPath extends Path {
         return false;
     }
 
-    private pathFromJsPath(path: pathFs.ParsedPath, pathType: LocalPathType) {
-        return new LocalPath(this.getFileSystem(), pathType, path.root, path.dir);
+    private pathFromJsPath(path: pathFs.ParsedPath, resolvedPath: string = "", pathType: LocalPathType) {
+        return new LocalPath(this.getFileSystem(), pathType, path.root, this.path);
     }
 
     // generate offset array
