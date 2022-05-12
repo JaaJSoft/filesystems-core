@@ -18,6 +18,7 @@ test('LocalPathNotRootWithURL', () => {
     const root = Paths.ofURL(new URL("file:///test.txt"));
     expect(root.getRoot().equals(root)).toBeFalsy()
 })
+
 test('LocalPathCurrentToAbsolutePath', () => {
     const absolutePath = currentPath.toAbsolutePath();
     expect(absolutePath.isAbsolute()).toBeTruthy();
