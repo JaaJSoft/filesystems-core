@@ -3,7 +3,7 @@ import {LinkOption} from "./LinkOption";
 import {IllegalArgumentException} from "../exception/IllegalArgumentException";
 
 /* `Path` is a class that represents a path in a file system. */
-export abstract class Path implements Iterable<Path>{
+export abstract class Path implements Iterable<Path> {
 
     protected constructor() {
     }
@@ -110,7 +110,7 @@ export abstract class Path implements Iterable<Path>{
      */
     public resolveSibling(other: Path): Path {
         if (other == null)
-            throw new Error("null"); // TODO add proper exception
+            throw new IllegalArgumentException("null param");
         const parent = this.getParent();
         return (parent == null) ? other : parent.resolve(other);
     }
