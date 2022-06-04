@@ -12,6 +12,7 @@ import {AccessDeniedException} from "../../AccessDeniedException";
 import {OpenOption} from "../../OpenOption";
 import {FileAttribute} from "../../attribute/FileAttribute";
 import {FileStore} from "../../FileStore";
+import {Files} from "../../Files";
 
 export class LocalFileSystemProvider extends FileSystemProvider {
 
@@ -54,15 +55,15 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         throw new Error("Method not implemented.");
     }
 
-    public createFile(dir: Path, attrs?: FileAttribute<any>[]) {
+    public createFile(dir: Path, attrs?: FileAttribute<any>[]): void {
         throw new Error("Method not implemented.");
     }
 
-    public createDirectory(dir: Path, attrs?: FileAttribute<any>[]) {
+    public createDirectory(dir: Path, attrs?: FileAttribute<any>[]): void {
         throw new Error("Method not implemented.");
     }
 
-    public createDirectories(dir: Path, attrs?: FileAttribute<any>[]) {
+    public createDirectories(dir: Path, attrs?: FileAttribute<any>[]): void {
         throw new Error("Method not implemented.");
     }
 
@@ -70,7 +71,7 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         throw new Error("Method not implemented.");
     }
 
-    public checkAccess(obj: Path, modes: AccessMode[]) { // TODO finish this
+    public checkAccess(obj: Path, modes: AccessMode[]): void { // TODO finish this
         modes.forEach((mode) => {
             switch (mode) {
                 case AccessMode.READ:
@@ -89,11 +90,11 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         })
     }
 
-    public copy(source: Path, target: Path, options?: CopyOption[]) {
+    public copy(source: Path, target: Path, options?: CopyOption[]): void {
         throw new Error("Method not implemented.");
     }
 
-    public move(source: Path, target: Path, options?: CopyOption[]) {
+    public move(source: Path, target: Path, options?: CopyOption[]): void{
         throw new Error("Method not implemented.");
     }
 
@@ -105,8 +106,8 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         return false;
     }
 
-    public delete(path: Path) {
-        throw new Error("Method not implemented.");
+    public delete(path: Path): void {
+        fs.rmSync(path.toAbsolutePath().toString())
     }
 
 

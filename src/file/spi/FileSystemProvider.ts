@@ -67,16 +67,16 @@ export abstract class FileSystemProvider {
 
     protected abstract newOutputStreamImpl(path: Path, options?: OpenOption[]): WritableStream; // TODO replace this by channels if possible
 
-    public abstract createFile(dir: Path, attrs?: FileAttribute<any>[]);
+    public abstract createFile(dir: Path, attrs?: FileAttribute<any>[]): void;
 
-    public abstract createDirectory(dir: Path, attrs?: FileAttribute<any>[]);
+    public abstract createDirectory(dir: Path, attrs?: FileAttribute<any>[]): void;
 
     /**
      * Creates a directory by creating all nonexistent parent directories first.
      * @param {Path} dir - Path
      * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
      */
-    public abstract createDirectories(dir: Path, attrs?: FileAttribute<any>[]);
+    public abstract createDirectories(dir: Path, attrs?: FileAttribute<any>[]): void;
 
     /**
      * Creates a symbolic link to a target. This method works in exactly the
@@ -101,7 +101,7 @@ export abstract class FileSystemProvider {
      *          if a file with the name already exists <i>(optional specific
      *          exception)</i>
      */
-    public createSymbolicLink(link: Path, target: Path, attrs?: FileAttribute<any>[]) {
+    public createSymbolicLink(link: Path, target: Path, attrs?: FileAttribute<any>[]): void {
         throw new UnsupportedOperationException();
     }
 
@@ -125,7 +125,7 @@ export abstract class FileSystemProvider {
      *          if the entry could not otherwise be created because a file of
      *          that name already exists <i>(optional specific exception)</i>
      */
-    public createLink(link: Path, existing: Path) {
+    public createLink(link: Path, existing: Path): void {
         throw new UnsupportedOperationException();
     }
 
@@ -133,8 +133,13 @@ export abstract class FileSystemProvider {
         throw new UnsupportedOperationException();
     }
 
-    public abstract delete(path: Path);
+    public abstract delete(path: Path): void;
 
+    /**
+     * If the file exists, delete it and return true. Otherwise, return false
+     * @param {Path} path - The path to the file or directory to delete.
+     * @returns A boolean value.
+     */
     public deleteIfExists(path: Path): boolean {
         try {
             this.delete(path);
@@ -146,9 +151,9 @@ export abstract class FileSystemProvider {
         }
     }
 
-    public abstract copy(source: Path, target: Path, options?: CopyOption[]);
+    public abstract copy(source: Path, target: Path, options?: CopyOption[]): void;
 
-    public abstract move(source: Path, target: Path, options?: CopyOption[]);
+    public abstract move(source: Path, target: Path, options?: CopyOption[]): void;
 
     public abstract isSameFile(obj1: Path, obj2: Path): boolean;
 
@@ -156,7 +161,7 @@ export abstract class FileSystemProvider {
 
     public abstract getFileStore(path: Path): FileStore;
 
-    public abstract checkAccess(obj: Path, modes?: AccessMode[]);
+    public abstract checkAccess(obj: Path, modes?: AccessMode[]): void;
 
     // TODO readAttributes getFileAttributeView setAttribute
 
