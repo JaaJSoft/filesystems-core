@@ -8,6 +8,7 @@ import {UserPrincipalLookupService} from "./attribute/UserPrincipalLookupService
 export abstract class FileSystem {
 
     protected constructor() {
+        //
     }
 
     public abstract provider(): FileSystemProvider;

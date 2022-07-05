@@ -54,7 +54,7 @@ export interface BasicFileAttributes {
      *
      * @return {@code true} if the file is a directory
      */
-    isDirectory(): symbol;
+    isDirectory(): boolean;
 
     /**
      * Tells whether the file is a symbolic link.

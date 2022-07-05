@@ -9,6 +9,8 @@ import {IllegalArgumentException} from "../../exception/IllegalArgumentException
 import {BasicFileAttributes} from "../attribute/BasicFileAttributes";
 import {FileAttribute} from "../attribute/FileAttribute";
 import {FileStore} from "../FileStore";
+import {LinkOption} from "../LinkOption";
+import * as path from "path";
 
 /* A contract for file system providers. */
 export abstract class FileSystemProvider {
@@ -66,17 +68,11 @@ export abstract class FileSystemProvider {
     }
 
     protected abstract newOutputStreamImpl(path: Path, options?: OpenOption[]): WritableStream; // TODO replace this by channels if possible
+    public abstract newDirectoryStream(dir: Path, acceptFilter: (path: Path) => boolean);
 
     public abstract createFile(dir: Path, attrs?: FileAttribute<any>[]): void;
 
     public abstract createDirectory(dir: Path, attrs?: FileAttribute<any>[]): void;
-
-    /**
-     * Creates a directory by creating all nonexistent parent directories first.
-     * @param {Path} dir - Path
-     * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
-     */
-    public abstract createDirectories(dir: Path, attrs?: FileAttribute<any>[]): void;
 
     /**
      * Creates a symbolic link to a target. This method works in exactly the
@@ -164,5 +160,21 @@ export abstract class FileSystemProvider {
     public abstract checkAccess(obj: Path, modes?: AccessMode[]): void;
 
     // TODO readAttributes getFileAttributeView setAttribute
+    public abstract readAttributes(path: Path, options?: LinkOption): BasicFileAttributes;
 
+    public isDirectory(file: Path): boolean {
+        try {
+            return this.readAttributes(file).isDirectory();
+        } catch (ioe) {
+            return false;
+        }
+    }
+
+    public isRegularFile(file: Path): boolean {
+        try {
+            return this.readAttributes(file).isRegularFile();
+        } catch (ioe) {
+            return false;
+        }
+    }
 }

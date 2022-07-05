@@ -63,9 +63,10 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         throw new Error("Method not implemented.");
     }
 
-    public createDirectories(dir: Path, attrs?: FileAttribute<any>[]): void {
+    public newDirectoryStream(dir: Path, acceptFilter: (path: Path) => boolean) {
         throw new Error("Method not implemented.");
     }
+
 
     public getFileStore(path: Path): FileStore {
         throw new Error("Method not implemented.");
@@ -76,15 +77,15 @@ export class LocalFileSystemProvider extends FileSystemProvider {
             switch (mode) {
                 case AccessMode.READ:
                     return fs.access(obj.toString(), fs.constants.R_OK, err => {
-                        throw new AccessDeniedException(obj.toString());
+                        throw new AccessDeniedException(obj.toString(), err.path, err.message);
                     })
                 case AccessMode.WRITE:
                     return fs.access(obj.toString(), fs.constants.W_OK, err => {
-                        throw new AccessDeniedException(obj.toString());
+                        throw new AccessDeniedException(obj.toString(), err.path, err.message);
                     })
                 case AccessMode.EXECUTE:
                     return fs.access(obj.toString(), fs.constants.X_OK, err => {
-                        throw new AccessDeniedException(obj.toString());
+                        throw new AccessDeniedException(obj.toString(), err.path, err.message);
                     })
             }
         })
@@ -94,16 +95,16 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         throw new Error("Method not implemented.");
     }
 
-    public move(source: Path, target: Path, options?: CopyOption[]): void{
+    public move(source: Path, target: Path, options?: CopyOption[]): void {
         throw new Error("Method not implemented.");
     }
 
     public isHidden(obj: Path): boolean {
-        return false;
+        throw new Error("Method not implemented.");
     }
 
     public isSameFile(obj1: Path, obj2: Path): boolean {
-        return false;
+        throw new Error("Method not implemented.");
     }
 
     public delete(path: Path): void {

@@ -49,8 +49,8 @@ export class LocalFileSystem extends FileSystem {
         return LocalPath.parse(this, path);
     }
 
-    public getPathMatcher(syntaxAndPattern: string): PathMatcher {
-        return undefined;
+    public getPathMatcher(syntaxAndPattern: string): PathMatcher { // TODO
+        throw new Error("Method not implemented.");
     }
 
     public getRootDirectories(): Iterable<Path> { // TODO find a better way
