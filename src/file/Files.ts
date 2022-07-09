@@ -10,7 +10,6 @@ import {LinkOption} from "./LinkOption";
 import {SecurityException} from "../exception/SecurityException";
 import {NoSuchFileException} from "./NoSuchFileException";
 import {FileSystemException} from "./FileSystemException";
-import * as path from "path";
 import {BasicFileAttributes} from "./attribute/BasicFileAttributes";
 
 export class Files {
