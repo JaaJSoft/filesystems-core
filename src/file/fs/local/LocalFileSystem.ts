@@ -59,10 +59,7 @@ export class LocalFileSystem extends FileSystem {
     }
 
     public getSeparator(): string {
-        if (os.platform() == "win32") {
-            return "\\";
-        }
-        return "/";
+       return path.sep
     }
 
     public getUserPrincipalLookupService(): UserPrincipalLookupService {
