@@ -4,45 +4,46 @@ import {Path} from "../../Path";
 import {LocalFileSystem} from "./LocalFileSystem";
 import * as os from "os";
 import * as fs from "fs";
-import * as path from "path";
+import * as jsPath from "path";
 import * as jsurl from "url"
 import {AccessMode} from "../../AccessMode";
 import {CopyOption} from "../../CopyOption";
 import {AccessDeniedException} from "../../AccessDeniedException";
 import {OpenOption} from "../../OpenOption";
+import {FileAttribute} from "../../attribute/FileAttribute";
+import {FileStore} from "../../FileStore";
+import {Files} from "../../Files";
 
 export class LocalFileSystemProvider extends FileSystemProvider {
 
     private readonly theFileSystem: LocalFileSystem;
 
-    constructor() {
+    public constructor() {
         super();
         this.theFileSystem = new LocalFileSystem(this, os.homedir());
     }
 
-    getTheFileSystem(): LocalFileSystem {
+    public getTheFileSystem(): LocalFileSystem {
         return this.theFileSystem;
     }
 
-    getFileSystem(url: URL): FileSystem {
-        const urlToPath = jsurl.fileURLToPath(url);
-        return this.theFileSystem.getPath(urlToPath).getFileSystem();
+    public getFileSystem(url: URL): FileSystem {
+        return this.theFileSystem.getPath(url.pathname).getFileSystem();
     }
 
-    getPath(url: URL): Path {
-        const urlToPath = jsurl.fileURLToPath(url);
-        return this.theFileSystem.getPath(urlToPath);
+    public getPath(url: URL): Path {
+        return this.theFileSystem.getPath(url.pathname);
     }
 
-    getScheme(): string {
+    public getScheme(): string {
         return "file";
     }
 
-    newFileSystemFromPath(path: Path, env: Map<string, any>): FileSystem {
+    public newFileSystemFromPath(path: Path, env: Map<string, any>): FileSystem {
         return super.newFileSystemFromPath(path, env);
     }
 
-    public newFileSystemFromUrl(url: URL, env: Map<string, any>) {
+    public newFileSystemFromUrl(url: URL, env: Map<string, any>): FileSystem {
         throw new Error("Method not implemented.");
     }
 
@@ -54,37 +55,60 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         throw new Error("Method not implemented.");
     }
 
-    checkAccess(obj: Path, modes: AccessMode[]) { // TODO finish this
+    public createFile(dir: Path, attrs?: FileAttribute<any>[]): void {
+        throw new Error("Method not implemented.");
+    }
+
+    public createDirectory(dir: Path, attrs?: FileAttribute<any>[]): void {
+        throw new Error("Method not implemented.");
+    }
+
+    public newDirectoryStream(dir: Path, acceptFilter: (path: Path) => boolean) {
+        throw new Error("Method not implemented.");
+    }
+
+
+    public getFileStore(path: Path): FileStore {
+        throw new Error("Method not implemented.");
+    }
+
+    public checkAccess(obj: Path, modes: AccessMode[]): void { // TODO finish this
         modes.forEach((mode) => {
             switch (mode) {
                 case AccessMode.READ:
                     return fs.access(obj.toString(), fs.constants.R_OK, err => {
-                        throw new AccessDeniedException(obj.toString());
+                        throw new AccessDeniedException(obj.toString(), err.path, err.message);
                     })
                 case AccessMode.WRITE:
                     return fs.access(obj.toString(), fs.constants.W_OK, err => {
-                        throw new AccessDeniedException(obj.toString());
+                        throw new AccessDeniedException(obj.toString(), err.path, err.message);
                     })
                 case AccessMode.EXECUTE:
                     return fs.access(obj.toString(), fs.constants.X_OK, err => {
-                        throw new AccessDeniedException(obj.toString());
+                        throw new AccessDeniedException(obj.toString(), err.path, err.message);
                     })
             }
         })
     }
 
-    copy(source: Path, target: Path, options: CopyOption[]) {
+    public copy(source: Path, target: Path, options?: CopyOption[]): void {
+        throw new Error("Method not implemented.");
     }
 
-    move(source: Path, target: Path, options: CopyOption[]) {
+    public move(source: Path, target: Path, options?: CopyOption[]): void {
+        throw new Error("Method not implemented.");
     }
 
-    isHidden(obj: Path): boolean {
-        return false;
+    public isHidden(obj: Path): boolean {
+        throw new Error("Method not implemented.");
     }
 
-    isSameFile(obj1: Path, obj2: Path): boolean {
-        return false;
+    public isSameFile(obj1: Path, obj2: Path): boolean {
+        throw new Error("Method not implemented.");
+    }
+
+    public delete(path: Path): void {
+        fs.rmSync(path.toAbsolutePath().toString())
     }
 
 

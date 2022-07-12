@@ -1,3 +1,4 @@
+/* A set of options that can be used to control how a file is opened. */
 export enum OpenOption {
     /**
      * Open for read access.

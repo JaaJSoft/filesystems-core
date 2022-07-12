@@ -27,7 +27,7 @@ export class Paths {
      * @returns A Path object
      */
     public static ofURL(url: URL): Path {
-        const scheme = url.protocol.toLowerCase();
+        const scheme = url.protocol.toLowerCase().replace(":", "");
         if (scheme === null) {
             throw new IllegalArgumentException("Missing scheme");
         }

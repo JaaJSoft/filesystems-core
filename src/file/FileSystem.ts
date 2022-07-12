@@ -4,9 +4,11 @@ import {FileStore} from "./FileStore";
 import {PathMatcher} from "./PathMatcher";
 import {UserPrincipalLookupService} from "./attribute/UserPrincipalLookupService";
 
+/* A common interface for all file systems. */
 export abstract class FileSystem {
 
     protected constructor() {
+        //
     }
 
     public abstract provider(): FileSystemProvider;

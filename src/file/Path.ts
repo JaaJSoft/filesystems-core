@@ -2,9 +2,12 @@ import {FileSystem} from "./FileSystem";
 import {LinkOption} from "./LinkOption";
 import {IllegalArgumentException} from "../exception/IllegalArgumentException";
 
-export abstract class Path {
+/* `Path` is a class that represents a path in a file system. */
+export abstract class Path implements Iterable<Path> {
 
     protected constructor() {
+      // TODO document why this constructor is empty
+
     }
 
     public abstract getFileSystem(): FileSystem;
@@ -54,6 +57,7 @@ export abstract class Path {
 
     public abstract startsWith(other: Path): boolean;
 
+    /* Checking if the path starts with the given string. */
     public startsWithStr(other: string): boolean {
         return this.startsWith(this.getFileSystem().getPath(other))
     }
@@ -108,7 +112,7 @@ export abstract class Path {
      */
     public resolveSibling(other: Path): Path {
         if (other == null)
-            throw new Error("null"); // TODO add proper exception
+            throw new IllegalArgumentException("null param");
         const parent = this.getParent();
         return (parent == null) ? other : parent.resolve(other);
     }
@@ -178,4 +182,6 @@ export abstract class Path {
     abstract compareTo(other: Path): number;
 
     abstract toString(): string ;
+
+    abstract [Symbol.iterator](): Iterator<Path>;
 }

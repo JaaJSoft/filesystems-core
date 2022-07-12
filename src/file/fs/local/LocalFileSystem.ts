@@ -8,13 +8,14 @@ import {LocalFileSystemProvider} from "./LocalFileSystemProvider";
 import {UnsupportedOperationException} from "../../../exception/UnsupportedOperationException";
 import {LocalPath} from "./LocalPath";
 import * as path from "path";
+import os from "os";
 
 export class LocalFileSystem extends FileSystem {
     private readonly fileSystem: FileSystemProvider;
     private readonly defaultDirectory: string;
     private readonly defaultRoot: string;
 
-    constructor(provider: LocalFileSystemProvider, dir: string) {
+    public constructor(provider: LocalFileSystemProvider, dir: string) {
         super();
         this.fileSystem = provider;
         const parsedPath: path.ParsedPath = path.parse(dir);
@@ -22,15 +23,15 @@ export class LocalFileSystem extends FileSystem {
         this.defaultRoot = parsedPath.root;
     }
 
-    close() {
+    public close() {
         throw new UnsupportedOperationException();
     }
 
-    getFileStores(): Iterable<FileStore> {
+    public getFileStores(): Iterable<FileStore> {
         return undefined;
     }
 
-    getPath(first: string, more?: string[]): Path {
+    public getPath(first: string, more?: string[]): Path {
         if (!first) {
             return null;
         }
@@ -49,37 +50,37 @@ export class LocalFileSystem extends FileSystem {
         return LocalPath.parse(this, path);
     }
 
-    getPathMatcher(syntaxAndPattern: string): PathMatcher {
-        return undefined;
+    public getPathMatcher(syntaxAndPattern: string): PathMatcher { // TODO
+        throw new Error("Method not implemented.");
     }
 
-    getRootDirectories(): Iterable<Path> { // TODO find a better way
+    public getRootDirectories(): Iterable<Path> { // TODO find a better way
         return [this.getPath("/")]
     }
 
-    getSeparator(): string {
-        return "\\";
+    public getSeparator(): string {
+       return path.sep
     }
 
-    getUserPrincipalLookupService(): UserPrincipalLookupService {
+    public getUserPrincipalLookupService(): UserPrincipalLookupService {
         throw new UnsupportedOperationException();
     }
 
-    isOpen(): boolean {
+    public isOpen(): boolean {
         return true;
     }
 
-    isReadOnly(): boolean {
+    public isReadOnly(): boolean {
         return false;
     }
 
-    provider(): FileSystemProvider {
+    public provider(): FileSystemProvider {
         return this.fileSystem;
     }
 
     private static readonly supportedFileAttributeViews: Set<string> = new Set<string>(["basic", "dos", "acl", "owner", "user"]);
 
-    supportedFileAttributeViews(): Set<string> {
+    public supportedFileAttributeViews(): Set<string> {
         return LocalFileSystem.supportedFileAttributeViews;
     }
 }

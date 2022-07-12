@@ -2,22 +2,29 @@ import {FileSystem} from "../FileSystem";
 import {Path} from "../Path";
 import {CopyOption} from "../CopyOption";
 import {AccessMode} from "../AccessMode";
+import {NoSuchFileException} from "../NoSuchFileException";
 import {UnsupportedOperationException} from "../../exception/UnsupportedOperationException";
 import {OpenOption} from "../OpenOption";
 import {IllegalArgumentException} from "../../exception/IllegalArgumentException";
+import {BasicFileAttributes} from "../attribute/BasicFileAttributes";
+import {FileAttribute} from "../attribute/FileAttribute";
+import {FileStore} from "../FileStore";
+import {LinkOption} from "../LinkOption";
+import * as path from "path";
 
+/* A contract for file system providers. */
 export abstract class FileSystemProvider {
     public abstract getScheme(): string;
 
-    public abstract newFileSystemFromUrl(url: URL, env: Map<string, any>);
-
-    public abstract getFileSystem(url: URL): FileSystem;
-
-    public abstract getPath(url: URL): Path;
+    public abstract newFileSystemFromUrl(uri: URL, env: Map<string, any>): FileSystem;
 
     public newFileSystemFromPath(path: Path, env: Map<string, any>): FileSystem {
         throw new UnsupportedOperationException();
     }
+
+    public abstract getFileSystem(url: URL): FileSystem;
+
+    public abstract getPath(url: URL): Path;
 
     public newInputStream(path: Path, options?: OpenOption[]): ReadableStream {
         if (options && options.length > 0) {
@@ -30,7 +37,6 @@ export abstract class FileSystemProvider {
             }
 
         }
-        // TODO Chennels de mort
         return this.newInputStreamImpl(path, options);
     }
 
@@ -62,14 +68,113 @@ export abstract class FileSystemProvider {
     }
 
     protected abstract newOutputStreamImpl(path: Path, options?: OpenOption[]): WritableStream; // TODO replace this by channels if possible
+    public abstract newDirectoryStream(dir: Path, acceptFilter: (path: Path) => boolean);
 
-    public abstract copy(source: Path, target: Path, options: CopyOption[]);
+    public abstract createFile(dir: Path, attrs?: FileAttribute<any>[]): void;
 
-    public abstract move(source: Path, target: Path, options: CopyOption[]);
+    public abstract createDirectory(dir: Path, attrs?: FileAttribute<any>[]): void;
 
-    public abstract checkAccess(obj: Path, modes: AccessMode[]);
+    /**
+     * Creates a symbolic link to a target. This method works in exactly the
+     * manner specified by the {@link Files#createSymbolicLink} method.
+     *
+     * <p> The default implementation of this method throws {@code
+     * UnsupportedOperationException}.
+     *
+     * @param   link
+     *          the path of the symbolic link to create
+     * @param   target
+     *          the target of the symbolic link
+     * @param   attrs
+     *          the array of attributes to set atomically when creating the
+     *          symbolic link
+     *
+     * @throws  UnsupportedOperationException
+     *          if the implementation does not support symbolic links or the
+     *          array contains an attribute that cannot be set atomically when
+     *          creating the symbolic link
+     * @throws  FileAlreadyExistsException
+     *          if a file with the name already exists <i>(optional specific
+     *          exception)</i>
+     */
+    public createSymbolicLink(link: Path, target: Path, attrs?: FileAttribute<any>[]): void {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Creates a new link (directory entry) for an existing file. This method
+     * works in exactly the manner specified by the {@link Files#createLink}
+     * method.
+     *
+     * <p> The default implementation of this method throws {@code
+     * UnsupportedOperationException}.
+     *
+     * @param   link
+     *          the link (directory entry) to create
+     * @param   existing
+     *          a path to an existing file
+     *
+     * @throws  UnsupportedOperationException
+     *          if the implementation does not support adding an existing file
+     *          to a directory
+     * @throws  FileAlreadyExistsException
+     *          if the entry could not otherwise be created because a file of
+     *          that name already exists <i>(optional specific exception)</i>
+     */
+    public createLink(link: Path, existing: Path): void {
+        throw new UnsupportedOperationException();
+    }
+
+    public readSymbolicLink(link: Path): Path {
+        throw new UnsupportedOperationException();
+    }
+
+    public abstract delete(path: Path): void;
+
+    /**
+     * If the file exists, delete it and return true. Otherwise, return false
+     * @param {Path} path - The path to the file or directory to delete.
+     * @returns A boolean value.
+     */
+    public deleteIfExists(path: Path): boolean {
+        try {
+            this.delete(path);
+            return true;
+        } catch (e) {
+            if (e instanceof NoSuchFileException) {
+                return false;
+            }
+        }
+    }
+
+    public abstract copy(source: Path, target: Path, options?: CopyOption[]): void;
+
+    public abstract move(source: Path, target: Path, options?: CopyOption[]): void;
 
     public abstract isSameFile(obj1: Path, obj2: Path): boolean;
 
     public abstract isHidden(obj: Path): boolean;
+
+    public abstract getFileStore(path: Path): FileStore;
+
+    public abstract checkAccess(obj: Path, modes?: AccessMode[]): void;
+
+    // TODO readAttributes getFileAttributeView setAttribute
+    public abstract readAttributes(path: Path, options?: LinkOption): BasicFileAttributes;
+
+    public isDirectory(file: Path): boolean {
+        try {
+            return this.readAttributes(file).isDirectory();
+        } catch (ioe) {
+            return false;
+        }
+    }
+
+    public isRegularFile(file: Path): boolean {
+        try {
+            return this.readAttributes(file).isRegularFile();
+        } catch (ioe) {
+            return false;
+        }
+    }
 }
