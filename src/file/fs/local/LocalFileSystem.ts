@@ -8,6 +8,7 @@ import {LocalFileSystemProvider} from "./LocalFileSystemProvider";
 import {UnsupportedOperationException} from "../../../exception/UnsupportedOperationException";
 import {LocalPath} from "./LocalPath";
 import * as path from "path";
+import os from "os";
 
 export class LocalFileSystem extends FileSystem {
     private readonly fileSystem: FileSystemProvider;
@@ -58,7 +59,10 @@ export class LocalFileSystem extends FileSystem {
     }
 
     public getSeparator(): string {
-        return "\\";
+        if (os.platform() == "win32") {
+            return "\\";
+        }
+        return "/";
     }
 
     public getUserPrincipalLookupService(): UserPrincipalLookupService {
