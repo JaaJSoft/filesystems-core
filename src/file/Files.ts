@@ -12,6 +12,7 @@ import {NoSuchFileException} from "./NoSuchFileException";
 import {FileSystemException} from "./FileSystemException";
 import {BasicFileAttributes} from "./attribute/BasicFileAttributes";
 
+/* It provides a set of static methods for working with files and directories */
 export class Files {
 
     // buffer size used for reading and writing
@@ -34,6 +35,12 @@ export class Files {
         return this.provider(path).newInputStream(path, options);
     }
 
+    /**
+     * It creates a new output stream.
+     * @param {Path} path - The path to the file to open.
+     * @param {OpenOption[]} [options] - An array of options specifying how the file is created or opened.
+     * @returns A WritableStream
+     */
     public static newOutputStream(path: Path, options?: OpenOption[]): WritableStream {
         return this.provider(path).newOutputStream(path, options);
     }
@@ -59,16 +66,34 @@ export class Files {
 
     // -- Creation and deletion --
 
+    /**
+     * `createFile` creates a file at the given path
+     * @param {Path} path - The path to the file to be created.
+     * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
+     * @returns The path
+     */
     public static createFile(path: Path, attrs?: FileAttribute<any>[]): Path {
         this.provider(path).createFile(path, attrs);
         return path
     }
 
+    /**
+     * > Creates a directory at the given path, with the given attributes
+     * @param {Path} dir - Path - The path to the directory to create.
+     * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
+     * @returns The path of the directory that was created.
+     */
     public static createDirectory(dir: Path, attrs?: FileAttribute<any>[]): Path {
         this.provider(dir).createDirectory(dir, attrs);
         return dir;
     }
 
+    /**
+     * > Create a directory by creating all nonexistent parent directories first
+     * @param {Path} dir - Path
+     * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
+     * @returns The path of the directory that was created.
+     */
     public static createDirectories(dir: Path, attrs?: FileAttribute<any>[]): Path {
         try {
             this.createAndCheckIsDirectory(dir, attrs);
@@ -144,28 +169,62 @@ export class Files {
         return this.createTempDirectoryIn(null, prefix, attrs);
     }
 
+    /**
+     * `createSymbolicLink` creates a symbolic link at the given path to the given target
+     * @param {Path} link - Path - The path to the symbolic link to create.
+     * @param {Path} target - Path - The target of the link
+     * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
+     * @returns The link
+     */
     public static createSymbolicLink(link: Path, target: Path, attrs?: FileAttribute<any>[]): Path {
         this.provider(link).createSymbolicLink(link, target, attrs);
         return link;
     }
 
+    /**
+     * It creates a link to an existing file.
+     * @param {Path} link - The path to the link to be created.
+     * @param {Path} existing - The path to the file that you want to link to.
+     * @returns The link
+     */
     public static createLink(link: Path, existing: Path): Path {
         this.provider(link).createLink(link, existing);
         return link;
     }
 
-    public static delete(path: Path) {
+    /**
+     * It deletes the file at the given path.
+     * @param {Path} path - The path to the file or directory to delete.
+     */
+    public static delete(path: Path): void {
         this.provider(path).delete(path)
     }
 
+    /**
+     * It deletes a file if it exists.
+     * @param {Path} path - The path to the file or directory to delete.
+     * @returns A boolean value.
+     */
     public static deleteIfExists(path: Path): boolean {
         return this.provider(path).deleteIfExists(path);
     }
 
+    /**
+     * It reads the attributes of a file.
+     * @param {Path} path - Path
+     * @param {LinkOption} [options] - LinkOption
+     * @returns BasicFileAttributes
+     */
     public static readAttributes(path: Path, options?: LinkOption): BasicFileAttributes {
         return this.provider(path).readAttributes(path, options);
     }
 
+    /**
+     * If the path is a directory, return true
+     * @param {Path} path - Path
+     * @param {LinkOption[]} [options] - LinkOption[]
+     * @returns A boolean value.
+     */
     public static isDirectory(path: Path, options?: LinkOption[]): boolean {
         if (options.length === 0) {
             return this.provider(path).isDirectory(path);

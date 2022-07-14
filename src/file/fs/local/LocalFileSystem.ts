@@ -7,8 +7,7 @@ import {FileSystemProvider} from "../../spi/FileSystemProvider";
 import {LocalFileSystemProvider} from "./LocalFileSystemProvider";
 import {UnsupportedOperationException} from "../../../exception/UnsupportedOperationException";
 import {LocalPath} from "./LocalPath";
-import * as path from "path";
-import os from "os";
+import * as jsPath from "path";
 
 export class LocalFileSystem extends FileSystem {
     private readonly fileSystem: FileSystemProvider;
@@ -18,7 +17,7 @@ export class LocalFileSystem extends FileSystem {
     public constructor(provider: LocalFileSystemProvider, dir: string) {
         super();
         this.fileSystem = provider;
-        const parsedPath: path.ParsedPath = path.parse(dir);
+        const parsedPath: jsPath.ParsedPath = jsPath.parse(dir);
         this.defaultDirectory = parsedPath.dir;
         this.defaultRoot = parsedPath.root;
     }
@@ -42,7 +41,7 @@ export class LocalFileSystem extends FileSystem {
             for (const segment of more) {
                 if (segment.length !== 0) {
                     if (path.length > 0)
-                        path += '\\';
+                        path += this.getSeparator();
                     path += segment;
                 }
             }
@@ -59,7 +58,7 @@ export class LocalFileSystem extends FileSystem {
     }
 
     public getSeparator(): string {
-       return path.sep
+        return jsPath.sep
     }
 
     public getUserPrincipalLookupService(): UserPrincipalLookupService {

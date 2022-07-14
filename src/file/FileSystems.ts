@@ -5,7 +5,6 @@ import {installedProviders} from "./spi/FileSystemProviders";
 import {LocalFileSystemProvider} from "./fs/local/LocalFileSystemProvider";
 import {UnsupportedOperationException} from "../exception/UnsupportedOperationException";
 
-/* FileSystems is a class that provides access to a FileSystem. */
 export class FileSystems {
     private static readonly defaultFileSystemProvider: LocalFileSystemProvider = new LocalFileSystemProvider();
 

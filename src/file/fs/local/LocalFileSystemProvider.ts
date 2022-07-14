@@ -5,15 +5,17 @@ import {LocalFileSystem} from "./LocalFileSystem";
 import * as os from "os";
 import * as fs from "fs";
 import * as jsPath from "path";
-import * as jsurl from "url"
+import * as jsUrl from "url"
 import {AccessMode} from "../../AccessMode";
 import {CopyOption} from "../../CopyOption";
 import {AccessDeniedException} from "../../AccessDeniedException";
 import {OpenOption} from "../../OpenOption";
 import {FileAttribute} from "../../attribute/FileAttribute";
 import {FileStore} from "../../FileStore";
-import {Files} from "../../Files";
+import {BasicFileAttributes} from "../../attribute/BasicFileAttributes";
+import {LinkOption} from "../../LinkOption";
 
+/* It's a FileSystemProvider that provides a LocalFileSystem */
 export class LocalFileSystemProvider extends FileSystemProvider {
 
     private readonly theFileSystem: LocalFileSystem;
@@ -111,5 +113,8 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         fs.rmSync(path.toAbsolutePath().toString())
     }
 
+    public readAttributes(path: Path, options?: LinkOption): BasicFileAttributes {
+        throw new Error("Method not implemented.");
+    }
 
 }
