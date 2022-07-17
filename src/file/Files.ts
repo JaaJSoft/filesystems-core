@@ -11,6 +11,11 @@ import {SecurityException} from "../exception/SecurityException";
 import {NoSuchFileException} from "./NoSuchFileException";
 import {FileSystemException} from "./FileSystemException";
 import {BasicFileAttributes} from "./attribute/BasicFileAttributes";
+import {FileAttributeView} from "./attribute/FileAttributeView";
+import {PosixFilePermission} from "./attribute/PosixFilePermission";
+import {PosixFileAttributes} from "./attribute/PosixFileAttributes";
+import {UnsupportedOperationException} from "../exception/UnsupportedOperationException";
+import {PosixFileAttributeView} from "./attribute/PosixFileAttributeView";
 
 /* It provides a set of static methods for working with files and directories */
 export class Files {
@@ -209,28 +214,12 @@ export class Files {
         return this.provider(path).deleteIfExists(path);
     }
 
-    /**
-     * It reads the attributes of a file.
-     * @param {Path} path - Path
-     * @param {LinkOption} [options] - LinkOption
-     * @returns BasicFileAttributes
-     */
-    public static readAttributes(path: Path, options?: LinkOption): BasicFileAttributes {
-        return this.provider(path).readAttributes(path, options);
-    }
-
-    /**
-     * If the path is a directory, return true
-     * @param {Path} path - Path
-     * @param {LinkOption[]} [options] - LinkOption[]
-     * @returns A boolean value.
-     */
     public static isDirectory(path: Path, options?: LinkOption[]): boolean {
         if (options.length === 0) {
             return this.provider(path).isDirectory(path);
         }
         try {
-            return this.readAttributes(path).isDirectory();
+            return this.readAttributesFromType(path, undefined, options).isDirectory();
         } catch (ioe) {
             return false;
         }
@@ -241,9 +230,54 @@ export class Files {
             return this.provider(path).isRegularFile(path);
         }
         try {
-            return this.readAttributes(path).isRegularFile();
+            return this.readAttributesFromType(path, undefined, options).isRegularFile();
         } catch (ioe) {
             return false;
         }
     }
+
+    /**
+     * It reads the attributes of a file.
+     * @param {Path} path - Path
+     * @param type
+     * @param {LinkOption} [options] - LinkOption
+     * @returns BasicFileAttributes
+     */
+    public static readAttributesFromType(path: Path, type?: string, options?: LinkOption[]): BasicFileAttributes {
+        return this.provider(path).readAttributesFromType(path, type, options);
+    }
+
+    public static readAttributes(path: Path, attributes: string, options?: LinkOption[]): Map<string, any> {
+        return this.provider(path).readAttributes(path, attributes, options);
+    }
+
+    public static getFileAttributeView(path: Path, type?: string, options?: LinkOption[]): FileAttributeView {
+        return this.provider(path).getFileAttributeView(path, type, options);
+    }
+
+    public static setAttribute(path: Path, attribute: string, value: any, options?: LinkOption[]): Path {
+        this.provider(path).setAttribute(path, attribute, value, options);
+        return path;
+    }
+    
+    public static getPosixFilePermissions(path: Path, options?: LinkOption[]): Set<PosixFilePermission> {
+        return (this.readAttributesFromType(path, "PosixFileAttributes", options) as PosixFileAttributes).permissions();
+    }
+
+    public static setPosixFilePermissions(path: Path, perms: Set<PosixFilePermission>): Path {
+        const view = this.getFileAttributeView(path, "PosixFileAttributeView") as PosixFileAttributeView;
+        if (!view) {
+            throw new UnsupportedOperationException();
+        }
+        view.setPermissions(perms);
+        return path;
+    }
+
+    /**
+     * If the path is a directory, return true
+     * @param {Path} path - Path
+     * @param {LinkOption[]} [options] - LinkOption[]
+     * @returns A boolean value.
+     */
+
 }

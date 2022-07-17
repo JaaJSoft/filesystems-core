@@ -10,7 +10,7 @@ import {BasicFileAttributes} from "../attribute/BasicFileAttributes";
 import {FileAttribute} from "../attribute/FileAttribute";
 import {FileStore} from "../FileStore";
 import {LinkOption} from "../LinkOption";
-import * as path from "path";
+import {FileAttributeView} from "../attribute/FileAttributeView";
 
 /* A contract for file system providers. */
 export abstract class FileSystemProvider {
@@ -159,12 +159,17 @@ export abstract class FileSystemProvider {
 
     public abstract checkAccess(obj: Path, modes?: AccessMode[]): void;
 
-    // TODO readAttributes getFileAttributeView setAttribute
-    public abstract readAttributes(path: Path, options?: LinkOption): BasicFileAttributes;
+    public abstract readAttributesFromType(path: Path, type?: string, options?: LinkOption[]): BasicFileAttributes;
+
+    public abstract readAttributes(path: Path, attributes: string, options?: LinkOption[]): Map<string, any>;
+
+    public abstract getFileAttributeView(path: Path, type?: string, options?: LinkOption[]): FileAttributeView;
+
+    public abstract setAttribute(path: Path, attribute: string, value: any, options?: LinkOption[]): void;
 
     public isDirectory(file: Path): boolean {
         try {
-            return this.readAttributes(file).isDirectory();
+            return this.readAttributesFromType(file).isDirectory();
         } catch (ioe) {
             return false;
         }
@@ -172,7 +177,7 @@ export abstract class FileSystemProvider {
 
     public isRegularFile(file: Path): boolean {
         try {
-            return this.readAttributes(file).isRegularFile();
+            return this.readAttributesFromType(file).isRegularFile();
         } catch (ioe) {
             return false;
         }

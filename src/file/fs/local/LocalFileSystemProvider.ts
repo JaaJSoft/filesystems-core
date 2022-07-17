@@ -4,8 +4,6 @@ import {Path} from "../../Path";
 import {LocalFileSystem} from "./LocalFileSystem";
 import * as os from "os";
 import * as fs from "fs";
-import * as jsPath from "path";
-import * as jsUrl from "url"
 import {AccessMode} from "../../AccessMode";
 import {CopyOption} from "../../CopyOption";
 import {AccessDeniedException} from "../../AccessDeniedException";
@@ -14,6 +12,7 @@ import {FileAttribute} from "../../attribute/FileAttribute";
 import {FileStore} from "../../FileStore";
 import {BasicFileAttributes} from "../../attribute/BasicFileAttributes";
 import {LinkOption} from "../../LinkOption";
+import {FileAttributeView} from "../../attribute/FileAttributeView";
 
 /* It's a FileSystemProvider that provides a LocalFileSystem */
 export class LocalFileSystemProvider extends FileSystemProvider {
@@ -113,7 +112,19 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         fs.rmSync(path.toAbsolutePath().toString())
     }
 
-    public readAttributes(path: Path, options?: LinkOption): BasicFileAttributes {
+    public readAttributesFromType(path: Path, type?: string, options?: LinkOption[]): BasicFileAttributes {
+        throw new Error("Method not implemented.");
+    }
+
+    public getFileAttributeView(path: Path, type?: string, options?: LinkOption[]): FileAttributeView {
+        throw new Error("Method not implemented.");
+    }
+
+    public readAttributes(path: Path, attributes: string, options?: LinkOption[]): Map<string, any> {
+        throw new Error("Method not implemented.");
+    }
+
+    public setAttribute(path: Path, attribute: string, value: any, options?: LinkOption[]): void {
         throw new Error("Method not implemented.");
     }
 
