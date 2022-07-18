@@ -20,6 +20,6 @@ export interface BasicFileAttributeView extends FileAttributeView {
      */
     readAttributes(): BasicFileAttributes;
 
-    setTimes(lastModifiedTime: FileTime, lasAccessTime: FileTime, createTime: FileTime): void;
+    setTimes(lastModifiedTime?: FileTime, lasAccessTime?: FileTime, createTime?: FileTime): void;
 
 }

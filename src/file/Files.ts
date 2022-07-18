@@ -16,6 +16,12 @@ import {PosixFilePermission} from "./attribute/PosixFilePermission";
 import {PosixFileAttributes} from "./attribute/PosixFileAttributes";
 import {UnsupportedOperationException} from "../exception/UnsupportedOperationException";
 import {PosixFileAttributeView} from "./attribute/PosixFileAttributeView";
+import {UserPrincipal} from "./attribute/UserPrincipal";
+import {FileOwnerAttributeView} from "./attribute/FileOwnerAttributeView";
+import {FileTime} from "./attribute/FileTime";
+import {BasicFileAttributeView} from "./attribute/BasicFileAttributeView";
+import {NullPointerException} from "@js-joda/core";
+import {AccessMode} from "./AccessMode";
 
 /* It provides a set of static methods for working with files and directories */
 export class Files {
@@ -214,28 +220,6 @@ export class Files {
         return this.provider(path).deleteIfExists(path);
     }
 
-    public static isDirectory(path: Path, options?: LinkOption[]): boolean {
-        if (options.length === 0) {
-            return this.provider(path).isDirectory(path);
-        }
-        try {
-            return this.readAttributesFromType(path, undefined, options).isDirectory();
-        } catch (ioe) {
-            return false;
-        }
-    }
-
-    public static isRegularFile(path: Path, options?: LinkOption[]): boolean {
-        if (options.length === 0) {
-            return this.provider(path).isRegularFile(path);
-        }
-        try {
-            return this.readAttributesFromType(path, undefined, options).isRegularFile();
-        } catch (ioe) {
-            return false;
-        }
-    }
-
     /**
      * It reads the attributes of a file.
      * @param {Path} path - Path
@@ -259,11 +243,23 @@ export class Files {
         this.provider(path).setAttribute(path, attribute, value, options);
         return path;
     }
-    
+
+    /**
+     * It returns the permissions of a file.
+     * @param {Path} path - Path
+     * @param {LinkOption[]} [options] - LinkOption[]
+     * @returns A Set of PosixFilePermission
+     */
     public static getPosixFilePermissions(path: Path, options?: LinkOption[]): Set<PosixFilePermission> {
         return (this.readAttributesFromType(path, "PosixFileAttributes", options) as PosixFileAttributes).permissions();
     }
 
+    /**
+     * Set the permissions of a file.
+     * @param {Path} path - The path to the file or directory.
+     * @param perms - Set<PosixFilePermission>
+     * @returns A Path object.
+     */
     public static setPosixFilePermissions(path: Path, perms: Set<PosixFilePermission>): Path {
         const view = this.getFileAttributeView(path, "PosixFileAttributeView") as PosixFileAttributeView;
         if (!view) {
@@ -274,10 +270,195 @@ export class Files {
     }
 
     /**
+     * `getOwner` returns the owner of the file at the given path
+     * @param {Path} path - The path to the file or directory.
+     * @param {LinkOption[]} [options] - An array of LinkOption objects.
+     * @returns A UserPrincipal object.
+     */
+    public static getOwner(path: Path, options?: LinkOption[]): UserPrincipal {
+        const view = this.getFileAttributeView(path, "FileOwnerAttributeView", options) as FileOwnerAttributeView;
+        if (!view) {
+            throw new UnsupportedOperationException();
+        }
+        return view.getOwner();
+    }
+
+    /**
+     * It sets the owner of a file.
+     * @param {Path} path - The path to the file or directory whose owner you want to set.
+     * @param {UserPrincipal} owner - The user principal to set as the owner of the file.
+     * @returns A Path object.
+     */
+    public static setOwner(path: Path, owner: UserPrincipal): Path {
+        const view = this.getFileAttributeView(path, "FileOwnerAttributeView") as FileOwnerAttributeView;
+        if (!view) {
+            throw new UnsupportedOperationException();
+        }
+        view.setOwner(owner);
+        return path;
+    }
+
+    /**
+     * > If the path is a symbolic link, return true. Otherwise, return false
+     * @param {Path} path - Path
+     * @returns A boolean value.
+     */
+    public static isSymbolicLink(path: Path): boolean {
+        try {
+            return this.readAttributesFromType(path, undefined, [LinkOption.NOFOLLOW_LINKS]).isSymbolicLink();
+        } catch (ioe) {
+            return false;
+        }
+    }
+
+    /**
      * If the path is a directory, return true
      * @param {Path} path - Path
      * @param {LinkOption[]} [options] - LinkOption[]
      * @returns A boolean value.
      */
+    public static isDirectory(path: Path, options?: LinkOption[]): boolean {
+        try {
+            return this.readAttributesFromType(path, undefined, options).isDirectory();
+        } catch (ioe) {
+            return false;
+        }
+    }
+
+    /**
+     * > If the path is a regular file, return true, otherwise return false
+     * @param {Path} path - Path
+     * @param {LinkOption[]} [options] - LinkOption[]
+     * @returns A boolean value.
+     */
+    public static isRegularFile(path: Path, options?: LinkOption[]): boolean {
+        try {
+            return this.readAttributesFromType(path, undefined, options).isRegularFile();
+        } catch (ioe) {
+            return false;
+        }
+    }
+
+    /**
+     * It returns the last modified time of a file.
+     * @param {Path} path - Path
+     * @param {LinkOption[]} [options] - An array of LinkOption objects.
+     * @returns The last modified time of the file.
+     */
+    public static getLastModifiedTime(path: Path, options?: LinkOption[]): FileTime {
+        return this.readAttributesFromType(path, undefined, options).lastModifiedTime();
+    }
+
+    /**
+     * "Set the last modified time of the file at the given path to the given time."
+     *
+     * @param {Path} path - The path to the file or directory.
+     * @param {FileTime} time - FileTime
+     * @returns A Path object.
+     */
+    public static setLastModifiedTime(path: Path, time: FileTime): Path {
+        (this.getFileAttributeView(path, "BasicFileAttributeView") as BasicFileAttributeView)
+            .setTimes(time, undefined, undefined);
+        return path;
+    }
+
+    /**
+     * It returns the size of the file.
+     * @param {Path} path - Path - the path to the file
+     * @returns The size of the file.
+     */
+    public static size(path: Path): number {
+        return this.readAttributesFromType(path).size();
+    }
+
+    // -- Accessibility --
+
+    private static followLinks(options?: LinkOption[]): boolean {
+        let followLinks = true;
+        if (options) {
+            for (let opt of options) {
+                if (opt === LinkOption.NOFOLLOW_LINKS) {
+                    followLinks = false;
+                    continue;
+                }
+                if (!opt) {
+                    throw new NullPointerException();
+                }
+                throw Error("Should not get here");
+            }
+        }
+        return followLinks
+    }
+
+    /**
+     * If the file exists, return true. If the file doesn't exist, return false
+     * @param {Path} path - Path
+     * @param {LinkOption[]} [options] - LinkOption[]
+     * @returns A boolean value.
+     */
+    public static exists(path: Path, options?: LinkOption[]): boolean {
+        try {
+            if (this.followLinks(options)) {
+                this.provider(path).checkAccess(path);
+            } else {
+                // attempt to read attributes without following links
+                this.readAttributesFromType(path, "BasicFileAttributes", [LinkOption.NOFOLLOW_LINKS]);
+            }
+            // file exists
+            return true;
+        } catch (x) {
+            // does not exist or unable to determine if file exists
+            return false;
+        }
+    }
+
+    /**
+     * If the file exists, return false. If the file doesn't exist, return true
+     * @param {Path} path - Path
+     * @param {LinkOption[]} [options] - LinkOption[]
+     * @returns A boolean value.
+     */
+    public static notExists(path: Path, options?: LinkOption[]): boolean {
+        try {
+            if (this.followLinks(options)) {
+                this.provider(path).checkAccess(path);
+            } else {
+                // attempt to read attributes without following links
+                this.readAttributesFromType(path, "BasicFileAttributes", [LinkOption.NOFOLLOW_LINKS]);
+            }
+            // file exists
+            return false;
+        } catch (x) {
+            if (x instanceof NoSuchFileException) {
+                return true
+            }
+            // does not exist or unable to determine if file exists
+            return false;
+        }
+    }
+
+    private static isAccessible(path: Path, modes?: AccessMode[]): boolean {
+        try {
+            this.provider(path).checkAccess(path, modes);
+            return true;
+        } catch (x) {
+            return false;
+        }
+    }
+
+    public static isReadable(path: Path): boolean {
+        return this.isAccessible(path, [AccessMode.READ]);
+    }
+
+    public static isWritable(path: Path): boolean {
+        return this.isAccessible(path, [AccessMode.WRITE]);
+    }
+
+    public static isExecutable(path: Path): boolean {
+        return this.isAccessible(path, [AccessMode.EXECUTE]);
+    }
+
+    // -- Recursive operations --
+
 
 }

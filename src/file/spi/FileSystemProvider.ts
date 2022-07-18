@@ -167,19 +167,4 @@ export abstract class FileSystemProvider {
 
     public abstract setAttribute(path: Path, attribute: string, value: any, options?: LinkOption[]): void;
 
-    public isDirectory(file: Path): boolean {
-        try {
-            return this.readAttributesFromType(file).isDirectory();
-        } catch (ioe) {
-            return false;
-        }
-    }
-
-    public isRegularFile(file: Path): boolean {
-        try {
-            return this.readAttributesFromType(file).isRegularFile();
-        } catch (ioe) {
-            return false;
-        }
-    }
 }
