@@ -1,4 +1,4 @@
-import {LocalFileSystemProvider} from "../fs/local/LocalFileSystemProvider";
+import {LocalFileSystemProvider} from "../fs/local";
 import {FileSystemProvider} from "./FileSystemProvider";
 
 /**

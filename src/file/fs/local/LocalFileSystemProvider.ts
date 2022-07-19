@@ -1,4 +1,4 @@
-import {FileSystemProvider} from "../../spi/FileSystemProvider";
+import {FileSystemProvider} from "../../spi";
 import {FileSystem} from "../../FileSystem";
 import {Path} from "../../Path";
 import {LocalFileSystem} from "./LocalFileSystem";
@@ -8,11 +8,9 @@ import {AccessMode} from "../../AccessMode";
 import {CopyOption} from "../../CopyOption";
 import {AccessDeniedException} from "../../AccessDeniedException";
 import {OpenOption} from "../../OpenOption";
-import {FileAttribute} from "../../attribute/FileAttribute";
+import {BasicFileAttributes, FileAttribute, FileAttributeView} from "../../attribute";
 import {FileStore} from "../../FileStore";
-import {BasicFileAttributes} from "../../attribute/BasicFileAttributes";
 import {LinkOption} from "../../LinkOption";
-import {FileAttributeView} from "../../attribute/FileAttributeView";
 
 /* It's a FileSystemProvider that provides a LocalFileSystem */
 export class LocalFileSystemProvider extends FileSystemProvider {

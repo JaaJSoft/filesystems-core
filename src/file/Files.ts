@@ -1,5 +1,5 @@
 import {Path} from "./Path";
-import {FileSystemProvider} from "./spi/FileSystemProvider";
+import {FileSystemProvider} from "./spi";
 import {OpenOption} from "./OpenOption";
 import {
     BasicFileAttributes,

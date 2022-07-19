@@ -3,14 +3,11 @@ import {Path} from "../Path";
 import {CopyOption} from "../CopyOption";
 import {AccessMode} from "../AccessMode";
 import {NoSuchFileException} from "../NoSuchFileException";
-import {UnsupportedOperationException} from "../../exception/UnsupportedOperationException";
+import {IllegalArgumentException, UnsupportedOperationException} from "../../exception";
 import {OpenOption} from "../OpenOption";
-import {IllegalArgumentException} from "../../exception/IllegalArgumentException";
-import {BasicFileAttributes} from "../attribute/BasicFileAttributes";
-import {FileAttribute} from "../attribute/FileAttribute";
+import {BasicFileAttributes, FileAttribute, FileAttributeView} from "../attribute";
 import {FileStore} from "../FileStore";
 import {LinkOption} from "../LinkOption";
-import {FileAttributeView} from "../attribute/FileAttributeView";
 
 /* A contract for file system providers. */
 export abstract class FileSystemProvider {

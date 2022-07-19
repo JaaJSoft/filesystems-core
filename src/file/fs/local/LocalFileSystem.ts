@@ -2,10 +2,10 @@ import {FileSystem} from "../../FileSystem";
 import {FileStore} from "../../FileStore";
 import {PathMatcher} from "../../PathMatcher";
 import {Path} from "../../Path";
-import {UserPrincipalLookupService} from "../../attribute/UserPrincipalLookupService";
-import {FileSystemProvider} from "../../spi/FileSystemProvider";
+import {UserPrincipalLookupService} from "../../attribute";
+import {FileSystemProvider} from "../../spi";
 import {LocalFileSystemProvider} from "./LocalFileSystemProvider";
-import {UnsupportedOperationException} from "../../../exception/UnsupportedOperationException";
+import {UnsupportedOperationException} from "../../../exception";
 import {LocalPath} from "./LocalPath";
 import * as jsPath from "path";
 

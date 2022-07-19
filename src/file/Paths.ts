@@ -1,6 +1,6 @@
 import {FileSystems} from "./FileSystems";
-import {IllegalArgumentException} from "../exception/IllegalArgumentException";
-import {installedProviders} from "./spi/FileSystemProviders";
+import {IllegalArgumentException} from "../exception";
+import {installedProviders} from "./spi";
 import {FileSystemNotFoundException} from "./FileSystemNotFoundException";
 import {Path} from "./Path";
 

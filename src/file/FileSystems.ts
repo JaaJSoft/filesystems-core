@@ -1,9 +1,8 @@
 import {FileSystem} from "./FileSystem";
-import {IllegalArgumentException} from "../exception/IllegalArgumentException";
+import {IllegalArgumentException, UnsupportedOperationException} from "../exception";
 import {ProviderNotFoundException} from "./ProviderNotFoundException";
-import {installedProviders} from "./spi/FileSystemProviders";
-import {LocalFileSystemProvider} from "./fs/local/LocalFileSystemProvider";
-import {UnsupportedOperationException} from "../exception/UnsupportedOperationException";
+import {installedProviders} from "./spi";
+import {LocalFileSystemProvider} from "./fs/local";
 
 export class FileSystems {
     private static readonly defaultFileSystemProvider: LocalFileSystemProvider = new LocalFileSystemProvider();
