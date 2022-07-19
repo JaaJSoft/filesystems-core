@@ -1,26 +1,26 @@
 import {Path} from "./Path";
 import {FileSystemProvider} from "./spi/FileSystemProvider";
 import {OpenOption} from "./OpenOption";
-import {FileAttribute} from "./attribute/FileAttribute";
+import {
+    BasicFileAttributes,
+    BasicFileAttributeView,
+    FileAttribute,
+    FileAttributeView,
+    FileOwnerAttributeView,
+    FileTime,
+    PosixFileAttributes,
+    PosixFileAttributeView,
+    PosixFilePermission,
+    UserPrincipal
+} from "./attribute";
 import {DirectoryStream} from "./DirectoryStream";
 import {FileSystem} from "./FileSystem";
 import {PathMatcher} from "./PathMatcher";
 import {FileAlreadyExistsException} from "./FileAlreadyExistsException";
 import {LinkOption} from "./LinkOption";
-import {SecurityException} from "../exception/SecurityException";
+import {NullPointerException, SecurityException, UnsupportedOperationException} from "../exception";
 import {NoSuchFileException} from "./NoSuchFileException";
 import {FileSystemException} from "./FileSystemException";
-import {BasicFileAttributes} from "./attribute/BasicFileAttributes";
-import {FileAttributeView} from "./attribute/FileAttributeView";
-import {PosixFilePermission} from "./attribute/PosixFilePermission";
-import {PosixFileAttributes} from "./attribute/PosixFileAttributes";
-import {UnsupportedOperationException} from "../exception/UnsupportedOperationException";
-import {PosixFileAttributeView} from "./attribute/PosixFileAttributeView";
-import {UserPrincipal} from "./attribute/UserPrincipal";
-import {FileOwnerAttributeView} from "./attribute/FileOwnerAttributeView";
-import {FileTime} from "./attribute/FileTime";
-import {BasicFileAttributeView} from "./attribute/BasicFileAttributeView";
-import {NullPointerException} from "@js-joda/core";
 import {AccessMode} from "./AccessMode";
 
 /* It provides a set of static methods for working with files and directories */
@@ -227,8 +227,8 @@ export class Files {
      * @param {LinkOption} [options] - LinkOption
      * @returns BasicFileAttributes
      */
-    public static readAttributesFromType(path: Path, type?: string, options?: LinkOption[]): BasicFileAttributes {
-        return this.provider(path).readAttributesFromType(path, type, options);
+    public static readAttributesWithType(path: Path, type?: string, options?: LinkOption[]): BasicFileAttributes {
+        return this.provider(path).readAttributesWithType(path, type, options);
     }
 
     public static readAttributes(path: Path, attributes: string, options?: LinkOption[]): Map<string, any> {
@@ -251,7 +251,7 @@ export class Files {
      * @returns A Set of PosixFilePermission
      */
     public static getPosixFilePermissions(path: Path, options?: LinkOption[]): Set<PosixFilePermission> {
-        return (this.readAttributesFromType(path, "PosixFileAttributes", options) as PosixFileAttributes).permissions();
+        return (this.readAttributesWithType(path, "PosixFileAttributes", options) as PosixFileAttributes).permissions();
     }
 
     /**
@@ -305,7 +305,7 @@ export class Files {
      */
     public static isSymbolicLink(path: Path): boolean {
         try {
-            return this.readAttributesFromType(path, undefined, [LinkOption.NOFOLLOW_LINKS]).isSymbolicLink();
+            return this.readAttributesWithType(path, undefined, [LinkOption.NOFOLLOW_LINKS]).isSymbolicLink();
         } catch (ioe) {
             return false;
         }
@@ -319,7 +319,7 @@ export class Files {
      */
     public static isDirectory(path: Path, options?: LinkOption[]): boolean {
         try {
-            return this.readAttributesFromType(path, undefined, options).isDirectory();
+            return this.readAttributesWithType(path, undefined, options).isDirectory();
         } catch (ioe) {
             return false;
         }
@@ -333,7 +333,7 @@ export class Files {
      */
     public static isRegularFile(path: Path, options?: LinkOption[]): boolean {
         try {
-            return this.readAttributesFromType(path, undefined, options).isRegularFile();
+            return this.readAttributesWithType(path, undefined, options).isRegularFile();
         } catch (ioe) {
             return false;
         }
@@ -346,7 +346,7 @@ export class Files {
      * @returns The last modified time of the file.
      */
     public static getLastModifiedTime(path: Path, options?: LinkOption[]): FileTime {
-        return this.readAttributesFromType(path, undefined, options).lastModifiedTime();
+        return this.readAttributesWithType(path, undefined, options).lastModifiedTime();
     }
 
     /**
@@ -368,7 +368,7 @@ export class Files {
      * @returns The size of the file.
      */
     public static size(path: Path): number {
-        return this.readAttributesFromType(path).size();
+        return this.readAttributesWithType(path).size();
     }
 
     // -- Accessibility --
@@ -402,7 +402,7 @@ export class Files {
                 this.provider(path).checkAccess(path);
             } else {
                 // attempt to read attributes without following links
-                this.readAttributesFromType(path, "BasicFileAttributes", [LinkOption.NOFOLLOW_LINKS]);
+                this.readAttributesWithType(path, "BasicFileAttributes", [LinkOption.NOFOLLOW_LINKS]);
             }
             // file exists
             return true;
@@ -424,7 +424,7 @@ export class Files {
                 this.provider(path).checkAccess(path);
             } else {
                 // attempt to read attributes without following links
-                this.readAttributesFromType(path, "BasicFileAttributes", [LinkOption.NOFOLLOW_LINKS]);
+                this.readAttributesWithType(path, "BasicFileAttributes", [LinkOption.NOFOLLOW_LINKS]);
             }
             // file exists
             return false;

@@ -112,7 +112,7 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         fs.rmSync(path.toAbsolutePath().toString())
     }
 
-    public readAttributesFromType(path: Path, type?: string, options?: LinkOption[]): BasicFileAttributes {
+    public readAttributesWithType(path: Path, type?: string, options?: LinkOption[]): BasicFileAttributes {
         throw new Error("Method not implemented.");
     }
 

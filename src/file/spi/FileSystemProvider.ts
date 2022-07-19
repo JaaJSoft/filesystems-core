@@ -159,7 +159,7 @@ export abstract class FileSystemProvider {
 
     public abstract checkAccess(obj: Path, modes?: AccessMode[]): void;
 
-    public abstract readAttributesFromType(path: Path, type?: string, options?: LinkOption[]): BasicFileAttributes;
+    public abstract readAttributesWithType(path: Path, type?: string, options?: LinkOption[]): BasicFileAttributes;
 
     public abstract readAttributes(path: Path, attributes: string, options?: LinkOption[]): Map<string, any>;
 
