@@ -1,6 +1,6 @@
 {
   "name": "@filesystems/core",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "A js implementation of the Java FileSystem Library",
   "main": "dist/index.js",
   "type": "commonjs",
