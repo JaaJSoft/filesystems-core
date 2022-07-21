@@ -1,4 +1,4 @@
-import {Paths} from "../../src/file/Paths";
+import {Paths} from "../../src/file";
 import * as os from 'os'
 
 test('path', () => {
