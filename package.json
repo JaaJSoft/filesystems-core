@@ -14,15 +14,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JaaJSoft/filesystem.js.git"
+    "url": "git+https://github.com/JaaJSoft/filesystems-core.git"
   },
   "keywords": [],
   "author": "JaaJSoft",
   "license": "GPL-2.0",
   "bugs": {
-    "url": "https://github.com/JaaJSoft/filesystem.js/issues"
+    "url": "https://github.com/JaaJSoft/filesystems-core/issues"
   },
-  "homepage": "https://github.com/JaaJSoft/filesystem.js#readme",
+  "homepage": "https://github.com/JaaJSoft/filesystems-core",
   "devDependencies": {
     "@babel/core": "^7.16.5",
     "@babel/preset-env": "^7.16.5",
