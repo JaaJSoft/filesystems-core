@@ -164,18 +164,50 @@ export class Files {
         }
     }
 
+    /**
+     * It creates a temporary file in the given path.
+     * @param {Path} path - The directory in which the file is to be created.
+     * @param {string} prefix - The prefix string to be used in generating the file's name; must be at least three
+     * characters long
+     * @param {string} suffix - The suffix string to be used in generating the file's name; must be at least three
+     * characters long
+     * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
+     */
     public static createTempFileIn(path: Path, prefix: string, suffix: string, attrs?: FileAttribute<any>[]): Path {
         throw new Error("Method not implemented.");
     }
 
+    /**
+     * It creates a temporary file in the default temporary-file directory, using the given prefix and suffix to generate
+     * the file's name.
+     * @param {string} prefix - The prefix string to be used in generating the file's name; must be at least three
+     * characters long
+     * @param {string} suffix - The suffix string to be used in generating the file's name; may be null, in which case the
+     * suffix ".tmp" will be used
+     * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
+     * @returns A Path object
+     */
     public static createTempFile(prefix: string, suffix: string, attrs?: FileAttribute<any>[]): Path {
         return this.createTempFileIn(null, prefix, suffix, attrs);
     }
 
+    /**
+     * It creates a temporary directory in the given path with the given prefix and attributes.
+     * @param {Path} path - The path to the directory in which the temporary directory should be created.
+     * @param {string} prefix - The prefix of the temporary directory's name.
+     * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
+     */
     public static createTempDirectoryIn(path: Path, prefix: string, attrs?: FileAttribute<any>[]): Path {
         throw new Error("Method not implemented.");
     }
 
+    /**
+     * It creates a temporary directory.
+     * @param {string} prefix - The prefix string to be used in generating the file's name; must be at least three
+     * characters long
+     * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
+     * @returns A Path object
+     */
     public static createTempDirectory(prefix: string, attrs?: FileAttribute<any>[]): Path {
         return this.createTempDirectoryIn(null, prefix, attrs);
     }
