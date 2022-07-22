@@ -7,7 +7,6 @@ export abstract class Path implements Iterable<Path> {
 
     protected constructor() {
         // TODO document why this constructor is empty
-
     }
 
     public abstract getFileSystem(): FileSystem;

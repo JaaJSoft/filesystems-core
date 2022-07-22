@@ -231,10 +231,24 @@ export class Files {
         return this.provider(path).readAttributesWithType(path, type, options);
     }
 
+    /**
+     * It returns a map of the attributes of the file at the given path.
+     * @param {Path} path - The path to the file or directory.
+     * @param {string} attributes - string
+     * @param {LinkOption[]} [options] - LinkOption[]
+     * @returns A Map of the attributes of the file at the given path.
+     */
     public static readAttributes(path: Path, attributes: string, options?: LinkOption[]): Map<string, any> {
         return this.provider(path).readAttributes(path, attributes, options);
     }
 
+    /**
+     * `getFileAttributeView` returns a `FileAttributeView` object that provides access to the attributes of a file
+     * @param {Path} path - The path to the file
+     * @param {string} [type] - The type of the attribute view.
+     * @param {LinkOption[]} [options] - An array of LinkOption objects.
+     * @returns A FileAttributeView object.
+     */
     public static getFileAttributeView(path: Path, type?: string, options?: LinkOption[]): FileAttributeView {
         return this.provider(path).getFileAttributeView(path, type, options);
     }
