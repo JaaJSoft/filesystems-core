@@ -2,10 +2,10 @@ import {CopyOption} from "./CopyOption";
 import {LinkOption} from "./LinkOption";
 import {IOException, NullPointerException, UnsupportedOperationException} from "../exception";
 import {StandardCopyOption} from "./StandardCopyOption";
-import {AtomicMoveNotSupportedException} from "./AtomicMoveNotSupportedException";
+import {AtomicMoveNotSupportedException} from "./exception/AtomicMoveNotSupportedException";
 import {Path} from "./Path";
 import {Files} from "./Files";
-import {FileAlreadyExistsException} from "./FileAlreadyExistsException";
+import {FileAlreadyExistsException} from "./exception/FileAlreadyExistsException";
 import {BasicFileAttributeView} from "./attribute";
 
 class CopyOptions {
@@ -19,23 +19,25 @@ class CopyOptions {
 
     public static parse(options?: CopyOption[]): CopyOptions {
         const result = new CopyOptions();
-        for (let option of options) {
-            if (option === StandardCopyOption.REPLACE_EXISTING) {
-                result.replaceExisting = true;
-                continue;
+        if (options) {
+            for (let option of options) {
+                if (option === StandardCopyOption.REPLACE_EXISTING) {
+                    result.replaceExisting = true;
+                    continue;
+                }
+                if (option == LinkOption.NOFOLLOW_LINKS) {
+                    result.followLinks = false;
+                    continue;
+                }
+                if (option == StandardCopyOption.COPY_ATTRIBUTES) {
+                    result.copyAttributes = true;
+                    continue;
+                }
+                if (option == null)
+                    throw new NullPointerException();
+                throw new UnsupportedOperationException("'" + option +
+                    "' is not a recognized copy option");
             }
-            if (option == LinkOption.NOFOLLOW_LINKS) {
-                result.followLinks = false;
-                continue;
-            }
-            if (option == StandardCopyOption.COPY_ATTRIBUTES) {
-                result.copyAttributes = true;
-                continue;
-            }
-            if (option == null)
-                throw new NullPointerException();
-            throw new UnsupportedOperationException("'" + option +
-                "' is not a recognized copy option");
         }
         return result;
     }
@@ -43,11 +45,13 @@ class CopyOptions {
 
 function convertMoveToCopyOptions(options?: CopyOption[]): CopyOption[] {
     const newOptions: CopyOption[] = []
-    for (let option of options) {
-        if (option === StandardCopyOption.ATOMIC_MOVE) {
-            throw new AtomicMoveNotSupportedException(null, null, "Atomic move between providers is not supported")
+    if (options) {
+        for (let option of options) {
+            if (option === StandardCopyOption.ATOMIC_MOVE) {
+                throw new AtomicMoveNotSupportedException(undefined, undefined, "Atomic move between providers is not supported")
+            }
+            newOptions.push(option);
         }
-        newOptions.push(option);
     }
     newOptions.push(LinkOption.NOFOLLOW_LINKS);
     newOptions.push(StandardCopyOption.COPY_ATTRIBUTES);
@@ -75,12 +79,14 @@ export async function copyToForeignTarget(source: Path, target: Path, options?: 
     if (attrs.isDirectory()) {
         Files.createDirectory(target);
     } else {
-        let inputStream: ReadableStream;
+        let inputStream: ReadableStream | null = null;
         try {
-            inputStream = this.newInputStream(source);
+            inputStream = Files.newInputStream(source);
             await Files.copyFromStream(inputStream, target);
         } finally {
-            await inputStream.cancel();
+            if (inputStream) {
+                await inputStream.cancel();
+            }
         }
     }
 

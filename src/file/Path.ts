@@ -13,15 +13,15 @@ export abstract class Path implements Iterable<Path> {
 
     public abstract isAbsolute(): boolean;
 
-    public abstract getRoot(): Path;
+    public abstract getRoot(): Path | null;
 
-    public abstract getFileName(): Path;
+    public abstract getFileName(): Path | null;
 
     /**
      * It returns the parent path of the current path
      * @returns The parent of the path.
      */
-    public abstract getParent(): Path;
+    public abstract getParent(): Path | null;
 
     public abstract getNameCount(): number;
 
@@ -58,13 +58,21 @@ export abstract class Path implements Iterable<Path> {
 
     /* Checking if the path starts with the given string. */
     public startsWithStr(other: string): boolean {
-        return this.startsWith(this.getFileSystem().getPath(other))
+        const path = this.getFileSystem().getPath(other);
+        if (path) {
+            return this.startsWith(path)
+        }
+        return false;
     }
 
     public abstract endWith(other: Path): boolean;
 
     public endWithStr(other: string): boolean {
-        return this.endWith(this.getFileSystem().getPath(other))
+        const path = this.getFileSystem().getPath(other);
+        if (path) {
+            return this.endWith(path)
+        }
+        return false;
     }
 
     public abstract normalize(): Path;
@@ -78,8 +86,12 @@ export abstract class Path implements Iterable<Path> {
      * @param {string} other - The path to resolve against this path.
      * @returns A Path object
      */
-    public resolveFromString(other: string): Path {
-        return this.resolve(this.getFileSystem().getPath(other))
+    public resolveFromString(other: string): Path | null {
+        const path = this.getFileSystem().getPath(other);
+        if (path) {
+            return this.resolve(path)
+        }
+        return null;
     }
 
     /**
@@ -121,8 +133,12 @@ export abstract class Path implements Iterable<Path> {
      * @param {string} other - The other path to resolve against this one.
      * @returns A Path object.
      */
-    public resolveSiblingFromString(other: string): Path {
-        return this.resolveSibling(this.getFileSystem().getPath(other));
+    public resolveSiblingFromString(other: string): Path | null {
+        const path = this.getFileSystem().getPath(other);
+        if (path) {
+            return this.resolveSibling(path);
+        }
+        return null;
     }
 
     /**

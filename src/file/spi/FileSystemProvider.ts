@@ -2,13 +2,13 @@ import {FileSystem} from "../FileSystem";
 import {Path} from "../Path";
 import {CopyOption} from "../CopyOption";
 import {AccessMode} from "../AccessMode";
-import {NoSuchFileException} from "../NoSuchFileException";
 import {IllegalArgumentException, UnsupportedOperationException} from "../../exception";
 import {OpenOption} from "../OpenOption";
 import {BasicFileAttributes, FileAttribute, FileAttributeView} from "../attribute";
 import {FileStore} from "../FileStore";
 import {LinkOption} from "../LinkOption";
 import {StandardOpenOption} from "../StandardOpenOption";
+import {DirectoryStream} from "../DirectoryStream";
 
 /* A contract for file system providers. */
 export abstract class FileSystemProvider {
@@ -20,9 +20,9 @@ export abstract class FileSystemProvider {
         throw new UnsupportedOperationException();
     }
 
-    public abstract getFileSystem(url: URL): FileSystem;
+    public abstract getFileSystem(url: URL): FileSystem | null;
 
-    public abstract getPath(url: URL): Path;
+    public abstract getPath(url: URL): Path | null;
 
     public newInputStream(path: Path, options?: OpenOption[]): ReadableStream {
         if (options && options.length > 0) {
@@ -50,7 +50,7 @@ export abstract class FileSystemProvider {
      */
     public newOutputStream(path: Path, options?: OpenOption[]): WritableStream {
         let opts: Set<OpenOption>;
-        if (options || options.length == 0) {
+        if (!options || options.length == 0) {
             opts = new Set<OpenOption>(FileSystemProvider.DEFAULT_OPEN_OPTIONS);
         } else {
             opts = new Set<OpenOption>();
@@ -66,7 +66,7 @@ export abstract class FileSystemProvider {
     }
 
     protected abstract newOutputStreamImpl(path: Path, options?: OpenOption[]): WritableStream; // TODO replace this by channels if possible
-    public abstract newDirectoryStream(dir: Path, acceptFilter: (path: Path) => boolean);
+    public abstract newDirectoryStream(dir: Path, acceptFilter: (path: Path) => boolean): DirectoryStream<Path>;
 
     public abstract createFile(dir: Path, attrs?: FileAttribute<any>[]): void;
 
@@ -139,9 +139,7 @@ export abstract class FileSystemProvider {
             this.delete(path);
             return true;
         } catch (e) {
-            if (e instanceof NoSuchFileException) {
-                return false;
-            }
+            return false
         }
     }
 

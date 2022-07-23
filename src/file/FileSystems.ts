@@ -1,6 +1,6 @@
 import {FileSystem} from "./FileSystem";
 import {IllegalArgumentException, UnsupportedOperationException} from "../exception";
-import {ProviderNotFoundException} from "./ProviderNotFoundException";
+import {ProviderNotFoundException} from "./exception/ProviderNotFoundException";
 import {installedProviders} from "./spi";
 import {LocalFileSystemProvider} from "./fs/local";
 
@@ -20,7 +20,7 @@ export class FileSystems {
      * @param {URL} url - URL
      * @returns A FileSystem object
      */
-    public static getFileSystem(url: URL): FileSystem {
+    public static getFileSystem(url: URL): FileSystem | null {
         const scheme = url.protocol.toLowerCase();
         if (scheme === null) {
             throw new IllegalArgumentException("Missing scheme");

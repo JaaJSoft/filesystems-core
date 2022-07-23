@@ -16,11 +16,9 @@ import {
 import {DirectoryStream} from "./DirectoryStream";
 import {FileSystem} from "./FileSystem";
 import {PathMatcher} from "./PathMatcher";
-import {FileAlreadyExistsException} from "./FileAlreadyExistsException";
+import {FileAlreadyExistsException, FileSystemException, NoSuchFileException} from "./exception";
 import {LinkOption} from "./LinkOption";
 import {NullPointerException, SecurityException, UnsupportedOperationException} from "../exception";
-import {NoSuchFileException} from "./NoSuchFileException";
-import {FileSystemException} from "./FileSystemException";
 import {AccessMode} from "./AccessMode";
 import {CopyOption} from "./CopyOption";
 import {StandardCopyOption} from "./StandardCopyOption";
@@ -31,6 +29,7 @@ import {copyToForeignTarget, moveToForeignTarget} from "./CopyMoveHelper";
 export class Files {
 
     // buffer size used for reading and writing
+    // @ts-ignore
     private static BUFFER_SIZE: number = 8192;
 
     private constructor() {
@@ -118,7 +117,7 @@ export class Files {
                 throw x;
             }
         }
-        let se: SecurityException = null;
+        let se: SecurityException | null = null;
         try {
             dir = dir.toAbsolutePath();
         } catch (x) {
@@ -126,7 +125,7 @@ export class Files {
                 se = x;
             }
         }
-        let parent: Path = dir.getParent();
+        let parent: Path | null = dir.getParent();
         while (parent != null) {
             try {
                 this.provider(parent).checkAccess(parent);
@@ -138,11 +137,11 @@ export class Files {
             }
             parent = parent.getParent();
         }
-        if (parent == null) {
-            if (se == null) {
+        if (parent === null) {
+            if (se === null) {
                 throw new FileSystemException(
                     dir.toString(),
-                    null,
+                    undefined,
                     "Unable to determine if root directory exists"
                 );
             } else {
@@ -177,7 +176,7 @@ export class Files {
      * characters long
      * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
      */
-    public static createTempFileIn(path: Path, prefix: string, suffix: string, attrs?: FileAttribute<any>[]): Path {
+    public static createTempFileIn(path?: Path, prefix?: string, suffix?: string | null, attrs?: FileAttribute<any>[]): Path {
         throw new Error("Method not implemented.");
     }
 
@@ -192,7 +191,7 @@ export class Files {
      * @returns A Path object
      */
     public static createTempFile(prefix: string, suffix: string, attrs?: FileAttribute<any>[]): Path {
-        return this.createTempFileIn(null, prefix, suffix, attrs);
+        return this.createTempFileIn(undefined, prefix, suffix, attrs);
     }
 
     /**
@@ -201,7 +200,7 @@ export class Files {
      * @param {string} prefix - The prefix of the temporary directory's name.
      * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
      */
-    public static createTempDirectoryIn(path: Path, prefix: string, attrs?: FileAttribute<any>[]): Path {
+    public static createTempDirectoryIn(path?: Path, prefix?: string, attrs?: FileAttribute<any>[]): Path {
         throw new Error("Method not implemented.");
     }
 
@@ -213,7 +212,7 @@ export class Files {
      * @returns A Path object
      */
     public static createTempDirectory(prefix: string, attrs?: FileAttribute<any>[]): Path {
-        return this.createTempDirectoryIn(null, prefix, attrs);
+        return this.createTempDirectoryIn(undefined, prefix, attrs);
     }
 
     /**
@@ -255,7 +254,7 @@ export class Files {
     public static deleteIfExists(path: Path): boolean {
         return this.provider(path).deleteIfExists(path);
     }
-    
+
     /**
      * Copy a file or directory from one location to another
      * @param {Path} source - The path to the file or directory to copy.
@@ -549,18 +548,20 @@ export class Files {
             throw new NullPointerException();
         }
         let replaceExisting = false;
-        for (let opt of options) {
-            if (opt === StandardCopyOption.REPLACE_EXISTING) {
-                replaceExisting = true;
-            } else {
-                if (opt == null) {
-                    throw new NullPointerException("options contains 'null'");
+        if (options) {
+            for (let opt of options) {
+                if (opt === StandardCopyOption.REPLACE_EXISTING) {
+                    replaceExisting = true;
                 } else {
-                    throw new UnsupportedOperationException(opt + " not supported");
+                    if (opt == null) {
+                        throw new NullPointerException("options contains 'null'");
+                    } else {
+                        throw new UnsupportedOperationException(opt + " not supported");
+                    }
                 }
             }
         }
-        let se: SecurityException = null;
+        let se: SecurityException | null = null;
         if (replaceExisting) {
             try {
                 this.deleteIfExists(target);
@@ -570,7 +571,7 @@ export class Files {
                 }
             }
         }
-        let outputStream: WritableStream;
+        let outputStream: WritableStream | null = null;
         try {
             outputStream = this.newOutputStream(target, [StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE]);
             await inputStream.pipeTo(outputStream);
@@ -584,7 +585,9 @@ export class Files {
                 throw x;
             }
         } finally {
-            await outputStream.close();
+            if (outputStream) {
+                await outputStream.close();
+            }
         }
     }
 
@@ -592,12 +595,14 @@ export class Files {
         if (!outputStream) {
             throw new NullPointerException();
         }
-        let inputStream: ReadableStream;
+        let inputStream: ReadableStream | null = null;
         try {
             inputStream = this.newInputStream(source);
             await inputStream.pipeTo(outputStream);
         } finally {
-            await inputStream.cancel();
+            if (inputStream) {
+                await inputStream.cancel();
+            }
         }
     }
 }

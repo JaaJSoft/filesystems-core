@@ -1,7 +1,7 @@
 import {FileSystems} from "./FileSystems";
 import {IllegalArgumentException} from "../exception";
 import {installedProviders} from "./spi";
-import {FileSystemNotFoundException} from "./FileSystemNotFoundException";
+import {FileSystemNotFoundException} from "./exception/FileSystemNotFoundException";
 import {Path} from "./Path";
 
 /* This class provides static methods to create Path objects.*/
@@ -16,7 +16,7 @@ export class Paths {
      * @param {string[]} [more] - string[]
      * @returns A Path object
      */
-    public static of(first: string, more?: string[]): Path {
+    public static of(first: string, more?: string[]): Path | null {
         return FileSystems.getDefault().getPath(first, more);
     }
 
@@ -26,7 +26,7 @@ export class Paths {
      * @param {URL} url - URL
      * @returns A Path object
      */
-    public static ofURL(url: URL): Path {
+    public static ofURL(url: URL): Path | null {
         const scheme = url.protocol.toLowerCase().replace(":", "");
         if (scheme === null) {
             throw new IllegalArgumentException("Missing scheme");

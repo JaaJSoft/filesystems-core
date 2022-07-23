@@ -6,11 +6,12 @@ import * as os from "os";
 import * as fs from "fs";
 import {AccessMode} from "../../AccessMode";
 import {CopyOption} from "../../CopyOption";
-import {AccessDeniedException} from "../../AccessDeniedException";
+import {AccessDeniedException} from "../../exception/AccessDeniedException";
 import {OpenOption} from "../../OpenOption";
 import {BasicFileAttributes, FileAttribute, FileAttributeView} from "../../attribute";
 import {FileStore} from "../../FileStore";
 import {LinkOption} from "../../LinkOption";
+import {DirectoryStream} from "../../DirectoryStream";
 
 /* It's a FileSystemProvider that provides a LocalFileSystem */
 export class LocalFileSystemProvider extends FileSystemProvider {
@@ -26,11 +27,14 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         return this.theFileSystem;
     }
 
-    public getFileSystem(url: URL): FileSystem {
-        return this.theFileSystem.getPath(url.pathname).getFileSystem();
+    public getFileSystem(url: URL): FileSystem | null {
+        const path = this.theFileSystem.getPath(url.pathname);
+        if (path)
+            return path.getFileSystem();
+        return null
     }
 
-    public getPath(url: URL): Path {
+    public getPath(url: URL): Path | null {
         return this.theFileSystem.getPath(url.pathname);
     }
 
@@ -62,7 +66,7 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         throw new Error("Method not implemented.");
     }
 
-    public newDirectoryStream(dir: Path, acceptFilter: (path: Path) => boolean) {
+    public newDirectoryStream(dir: Path, acceptFilter: (path: Path) => boolean): DirectoryStream<Path> {
         throw new Error("Method not implemented.");
     }
 
@@ -71,20 +75,20 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         throw new Error("Method not implemented.");
     }
 
-    public checkAccess(obj: Path, modes: AccessMode[]): void { // TODO finish this
+    public checkAccess(obj: Path, modes: AccessMode[]): void { // TODO finish this use readAttributes & co ?
         modes.forEach((mode) => {
             switch (mode) {
                 case AccessMode.READ:
                     return fs.access(obj.toString(), fs.constants.R_OK, err => {
-                        throw new AccessDeniedException(obj.toString(), err.path, err.message);
+                        throw new AccessDeniedException(obj.toString(), err?.path, err?.message);
                     })
                 case AccessMode.WRITE:
                     return fs.access(obj.toString(), fs.constants.W_OK, err => {
-                        throw new AccessDeniedException(obj.toString(), err.path, err.message);
+                        throw new AccessDeniedException(obj.toString(), err?.path, err?.message);
                     })
                 case AccessMode.EXECUTE:
                     return fs.access(obj.toString(), fs.constants.X_OK, err => {
-                        throw new AccessDeniedException(obj.toString(), err.path, err.message);
+                        throw new AccessDeniedException(obj.toString(), err?.path, err?.message);
                     })
             }
         })

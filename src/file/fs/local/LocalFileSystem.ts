@@ -27,10 +27,10 @@ export class LocalFileSystem extends FileSystem {
     }
 
     public getFileStores(): Iterable<FileStore> {
-        return undefined;
+        throw new Error("Method not implemented.");
     }
 
-    public getPath(first: string, more?: string[]): Path {
+    public getPath(first: string, more?: string[]): Path | null {
         if (!first) {
             return null;
         }
@@ -54,7 +54,11 @@ export class LocalFileSystem extends FileSystem {
     }
 
     public getRootDirectories(): Iterable<Path> { // TODO find a better way
-        return [this.getPath("/")]
+        const path = this.getPath("/");
+        if (path) {
+            return [path];
+        }
+        return [];
     }
 
     public getSeparator(): string {
@@ -81,5 +85,14 @@ export class LocalFileSystem extends FileSystem {
 
     public supportedFileAttributeViews(): Set<string> {
         return LocalFileSystem.supportedFileAttributeViews;
+    }
+
+
+    public getDefaultDirectory(): string {
+        return this.defaultDirectory;
+    }
+
+    public getDefaultRoot(): string {
+        return this.defaultRoot;
     }
 }

@@ -1,5 +1,5 @@
 import {Path} from "./Path";
 
 export interface PathMatcher {
-    matches(path: Path): boolean;
+    matches(path: Path | null): boolean;
 }
