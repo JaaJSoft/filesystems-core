@@ -255,11 +255,11 @@ export class Files {
     public static deleteIfExists(path: Path): boolean {
         return this.provider(path).deleteIfExists(path);
     }
-
+    
     /**
-     * Copy a file from one location to another.
-     * @param {Path} source - Path - The source path to copy
-     * @param {Path} target - Path - The target path
+     * Copy a file or directory from one location to another
+     * @param {Path} source - The path to the file or directory to copy.
+     * @param {Path} target - Path - The path to the target file or directory.
      * @param {CopyOption[]} [options] - CopyOption[]
      * @returns The target path.
      */
@@ -274,9 +274,9 @@ export class Files {
     }
 
     /**
-     * Move a file from one location to another.
-     * @param {Path} source - Path - The source path to move
-     * @param {Path} target - Path - The target path
+     * Move a file or directory to a new location
+     * @param {Path} source - Path - The path to the file or directory to be moved.
+     * @param {Path} target - Path - The target path to move the source to.
      * @param {CopyOption[]} [options] - CopyOption[]
      * @returns The target path.
      */
