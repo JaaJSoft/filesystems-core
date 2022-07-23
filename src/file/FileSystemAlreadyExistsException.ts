@@ -1,3 +1,3 @@
-export class FileSystemAlreadyExistsException extends Error{
+export class FileSystemAlreadyExistsException extends Error {
 
 }

@@ -8,6 +8,7 @@ import {OpenOption} from "../OpenOption";
 import {BasicFileAttributes, FileAttribute, FileAttributeView} from "../attribute";
 import {FileStore} from "../FileStore";
 import {LinkOption} from "../LinkOption";
+import {StandardOpenOption} from "../StandardOpenOption";
 
 /* A contract for file system providers. */
 export abstract class FileSystemProvider {
@@ -27,8 +28,8 @@ export abstract class FileSystemProvider {
         if (options && options.length > 0) {
             for (let opt of options) {
                 // All OpenOption values except for APPEND and WRITE are allowed
-                if (opt == OpenOption.APPEND ||
-                    opt == OpenOption.WRITE) {
+                if (opt == StandardOpenOption.APPEND ||
+                    opt == StandardOpenOption.WRITE) {
                     throw new UnsupportedOperationException("'" + opt + "' not allowed");
                 }
             }
@@ -39,7 +40,7 @@ export abstract class FileSystemProvider {
 
     protected abstract newInputStreamImpl(path: Path, options?: OpenOption[]): ReadableStream; // TODO replace this by channels if possible
 
-    private static readonly DEFAULT_OPEN_OPTIONS = [OpenOption.CREATE, OpenOption.TRUNCATE_EXISTING, OpenOption.WRITE]
+    private static readonly DEFAULT_OPEN_OPTIONS = [StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE]
 
     /**
      * creates a new output stream.
@@ -54,12 +55,12 @@ export abstract class FileSystemProvider {
         } else {
             opts = new Set<OpenOption>();
             for (let opt of options) {
-                if (opt == OpenOption.READ) {
+                if (opt === StandardOpenOption.READ) {
                     throw new IllegalArgumentException("READ not allowed");
                 }
                 opts.add(opt);
             }
-            opts.add(OpenOption.WRITE);
+            opts.add(StandardOpenOption.WRITE);
         }
         return this.newOutputStreamImpl(path, [...opts]);
     }

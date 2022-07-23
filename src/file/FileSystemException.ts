@@ -1,4 +1,6 @@
-export class FileSystemException extends Error {
+import {IOException} from "../exception";
+
+export class FileSystemException extends IOException {
     private readonly file: string;
     private readonly other: string;
 

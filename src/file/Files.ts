@@ -22,6 +22,10 @@ import {NullPointerException, SecurityException, UnsupportedOperationException} 
 import {NoSuchFileException} from "./NoSuchFileException";
 import {FileSystemException} from "./FileSystemException";
 import {AccessMode} from "./AccessMode";
+import {CopyOption} from "./CopyOption";
+import {StandardCopyOption} from "./StandardCopyOption";
+import {StandardOpenOption} from "./StandardOpenOption";
+import {copyToForeignTarget, moveToForeignTarget} from "./CopyMoveHelper";
 
 /* It provides a set of static methods for working with files and directories */
 export class Files {
@@ -250,6 +254,40 @@ export class Files {
      */
     public static deleteIfExists(path: Path): boolean {
         return this.provider(path).deleteIfExists(path);
+    }
+
+    /**
+     * Copy a file from one location to another.
+     * @param {Path} source - Path - The source path to copy
+     * @param {Path} target - Path - The target path
+     * @param {CopyOption[]} [options] - CopyOption[]
+     * @returns The target path.
+     */
+    public static async copy(source: Path, target: Path, options?: CopyOption[]): Promise<Path> {
+        const provider = this.provider(source);
+        if (this.provider(target) === provider) {
+            provider.copy(source, target, options);
+        } else {
+            await copyToForeignTarget(source, target, options)
+        }
+        return target;
+    }
+
+    /**
+     * Move a file from one location to another.
+     * @param {Path} source - Path - The source path to move
+     * @param {Path} target - Path - The target path
+     * @param {CopyOption[]} [options] - CopyOption[]
+     * @returns The target path.
+     */
+    public static async move(source: Path, target: Path, options?: CopyOption[]): Promise<Path> {
+        const provider = this.provider(source);
+        if (this.provider(target) === provider) {
+            provider.move(source, target, options);
+        } else {
+            await moveToForeignTarget(source, target, options)
+        }
+        return target;
     }
 
     /**
@@ -506,5 +544,60 @@ export class Files {
 
     // -- Recursive operations --
 
+    public static async copyFromStream(inputStream: ReadableStream, target: Path, options?: CopyOption[]) {
+        if (!inputStream) {
+            throw new NullPointerException();
+        }
+        let replaceExisting = false;
+        for (let opt of options) {
+            if (opt === StandardCopyOption.REPLACE_EXISTING) {
+                replaceExisting = true;
+            } else {
+                if (opt == null) {
+                    throw new NullPointerException("options contains 'null'");
+                } else {
+                    throw new UnsupportedOperationException(opt + " not supported");
+                }
+            }
+        }
+        let se: SecurityException = null;
+        if (replaceExisting) {
+            try {
+                this.deleteIfExists(target);
+            } catch (e) {
+                if (e instanceof SecurityException) {
+                    se = e;
+                }
+            }
+        }
+        let outputStream: WritableStream;
+        try {
+            outputStream = this.newOutputStream(target, [StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE]);
+            await inputStream.pipeTo(outputStream);
 
+        } catch (x) {
+            if (x instanceof FileAlreadyExistsException) {
+                if (se) {
+                    throw se;
+                }
+                // someone else won the race and created the file
+                throw x;
+            }
+        } finally {
+            await outputStream.close();
+        }
+    }
+
+    public static async copyToStream(source: Path, outputStream: WritableStream) {
+        if (!outputStream) {
+            throw new NullPointerException();
+        }
+        let inputStream: ReadableStream;
+        try {
+            inputStream = this.newInputStream(source);
+            await inputStream.pipeTo(outputStream);
+        } finally {
+            await inputStream.cancel();
+        }
+    }
 }

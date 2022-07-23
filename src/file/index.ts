@@ -22,3 +22,5 @@ export * from "./PathMatcher"
 export * from "./Paths"
 export * from "./ProviderMismatchException"
 export * from "./ProviderNotFoundException"
+export * from "./StandardCopyOption";
+export * from "./StandardOpenOption";
