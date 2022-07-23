@@ -266,7 +266,7 @@ export class Files {
     public static async copy(source: Path, target: Path, options?: CopyOption[]): Promise<Path> {
         const provider = this.provider(source);
         if (this.provider(target) === provider) {
-            provider.copy(source, target, options);
+            await provider.copy(source, target, options);
         } else {
             await copyToForeignTarget(source, target, options)
         }
@@ -283,7 +283,7 @@ export class Files {
     public static async move(source: Path, target: Path, options?: CopyOption[]): Promise<Path> {
         const provider = this.provider(source);
         if (this.provider(target) === provider) {
-            provider.move(source, target, options);
+            await provider.move(source, target, options);
         } else {
             await moveToForeignTarget(source, target, options)
         }
