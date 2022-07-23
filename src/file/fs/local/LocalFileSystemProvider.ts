@@ -90,11 +90,11 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         })
     }
 
-    public copy(source: Path, target: Path, options?: CopyOption[]): void {
+    public copy(source: Path, target: Path, options?: CopyOption[]): Promise<void> {
         throw new Error("Method not implemented.");
     }
 
-    public move(source: Path, target: Path, options?: CopyOption[]): void {
+    public move(source: Path, target: Path, options?: CopyOption[]): Promise<void> {
         throw new Error("Method not implemented.");
     }
 
