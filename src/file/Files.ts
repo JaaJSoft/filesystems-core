@@ -18,7 +18,12 @@ import {FileSystem} from "./FileSystem";
 import {PathMatcher} from "./PathMatcher";
 import {FileAlreadyExistsException, FileSystemException, NoSuchFileException} from "./exception";
 import {LinkOption} from "./LinkOption";
-import {NullPointerException, SecurityException, UnsupportedOperationException} from "../exception";
+import {
+    IllegalArgumentException,
+    NullPointerException,
+    SecurityException,
+    UnsupportedOperationException
+} from "../exception";
 import {AccessMode} from "./AccessMode";
 import {CopyOption} from "./CopyOption";
 import {StandardCopyOption} from "./StandardCopyOption";
@@ -26,6 +31,7 @@ import {StandardOpenOption} from "./StandardOpenOption";
 import {copyToForeignTarget, moveToForeignTarget} from "./CopyMoveHelper";
 import {Objects} from "../utils";
 import {FileStore} from "./FileStore";
+import * as assert from "assert";
 
 /* It provides a set of static methods for working with files and directories */
 export class Files {
@@ -325,7 +331,7 @@ export class Files {
         }
         return FileTypeDetectors.defaultFileTypeDetector.probeContentType(path);
     }
-    
+
     // -- File Attributes --
 
     /**
@@ -365,6 +371,30 @@ export class Files {
         this.provider(path).setAttribute(path, attribute, value, options);
         return path;
     }
+
+    /**
+     * Reads the value of a file attribute
+     * @param {Path} path - Path
+     * @param {string} attribute - The attribute to read.
+     * @param {LinkOption[]} [options] - An array of LinkOption objects.
+     * @returns The value of the attribute.
+     */
+    public static getAttribute(path: Path, attribute: string, options?: LinkOption[]): any {
+        // only one attribute should be read
+        if (attribute.indexOf('*') >= 0 || attribute.indexOf(',') >= 0)
+            throw new IllegalArgumentException(attribute);
+        const map = this.readAttributes(path, attribute, options);
+        assert.equal(map.size, 1);
+        let name;
+        let pos = attribute.indexOf(':');
+        if (pos == -1) {
+            name = attribute;
+        } else {
+            name = (pos == attribute.length) ? "" : attribute.substring(pos + 1);
+        }
+        return map.get(name);
+    }
+
 
     /**
      * It returns the permissions of a file.
@@ -421,7 +451,7 @@ export class Files {
     }
 
     /**
-     * > If the path is a symbolic link, return true. Otherwise, return false
+     * If the path is a symbolic link, return true. Otherwise, return false
      * @param {Path} path - Path
      * @returns A boolean value.
      */
