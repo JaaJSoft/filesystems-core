@@ -614,7 +614,13 @@ export class Files {
 
     // -- Utility methods for simple usages --
 
-    public static async copyFromStream(inputStream: ReadableStream, target: Path, options?: CopyOption[]) {
+    /**
+     * It copies the contents of a file to another file.
+     * @param {ReadableStream} inputStream - ReadableStream
+     * @param {Path} target - Path
+     * @param {CopyOption[]} [options] - CopyOption[]
+     */
+    public static async copyFromStream(inputStream: ReadableStream, target: Path, options?: CopyOption[]): Promise<void> {
         Objects.requireNonNullUndefined(inputStream);
 
         let replaceExisting = false;
@@ -661,7 +667,13 @@ export class Files {
         }
     }
 
-    public static async copyToStream(source: Path, outputStream: WritableStream) {
+    /**
+     * Copy the contents of a file to a stream.
+     *
+     * @param {Path} source - Path - The source file to copy from.
+     * @param {WritableStream} outputStream - The stream to write to.
+     */
+    public static async copyToStream(source: Path, outputStream: WritableStream): Promise<void> {
         Objects.requireNonNullUndefined(outputStream);
 
         let inputStream: ReadableStream | null = null;
