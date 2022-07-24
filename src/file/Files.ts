@@ -1,5 +1,5 @@
 import {Path} from "./Path";
-import {FileSystemProvider} from "./spi";
+import {FileSystemProvider, FileTypeDetectors} from "./spi";
 import {OpenOption} from "./OpenOption";
 import {
     BasicFileAttributes,
@@ -24,6 +24,8 @@ import {CopyOption} from "./CopyOption";
 import {StandardCopyOption} from "./StandardCopyOption";
 import {StandardOpenOption} from "./StandardOpenOption";
 import {copyToForeignTarget, moveToForeignTarget} from "./CopyMoveHelper";
+import {Objects} from "../utils";
+import {FileStore} from "./FileStore";
 
 /* It provides a set of static methods for working with files and directories */
 export class Files {
@@ -255,6 +257,8 @@ export class Files {
         return this.provider(path).deleteIfExists(path);
     }
 
+    // -- Copying and moving files --
+
     /**
      * Copy a file or directory from one location to another
      * @param {Path} source - The path to the file or directory to copy.
@@ -288,6 +292,41 @@ export class Files {
         }
         return target;
     }
+
+    // -- Miscellaneous --
+
+    /**
+     * `readSymbolicLink` returns the target of a symbolic link
+     * @param {Path} link - Path
+     * @returns A Path object.
+     */
+    public static readSymbolicLink(link: Path): Path {
+        return this.provider(link).readSymbolicLink(link);
+    }
+
+    public static getFileStore(path: Path): FileStore {
+        return this.provider(path).getFileStore(path);
+    }
+
+    public static isSameFile(path: Path, path2: Path): boolean {
+        return this.provider(path).isSameFile(path, path2);
+    }
+
+    public static isHidden(path: Path): boolean {
+        return this.provider(path).isHidden(path);
+    }
+
+    public static probeContentType(path: Path): string {
+        for (let detector of FileTypeDetectors.installedDetectors) {
+            const result = detector.probeContentType(path);
+            if (result) {
+                return result;
+            }
+        }
+        return FileTypeDetectors.defaultFileTypeDetector.probeContentType(path);
+    }
+    
+    // -- File Attributes --
 
     /**
      * It reads the attributes of a file.
@@ -543,10 +582,11 @@ export class Files {
 
     // -- Recursive operations --
 
+    // -- Utility methods for simple usages --
+
     public static async copyFromStream(inputStream: ReadableStream, target: Path, options?: CopyOption[]) {
-        if (!inputStream) {
-            throw new NullPointerException();
-        }
+        Objects.requireNonNullUndefined(inputStream);
+
         let replaceExisting = false;
         if (options) {
             for (let opt of options) {
@@ -592,9 +632,8 @@ export class Files {
     }
 
     public static async copyToStream(source: Path, outputStream: WritableStream) {
-        if (!outputStream) {
-            throw new NullPointerException();
-        }
+        Objects.requireNonNullUndefined(outputStream);
+
         let inputStream: ReadableStream | null = null;
         try {
             inputStream = this.newInputStream(source);
