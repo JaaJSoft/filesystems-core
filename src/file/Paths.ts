@@ -1,6 +1,6 @@
 import {FileSystems} from "./FileSystems";
 import {IllegalArgumentException} from "../exception";
-import {installedProviders} from "./spi";
+import {FileSystemProviders} from "./spi";
 import {FileSystemNotFoundException} from "./exception/FileSystemNotFoundException";
 import {Path} from "./Path";
 
@@ -34,7 +34,7 @@ export class Paths {
         if (scheme.toLowerCase() === "file") {
             return FileSystems.getDefault().provider().getPath(url);
         }
-        for (const provider of installedProviders()) {
+        for (const provider of FileSystemProviders.getInstalledProviders()) {
             if (provider.getScheme() === scheme) {
                 return provider.getPath(url);
             }

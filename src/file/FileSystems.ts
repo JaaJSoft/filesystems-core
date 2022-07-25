@@ -1,7 +1,7 @@
 import {FileSystem} from "./FileSystem";
 import {IllegalArgumentException, UnsupportedOperationException} from "../exception";
 import {ProviderNotFoundException} from "./exception/ProviderNotFoundException";
-import {installedProviders} from "./spi";
+import {FileSystemProviders} from "./spi";
 import {LocalFileSystemProvider} from "./fs/local";
 
 export class FileSystems {
@@ -25,7 +25,7 @@ export class FileSystems {
         if (scheme === null) {
             throw new IllegalArgumentException("Missing scheme");
         }
-        for (const provider of installedProviders()) {
+        for (const provider of FileSystemProviders.getInstalledProviders()) {
             if (provider.getScheme() === scheme) {
                 return provider.getFileSystem(url);
             }
@@ -37,7 +37,7 @@ export class FileSystems {
         const scheme: string = uri.protocol.toLowerCase();
 
         // check installed providers
-        for (const provider of installedProviders()) {
+        for (const provider of FileSystemProviders.getInstalledProviders()) {
             if (scheme === provider.getScheme()) {
                 try {
                     return provider.newFileSystemFromUrl(uri, env);
