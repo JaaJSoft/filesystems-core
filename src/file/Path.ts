@@ -192,7 +192,7 @@ export abstract class Path implements Iterable<Path> {
 
     public abstract toRealPath(options?: LinkOption[]): Path;
 
-    public abstract equals(other: Path): boolean;
+    public abstract equals(other: Path | null | undefined): boolean;
 
     abstract compareTo(other: Path): number;
 

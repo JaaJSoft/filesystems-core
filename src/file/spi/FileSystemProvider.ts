@@ -22,7 +22,7 @@ export abstract class FileSystemProvider {
 
     public abstract getFileSystem(url: URL): FileSystem | null;
 
-    public abstract getPath(url: URL): Path | null;
+    public abstract getPath(url: URL): Path ;
 
     public newInputStream(path: Path, options?: OpenOption[]): ReadableStream {
         if (options && options.length > 0) {

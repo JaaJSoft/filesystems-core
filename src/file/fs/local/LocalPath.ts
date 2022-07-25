@@ -34,7 +34,7 @@ export class LocalPath extends Path {
      * @param {string} path - The path to parse.
      * @returns A new LocalPath object.
      */
-    public static parse(fileSystem: FileSystem, path: string) {
+    public static parse(fileSystem: FileSystem, path: string): LocalPath {
         let parse = pathFs.parse(path);
         return new LocalPath(fileSystem, LocalPathType.RELATIVE, parse.root, path); // TODO set type
     }
@@ -247,14 +247,14 @@ export class LocalPath extends Path {
         }
         const resolvedPath = pathFs.resolve(this.path);
         const absolutePath = pathFs.parse(resolvedPath);
-        return this.pathFromJsPath(absolutePath, resolvedPath, LocalPathType.ABSOLUTE);
+        return this.pathFromJsPath(absolutePath, LocalPathType.ABSOLUTE);
     }
 
     public toRealPath(options?: LinkOption[]): Path {
         // TODO handle options
         const realpath = fs.realpathSync(this.path);
         const realPathParsed = pathFs.parse(realpath);
-        return this.pathFromJsPath(realPathParsed, realpath, LocalPathType.ABSOLUTE);
+        return this.pathFromJsPath(realPathParsed, LocalPathType.ABSOLUTE);
     }
 
     public toURL(): URL {
@@ -286,13 +286,13 @@ export class LocalPath extends Path {
     }
 
     public equals(other: Path): boolean {
-        if ((other != null) && (other instanceof LocalPath)) {
+        if (other && (other instanceof LocalPath)) {
             return this.compareTo((other as Path)) == 0;
         }
         return false;
     }
 
-    private pathFromJsPath(path: pathFs.ParsedPath, resolvedPath: string = "", pathType: LocalPathType) {
+    private pathFromJsPath(path: pathFs.ParsedPath, pathType: LocalPathType) {
         return new LocalPath(this.getFileSystem(), pathType, path.root, this.path);
     }
 

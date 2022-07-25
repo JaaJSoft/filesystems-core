@@ -34,7 +34,7 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         return null
     }
 
-    public getPath(url: URL): Path | null {
+    public getPath(url: URL): Path {
         return this.theFileSystem.getPath(url.pathname);
     }
 
@@ -75,23 +75,32 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         throw new Error("Method not implemented.");
     }
 
-    public checkAccess(obj: Path, modes: AccessMode[]): void { // TODO finish this use readAttributes & co ?
-        modes.forEach((mode) => {
-            switch (mode) {
-                case AccessMode.READ:
-                    return fs.access(obj.toString(), fs.constants.R_OK, err => {
-                        throw new AccessDeniedException(obj.toString(), err?.path, err?.message);
-                    })
-                case AccessMode.WRITE:
-                    return fs.access(obj.toString(), fs.constants.W_OK, err => {
-                        throw new AccessDeniedException(obj.toString(), err?.path, err?.message);
-                    })
-                case AccessMode.EXECUTE:
-                    return fs.access(obj.toString(), fs.constants.X_OK, err => {
-                        throw new AccessDeniedException(obj.toString(), err?.path, err?.message);
-                    })
+    public checkAccess(obj: Path, modes?: AccessMode[]): void { // TODO finish this use readAttributes & co ?
+        const accessModesTocheck: AccessMode[] = [];
+        if (modes) {
+            accessModesTocheck.push(...modes);
+        } else {
+            accessModesTocheck.push(AccessMode.READ);
+        }
+        const path = obj.toString();
+        try {
+            for (let mode of accessModesTocheck) {
+                switch (mode) {
+                    case AccessMode.READ:
+                        fs.accessSync(path, fs.constants.R_OK)
+                        break;
+                    case AccessMode.WRITE:
+                        fs.accessSync(path, fs.constants.W_OK)
+                        break;
+                    case AccessMode.EXECUTE:
+                        fs.accessSync(path, fs.constants.X_OK)
+                        break;
+                }
             }
-        })
+        } catch (err) {
+            throw new AccessDeniedException(path);
+        }
+
     }
 
     public copy(source: Path, target: Path, options?: CopyOption[]): Promise<void> {

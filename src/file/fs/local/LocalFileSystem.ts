@@ -8,6 +8,7 @@ import {LocalFileSystemProvider} from "./LocalFileSystemProvider";
 import {UnsupportedOperationException} from "../../../exception";
 import {LocalPath} from "./LocalPath";
 import * as jsPath from "path";
+import {Objects} from "../../../utils";
 
 export class LocalFileSystem extends FileSystem {
     private readonly fileSystem: FileSystemProvider;
@@ -30,10 +31,8 @@ export class LocalFileSystem extends FileSystem {
         throw new Error("Method not implemented.");
     }
 
-    public getPath(first: string, more?: string[]): Path | null {
-        if (!first) {
-            return null;
-        }
+    public getPath(first: string, more?: string[]): Path {
+        Objects.requireNonNullUndefined(first);
         let path: string = "";
         if (!more || more.length === 0) {
             path = first;

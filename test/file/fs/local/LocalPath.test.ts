@@ -1,35 +1,43 @@
-import {Paths} from "../../../../src/file/Paths";
-import {LocalPath} from "../../../../src/file/fs/local/LocalPath";
+import {Files, Path, Paths} from "../../../../src/file";
 import os from "os";
+import {Objects} from "../../../../src/utils";
 
-const rootPath = Paths.of("/");
-const currentPath = Paths.of(".");
+const rootPath: Path | null = Paths.of("/");
+const currentPath: Path | null = Paths.of(".");
 
 test('LocalPathRoot', () => {
-    expect(rootPath.getRoot().equals(rootPath)).toBeTruthy()
+    expect(rootPath?.getRoot()?.equals(rootPath)).toBeTruthy()
 })
 
 test('LocalPathRootWithURL', () => {
     const root = Paths.ofURL(new URL("file:///"));
-    expect(root.getRoot().equals(root)).toBeTruthy()
+    expect(root?.getRoot()?.equals(root)).toBeTruthy()
 })
 
 test('LocalPathNotRootWithURL', () => {
     const root = Paths.ofURL(new URL("file:///test.txt"));
-    expect(root.getRoot().equals(root)).toBeFalsy()
+    Objects.requireNonNullUndefined(root);
+    expect(root?.getRoot()?.equals(root)).toBeFalsy()
+})
+
+test('LocalPathExists', () => {
+    const nullPath = Paths.ofURL(new URL("file:///T:/"));
+    expect(Files.exists(nullPath)).toBeFalsy();
 })
 
 test('LocalPathCurrentToAbsolutePath', () => {
-    const absolutePath = currentPath.toAbsolutePath();
-    expect(absolutePath.isAbsolute()).toBeTruthy();
-    expect(absolutePath.getRoot().toURL().toString() === absolutePath.toURL().toString()).toBeFalsy()
+    Objects.requireNonNullUndefined(currentPath);
+    const absolutePath = currentPath?.toAbsolutePath();
+    Objects.requireNonNullUndefined(absolutePath);
+    expect(absolutePath?.isAbsolute()).toBeTruthy();
+    expect(absolutePath?.getRoot()?.toURL().toString() === absolutePath?.toURL().toString()).toBeFalsy()
 })
 
 test("LocalPathCurrentGetRoot", () => {
-    expect(currentPath.getRoot()).toBeNull()
+    expect(currentPath?.getRoot()).toBeNull()
     if (os.platform() == "win32") {
-        expect(currentPath.toAbsolutePath().getRoot()).toBeDefined()
+        expect(currentPath?.toAbsolutePath().getRoot()).toBeDefined()
     } else {
-        expect(currentPath.toAbsolutePath().getRoot().equals(rootPath.toAbsolutePath())).toBeTruthy()
+        expect(currentPath?.toAbsolutePath()?.getRoot()?.equals(rootPath?.toAbsolutePath())).toBeTruthy()
     }
 })

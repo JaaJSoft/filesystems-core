@@ -16,7 +16,8 @@ export class Paths {
      * @param {string[]} [more] - string[]
      * @returns A Path object
      */
-    public static of(first: string, more?: string[]): Path | null {
+    public static of(first: string, more?: string[]): Path {
+
         return FileSystems.getDefault().getPath(first, more);
     }
 
@@ -26,13 +27,10 @@ export class Paths {
      * @param {URL} url - URL
      * @returns A Path object
      */
-    public static ofURL(url: URL): Path | null {
+    public static ofURL(url: URL): Path {
         const scheme = url.protocol.toLowerCase().replace(":", "");
-        if (scheme === null) {
+        if (!scheme) {
             throw new IllegalArgumentException("Missing scheme");
-        }
-        if (scheme.toLowerCase() === "file") {
-            return FileSystems.getDefault().provider().getPath(url);
         }
         for (const provider of FileSystemProviders.getInstalledProviders()) {
             if (provider.getScheme() === scheme) {

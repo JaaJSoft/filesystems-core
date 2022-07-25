@@ -3,13 +3,13 @@ export enum AccessMode {
     /**
      * Test read access.
      */
-    READ,
+    READ = "READ",
     /**
      * Test write access.
      */
-    WRITE,
+    WRITE = "WRITE",
     /**
      * Test execute access.
      */
-    EXECUTE
+    EXECUTE = "EXECUTE"
 }
