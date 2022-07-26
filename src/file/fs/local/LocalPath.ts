@@ -36,7 +36,8 @@ export class LocalPath extends Path {
      */
     public static parse(fileSystem: FileSystem, path: string): LocalPath {
         let parse = pathFs.parse(path);
-        return new LocalPath(fileSystem, LocalPathType.RELATIVE, parse.root, path); // TODO set type
+        return LocalPath.pathFromJsPath(parse, fileSystem, LocalPathType.RELATIVE);
+
     }
 
     public static toLocalPath(path: Path): LocalPath {
@@ -247,14 +248,14 @@ export class LocalPath extends Path {
         }
         const resolvedPath = pathFs.resolve(this.path);
         const absolutePath = pathFs.parse(resolvedPath);
-        return this.pathFromJsPath(absolutePath, LocalPathType.ABSOLUTE);
+        return LocalPath.pathFromJsPath(absolutePath, this.getFileSystem(), LocalPathType.ABSOLUTE);
     }
 
     public toRealPath(options?: LinkOption[]): Path {
         // TODO handle options
         const realpath = fs.realpathSync(this.path);
         const realPathParsed = pathFs.parse(realpath);
-        return this.pathFromJsPath(realPathParsed, LocalPathType.ABSOLUTE);
+        return LocalPath.pathFromJsPath(realPathParsed, this.getFileSystem(), LocalPathType.ABSOLUTE);
     }
 
     public toURL(): URL {
@@ -292,8 +293,9 @@ export class LocalPath extends Path {
         return false;
     }
 
-    private pathFromJsPath(path: pathFs.ParsedPath, pathType: LocalPathType) {
-        return new LocalPath(this.getFileSystem(), pathType, path.root, this.path);
+    private static pathFromJsPath(path: pathFs.ParsedPath, fileSystem: FileSystem, pathType: LocalPathType) {
+        const newPath = path.dir.length !== 0 && path.base.length !== 0 ? path.dir + fileSystem.getSeparator() + path.base : path.dir + path.base;
+        return new LocalPath(fileSystem, pathType, path.root, newPath); // TODO set type
     }
 
     // generate offset array

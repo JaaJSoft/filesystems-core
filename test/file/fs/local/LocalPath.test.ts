@@ -2,11 +2,12 @@ import {Files, Path, Paths} from "../../../../src/file";
 import os from "os";
 import {Objects} from "../../../../src/utils";
 
-const rootPath: Path | null = Paths.of("/");
-const currentPath: Path | null = Paths.of(".");
+const rootPath: Path = Paths.of("/");
+const currentPath: Path = Paths.of(".");
 
 test('LocalPathRoot', () => {
-    expect(rootPath?.getRoot()?.equals(rootPath)).toBeTruthy()
+    const myRoot = rootPath.getRoot();
+    expect(myRoot?.equals(rootPath)).toBeTruthy()
 })
 
 test('LocalPathRootWithURL', () => {

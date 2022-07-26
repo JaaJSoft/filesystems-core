@@ -2,12 +2,12 @@ import {Paths} from "../../src/file";
 import * as os from 'os'
 
 test('path', () => {
-    expect(Paths.of("")).toBeNull();
-    expect(Paths.of(".")?.isAbsolute()).toBeFalsy();
-    expect(Paths.of(".")?.toString()).toEqual(".");
-    expect(Paths.of(".")?.toAbsolutePath().isAbsolute()).toBeTruthy();
-    expect(Paths.of("/")?.toString()).toEqual("/");
-    expect(Paths.of("/")?.toRealPath().isAbsolute()).toBeTruthy();
+    expect(Paths.of("").toAbsolutePath().toString()).toBeDefined();
+    expect(Paths.of(".").isAbsolute()).toBeFalsy();
+    expect(Paths.of(".").toString()).toEqual(".");
+    expect(Paths.of(".").toAbsolutePath().isAbsolute()).toBeTruthy();
+    expect(Paths.of("/").toString()).toEqual("/");
+    expect(Paths.of("/").toRealPath().isAbsolute()).toBeTruthy();
 })
 
 test("URL", () => {
