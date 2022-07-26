@@ -519,7 +519,7 @@ export class Files {
      * @param {Path} path - Path - the path to the file
      * @returns The size of the file.
      */
-    public static size(path: Path): number {
+    public static size(path: Path): bigint {
         return this.readAttributesWithType(path).size();
     }
 

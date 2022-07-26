@@ -81,7 +81,7 @@ export interface BasicFileAttributes {
      *
      * @return  the file size, in bytes
      */
-    size(): number;
+    size(): bigint;
 
     /**
      * Returns an object that uniquely identifies the given file, or {@code
