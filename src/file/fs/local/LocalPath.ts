@@ -5,8 +5,9 @@ import {LocalPathType} from "./LocalPathType";
 import * as pathFs from "path";
 import * as jsurl from "url"
 import fs from "fs"
-import {ProviderMismatchException} from "../../ProviderMismatchException";
+import {ProviderMismatchException} from "../../exception/ProviderMismatchException";
 import {IllegalArgumentException} from "../../../exception/IllegalArgumentException";
+import {NullPointerException} from "../../../exception";
 
 /* `LocalPath` is a class that represents a path on the local file system. */
 export class LocalPath extends Path {
@@ -17,7 +18,7 @@ export class LocalPath extends Path {
     private readonly type: LocalPathType;
     private readonly fileSystem: FileSystem;
     // offsets into name components (computed lazily)
-    private offsets: number[]
+    private offsets: number[] | undefined
 
     public constructor(fileSystem: FileSystem, type: LocalPathType, root: string, path: string) {
         super();
@@ -33,20 +34,22 @@ export class LocalPath extends Path {
      * @param {string} path - The path to parse.
      * @returns A new LocalPath object.
      */
-    public static parse(fileSystem: FileSystem, path: string) {
+    public static parse(fileSystem: FileSystem, path: string): LocalPath {
         let parse = pathFs.parse(path);
-        return new LocalPath(fileSystem, undefined, parse.root, path); // TODO set type
+        return LocalPath.pathFromJsPath(parse, fileSystem, LocalPathType.RELATIVE);
+
     }
 
     public static toLocalPath(path: Path): LocalPath {
         if (path == null)
-            throw new TypeError(null); // TODO find a better way
+            throw new NullPointerException(); // TODO find a better way
         if (!(path instanceof LocalPath)) {
             throw new ProviderMismatchException();
         }
         return path;
     }
 
+    // @ts-ignore
     private emptyPath(): LocalPath {
         return new LocalPath(this.getFileSystem(), LocalPathType.RELATIVE, "", "");
     }
@@ -55,7 +58,7 @@ export class LocalPath extends Path {
      * > It returns the file name of the path
      * @returns The file name of the path.
      */
-    public getFileName(): Path {
+    public getFileName(): Path | null {
         const len = this.path.length;
         // represents empty path
         if (len == 0)
@@ -63,7 +66,7 @@ export class LocalPath extends Path {
         // represents root component only
         if (this.root.length == len)
             return null;
-        let off = this.path.lastIndexOf('\\');
+        let off = this.path.lastIndexOf(this.fileSystem.getSeparator());
         if (off < this.root.length)
             off = this.root.length;
         else
@@ -77,18 +80,18 @@ export class LocalPath extends Path {
     }
 
     public getName(index: number): Path {
-        this.initOffsets();
+        this.offsets = this.initOffsets();
         if (index < 0 || index >= this.offsets.length)
             throw new IllegalArgumentException();
         return new LocalPath(this.getFileSystem(), LocalPathType.RELATIVE, "", this.elementAsString(index));
     }
 
     public getNameCount(): number {
-        this.initOffsets();
+        this.offsets = this.initOffsets();
         return this.offsets.length;
     }
 
-    public getParent(): Path {
+    public getParent(): Path | null {
         // represents root component only
         if (this.root.length == this.path.length)
             return null;
@@ -102,7 +105,7 @@ export class LocalPath extends Path {
                 this.path.substring(0, off));
     }
 
-    public getRoot(): Path {
+    public getRoot(): Path | null {
         if (this.root.length === 0)
             return null;
         return new LocalPath(this.getFileSystem(), this.type, this.root, this.root);
@@ -121,25 +124,28 @@ export class LocalPath extends Path {
     }
 
     public normalize(): Path {
-        return undefined;
+        throw new Error("Method not implemented.");
     }
 
     public relativize(other: Path): Path {
-        return undefined;
+        throw new Error("Method not implemented.");
     }
 
     public resolve(other: Path): Path {
-        return undefined;
+        throw new Error("Method not implemented.");
     }
 
     public startsWith(obj: Path): boolean {
-        let other: LocalPath;
+        let other: LocalPath | null = null;
         try {
             other = LocalPath.toLocalPath(obj);
         } catch (e) {
             if (e instanceof ProviderMismatchException) {
                 return false;
             }
+        }
+        if (!other) {
+            return false;
         }
 
         // if this path has a root component the given path's root must match
@@ -169,7 +175,7 @@ export class LocalPath extends Path {
     }
 
     public endWith(obj: Path): boolean {
-        let other: LocalPath;
+        let other: LocalPath | null = null;
         try {
             other = LocalPath.toLocalPath(obj);
         } catch (e) {
@@ -177,7 +183,9 @@ export class LocalPath extends Path {
                 return false;
             }
         }
-
+        if (!other) {
+            return false;
+        }
         // other path is longer
         if (other.path.length > this.path.length) {
             return false;
@@ -216,7 +224,7 @@ export class LocalPath extends Path {
     }
 
     public subpath(beginIndex: number, endIndex: number): Path {
-        this.initOffsets();
+        this.offsets = this.initOffsets();
         if (beginIndex < 0)
             throw new IllegalArgumentException();
         if (beginIndex >= this.offsets.length)
@@ -240,14 +248,14 @@ export class LocalPath extends Path {
         }
         const resolvedPath = pathFs.resolve(this.path);
         const absolutePath = pathFs.parse(resolvedPath);
-        return this.pathFromJsPath(absolutePath, resolvedPath, LocalPathType.ABSOLUTE);
+        return LocalPath.pathFromJsPath(absolutePath, this.getFileSystem(), LocalPathType.ABSOLUTE);
     }
 
     public toRealPath(options?: LinkOption[]): Path {
         // TODO handle options
         const realpath = fs.realpathSync(this.path);
         const realPathParsed = pathFs.parse(realpath);
-        return this.pathFromJsPath(realPathParsed, realpath, LocalPathType.ABSOLUTE);
+        return LocalPath.pathFromJsPath(realPathParsed, this.getFileSystem(), LocalPathType.ABSOLUTE);
     }
 
     public toURL(): URL {
@@ -279,19 +287,20 @@ export class LocalPath extends Path {
     }
 
     public equals(other: Path): boolean {
-        if ((other != null) && (other instanceof LocalPath)) {
+        if (other && (other instanceof LocalPath)) {
             return this.compareTo((other as Path)) == 0;
         }
         return false;
     }
 
-    private pathFromJsPath(path: pathFs.ParsedPath, resolvedPath: string = "", pathType: LocalPathType) {
-        return new LocalPath(this.getFileSystem(), pathType, path.root, this.path);
+    private static pathFromJsPath(path: pathFs.ParsedPath, fileSystem: FileSystem, pathType: LocalPathType) {
+        const newPath = path.dir.length !== 0 && path.base.length !== 0 ? path.dir + fileSystem.getSeparator() + path.base : path.dir + path.base;
+        return new LocalPath(fileSystem, pathType, path.root, newPath); // TODO set type
     }
 
     // generate offset array
-    private initOffsets() {
-        if (this.offsets == null) {
+    private initOffsets(): number[] {
+        if (!this.offsets) {
             const list = [];
             if (this.isEmpty()) {
                 // empty path considered to have one name element
@@ -310,14 +319,15 @@ export class LocalPath extends Path {
                 if (start != off)
                     list.push(start);
             }
-            if (this.offsets == null)
-                this.offsets = list;
+            if (!this.offsets)
+                return list;
 
         }
+        return this.offsets;
     }
 
     private elementAsString(i: number) {
-        this.initOffsets();
+        this.offsets = this.initOffsets();
         if (i == (this.offsets.length - 1))
             return this.path.substring(this.offsets[i]);
         return this.path.substring(this.offsets[i], this.offsets[i + 1] - 1);

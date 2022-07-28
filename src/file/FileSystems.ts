@@ -1,11 +1,9 @@
 import {FileSystem} from "./FileSystem";
-import {IllegalArgumentException} from "../exception/IllegalArgumentException";
-import {ProviderNotFoundException} from "./ProviderNotFoundException";
-import {installedProviders} from "./spi/FileSystemProviders";
-import {LocalFileSystemProvider} from "./fs/local/LocalFileSystemProvider";
-import {UnsupportedOperationException} from "../exception/UnsupportedOperationException";
+import {IllegalArgumentException, UnsupportedOperationException} from "../exception";
+import {ProviderNotFoundException} from "./exception/ProviderNotFoundException";
+import {FileSystemProviders} from "./spi";
+import {LocalFileSystemProvider} from "./fs/local";
 
-/* FileSystems is a class that provides access to a FileSystem. */
 export class FileSystems {
     private static readonly defaultFileSystemProvider: LocalFileSystemProvider = new LocalFileSystemProvider();
 
@@ -22,12 +20,12 @@ export class FileSystems {
      * @param {URL} url - URL
      * @returns A FileSystem object
      */
-    public static getFileSystem(url: URL): FileSystem {
+    public static getFileSystem(url: URL): FileSystem | null {
         const scheme = url.protocol.toLowerCase();
         if (scheme === null) {
             throw new IllegalArgumentException("Missing scheme");
         }
-        for (const provider of installedProviders()) {
+        for (const provider of FileSystemProviders.getInstalledProviders()) {
             if (provider.getScheme() === scheme) {
                 return provider.getFileSystem(url);
             }
@@ -39,7 +37,7 @@ export class FileSystems {
         const scheme: string = uri.protocol.toLowerCase();
 
         // check installed providers
-        for (const provider of installedProviders()) {
+        for (const provider of FileSystemProviders.getInstalledProviders()) {
             if (scheme === provider.getScheme()) {
                 try {
                     return provider.newFileSystemFromUrl(uri, env);

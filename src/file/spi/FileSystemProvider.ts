@@ -2,15 +2,13 @@ import {FileSystem} from "../FileSystem";
 import {Path} from "../Path";
 import {CopyOption} from "../CopyOption";
 import {AccessMode} from "../AccessMode";
-import {NoSuchFileException} from "../NoSuchFileException";
-import {UnsupportedOperationException} from "../../exception/UnsupportedOperationException";
+import {IllegalArgumentException, UnsupportedOperationException} from "../../exception";
 import {OpenOption} from "../OpenOption";
-import {IllegalArgumentException} from "../../exception/IllegalArgumentException";
-import {BasicFileAttributes} from "../attribute/BasicFileAttributes";
-import {FileAttribute} from "../attribute/FileAttribute";
+import {BasicFileAttributes, FileAttribute, FileAttributeView} from "../attribute";
 import {FileStore} from "../FileStore";
 import {LinkOption} from "../LinkOption";
-import * as path from "path";
+import {StandardOpenOption} from "../StandardOpenOption";
+import {DirectoryStream} from "../DirectoryStream";
 
 /* A contract for file system providers. */
 export abstract class FileSystemProvider {
@@ -22,16 +20,16 @@ export abstract class FileSystemProvider {
         throw new UnsupportedOperationException();
     }
 
-    public abstract getFileSystem(url: URL): FileSystem;
+    public abstract getFileSystem(url: URL): FileSystem | null;
 
-    public abstract getPath(url: URL): Path;
+    public abstract getPath(url: URL): Path ;
 
     public newInputStream(path: Path, options?: OpenOption[]): ReadableStream {
         if (options && options.length > 0) {
             for (let opt of options) {
                 // All OpenOption values except for APPEND and WRITE are allowed
-                if (opt == OpenOption.APPEND ||
-                    opt == OpenOption.WRITE) {
+                if (opt == StandardOpenOption.APPEND ||
+                    opt == StandardOpenOption.WRITE) {
                     throw new UnsupportedOperationException("'" + opt + "' not allowed");
                 }
             }
@@ -42,7 +40,7 @@ export abstract class FileSystemProvider {
 
     protected abstract newInputStreamImpl(path: Path, options?: OpenOption[]): ReadableStream; // TODO replace this by channels if possible
 
-    private static readonly DEFAULT_OPEN_OPTIONS = [OpenOption.CREATE, OpenOption.TRUNCATE_EXISTING, OpenOption.WRITE]
+    private static readonly DEFAULT_OPEN_OPTIONS = [StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE]
 
     /**
      * creates a new output stream.
@@ -52,23 +50,23 @@ export abstract class FileSystemProvider {
      */
     public newOutputStream(path: Path, options?: OpenOption[]): WritableStream {
         let opts: Set<OpenOption>;
-        if (options || options.length == 0) {
+        if (!options || options.length == 0) {
             opts = new Set<OpenOption>(FileSystemProvider.DEFAULT_OPEN_OPTIONS);
         } else {
             opts = new Set<OpenOption>();
             for (let opt of options) {
-                if (opt == OpenOption.READ) {
+                if (opt === StandardOpenOption.READ) {
                     throw new IllegalArgumentException("READ not allowed");
                 }
                 opts.add(opt);
             }
-            opts.add(OpenOption.WRITE);
+            opts.add(StandardOpenOption.WRITE);
         }
         return this.newOutputStreamImpl(path, [...opts]);
     }
 
     protected abstract newOutputStreamImpl(path: Path, options?: OpenOption[]): WritableStream; // TODO replace this by channels if possible
-    public abstract newDirectoryStream(dir: Path, acceptFilter: (path: Path) => boolean);
+    public abstract newDirectoryStream(dir: Path, acceptFilter: (path: Path) => boolean): DirectoryStream<Path>;
 
     public abstract createFile(dir: Path, attrs?: FileAttribute<any>[]): void;
 
@@ -141,15 +139,13 @@ export abstract class FileSystemProvider {
             this.delete(path);
             return true;
         } catch (e) {
-            if (e instanceof NoSuchFileException) {
-                return false;
-            }
+            return false
         }
     }
 
-    public abstract copy(source: Path, target: Path, options?: CopyOption[]): void;
+    public abstract copy(source: Path, target: Path, options?: CopyOption[]): Promise<void>;
 
-    public abstract move(source: Path, target: Path, options?: CopyOption[]): void;
+    public abstract move(source: Path, target: Path, options?: CopyOption[]): Promise<void>;
 
     public abstract isSameFile(obj1: Path, obj2: Path): boolean;
 
@@ -159,22 +155,12 @@ export abstract class FileSystemProvider {
 
     public abstract checkAccess(obj: Path, modes?: AccessMode[]): void;
 
-    // TODO readAttributes getFileAttributeView setAttribute
-    public abstract readAttributes(path: Path, options?: LinkOption): BasicFileAttributes;
+    public abstract readAttributesByType(path: Path, type?: string, options?: LinkOption[]): BasicFileAttributes;
 
-    public isDirectory(file: Path): boolean {
-        try {
-            return this.readAttributes(file).isDirectory();
-        } catch (ioe) {
-            return false;
-        }
-    }
+    public abstract readAttributes(path: Path, attributes: string, options?: LinkOption[]): Map<string, any>;
 
-    public isRegularFile(file: Path): boolean {
-        try {
-            return this.readAttributes(file).isRegularFile();
-        } catch (ioe) {
-            return false;
-        }
-    }
+    public abstract getFileAttributeView(path: Path, type?: string, options?: LinkOption[]): FileAttributeView;
+
+    public abstract setAttribute(path: Path, attribute: string, value: any, options?: LinkOption[]): void;
+
 }

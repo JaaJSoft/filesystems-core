@@ -3,9 +3,10 @@ import {Path} from "./Path";
 import {FileStore} from "./FileStore";
 import {PathMatcher} from "./PathMatcher";
 import {UserPrincipalLookupService} from "./attribute/UserPrincipalLookupService";
+import {Closeable} from "../Closeable";
 
 /* A common interface for all file systems. */
-export abstract class FileSystem {
+export abstract class FileSystem implements Closeable {
 
     protected constructor() {
         //
@@ -13,7 +14,7 @@ export abstract class FileSystem {
 
     public abstract provider(): FileSystemProvider;
 
-    public abstract close();
+    public abstract close(): void
 
     public abstract isOpen(): boolean;
 
@@ -32,5 +33,5 @@ export abstract class FileSystem {
 
     public abstract getUserPrincipalLookupService(): UserPrincipalLookupService;
 
-    public abstract getPath(first: string, more?: string[]): Path
+    public abstract getPath(first: string, more?: string[]): Path;
 }

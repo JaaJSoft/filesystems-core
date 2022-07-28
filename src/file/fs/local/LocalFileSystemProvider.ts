@@ -1,19 +1,19 @@
-import {FileSystemProvider} from "../../spi/FileSystemProvider";
+import {FileSystemProvider} from "../../spi";
 import {FileSystem} from "../../FileSystem";
 import {Path} from "../../Path";
 import {LocalFileSystem} from "./LocalFileSystem";
 import * as os from "os";
 import * as fs from "fs";
-import * as jsPath from "path";
-import * as jsurl from "url"
 import {AccessMode} from "../../AccessMode";
 import {CopyOption} from "../../CopyOption";
-import {AccessDeniedException} from "../../AccessDeniedException";
+import {AccessDeniedException} from "../../exception/AccessDeniedException";
 import {OpenOption} from "../../OpenOption";
-import {FileAttribute} from "../../attribute/FileAttribute";
+import {BasicFileAttributes, FileAttribute, FileAttributeView} from "../../attribute";
 import {FileStore} from "../../FileStore";
-import {Files} from "../../Files";
+import {LinkOption} from "../../LinkOption";
+import {DirectoryStream} from "../../DirectoryStream";
 
+/* It's a FileSystemProvider that provides a LocalFileSystem */
 export class LocalFileSystemProvider extends FileSystemProvider {
 
     private readonly theFileSystem: LocalFileSystem;
@@ -27,8 +27,11 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         return this.theFileSystem;
     }
 
-    public getFileSystem(url: URL): FileSystem {
-        return this.theFileSystem.getPath(url.pathname).getFileSystem();
+    public getFileSystem(url: URL): FileSystem | null {
+        const path = this.theFileSystem.getPath(url.pathname);
+        if (path)
+            return path.getFileSystem();
+        return null
     }
 
     public getPath(url: URL): Path {
@@ -63,7 +66,7 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         throw new Error("Method not implemented.");
     }
 
-    public newDirectoryStream(dir: Path, acceptFilter: (path: Path) => boolean) {
+    public newDirectoryStream(dir: Path, acceptFilter: (path: Path) => boolean): DirectoryStream<Path> {
         throw new Error("Method not implemented.");
     }
 
@@ -72,30 +75,39 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         throw new Error("Method not implemented.");
     }
 
-    public checkAccess(obj: Path, modes: AccessMode[]): void { // TODO finish this
-        modes.forEach((mode) => {
-            switch (mode) {
-                case AccessMode.READ:
-                    return fs.access(obj.toString(), fs.constants.R_OK, err => {
-                        throw new AccessDeniedException(obj.toString(), err.path, err.message);
-                    })
-                case AccessMode.WRITE:
-                    return fs.access(obj.toString(), fs.constants.W_OK, err => {
-                        throw new AccessDeniedException(obj.toString(), err.path, err.message);
-                    })
-                case AccessMode.EXECUTE:
-                    return fs.access(obj.toString(), fs.constants.X_OK, err => {
-                        throw new AccessDeniedException(obj.toString(), err.path, err.message);
-                    })
+    public checkAccess(obj: Path, modes?: AccessMode[]): void { // TODO finish this use readAttributes & co ?
+        const accessModesTocheck: AccessMode[] = [];
+        if (modes) {
+            accessModesTocheck.push(...modes);
+        } else {
+            accessModesTocheck.push(AccessMode.READ);
+        }
+        const path = obj.toString();
+        try {
+            for (let mode of accessModesTocheck) {
+                switch (mode) {
+                    case AccessMode.READ:
+                        fs.accessSync(path, fs.constants.R_OK)
+                        break;
+                    case AccessMode.WRITE:
+                        fs.accessSync(path, fs.constants.W_OK)
+                        break;
+                    case AccessMode.EXECUTE:
+                        fs.accessSync(path, fs.constants.X_OK)
+                        break;
+                }
             }
-        })
+        } catch (err) {
+            throw new AccessDeniedException(path);
+        }
+
     }
 
-    public copy(source: Path, target: Path, options?: CopyOption[]): void {
+    public copy(source: Path, target: Path, options?: CopyOption[]): Promise<void> {
         throw new Error("Method not implemented.");
     }
 
-    public move(source: Path, target: Path, options?: CopyOption[]): void {
+    public move(source: Path, target: Path, options?: CopyOption[]): Promise<void> {
         throw new Error("Method not implemented.");
     }
 
@@ -111,5 +123,20 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         fs.rmSync(path.toAbsolutePath().toString())
     }
 
+    public readAttributesByType(path: Path, type?: string, options?: LinkOption[]): BasicFileAttributes {
+        throw new Error("Method not implemented.");
+    }
+
+    public getFileAttributeView(path: Path, type?: string, options?: LinkOption[]): FileAttributeView {
+        throw new Error("Method not implemented.");
+    }
+
+    public readAttributes(path: Path, attributes: string, options?: LinkOption[]): Map<string, any> {
+        throw new Error("Method not implemented.");
+    }
+
+    public setAttribute(path: Path, attribute: string, value: any, options?: LinkOption[]): void {
+        throw new Error("Method not implemented.");
+    }
 
 }

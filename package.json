@@ -1,27 +1,28 @@
 {
-  "name": "filesystem",
-  "version": "1.0.0",
+  "name": "@filesystems/core",
+  "version": "0.0.7",
   "description": "A js implementation of the Java FileSystem Library",
-  "main": "dist/index.js",
+  "main": "index.js",
   "type": "commonjs",
-  "types": "dist/index.d.ts",
-  "files": [
-    "/dist"
-  ],
+  "types": "index.d.ts",
   "scripts": {
-    "test": "jest"
+    "build": "tsc",
+    "test": "jest",
+    "prepub": "copy package.json dist",
+    "pub": "cd dist & npm publish --access public",
+    "postpub": "cd dist & del package.json"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JaaJSoft/filesystem.js.git"
+    "url": "git+https://github.com/JaaJSoft/filesystems-core.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "JaaJSoft",
+  "license": "GPL-2.0",
   "bugs": {
-    "url": "https://github.com/JaaJSoft/filesystem.js/issues"
+    "url": "https://github.com/JaaJSoft/filesystems-core/issues"
   },
-  "homepage": "https://github.com/JaaJSoft/filesystem.js#readme",
+  "homepage": "https://github.com/JaaJSoft/filesystems-core",
   "devDependencies": {
     "@babel/core": "^7.16.5",
     "@babel/preset-env": "^7.16.5",

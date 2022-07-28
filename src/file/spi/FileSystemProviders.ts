@@ -1,10 +1,22 @@
-import {LocalFileSystemProvider} from "../fs/local/LocalFileSystemProvider";
 import {FileSystemProvider} from "./FileSystemProvider";
 
-/**
- * It returns an array of all the file system providers that are currently installed
- * @returns An array of FileSystemProvider objects.
- */
-export function installedProviders(): FileSystemProvider[] { // TODO
-    return [new LocalFileSystemProvider()]
+/* It's a class that manages a list of file system providers */
+export class FileSystemProviders {
+    private static readonly installedProviders: FileSystemProvider[] = FileSystemProviders.loadProviders()
+
+    private static loadProviders() {
+        return [];
+    }
+
+    public static addProvider(provider: FileSystemProvider): void {
+        this.installedProviders.push(provider);
+    }
+
+    /**
+     * It returns an array of all the installed providers
+     * @returns The installed providers.
+     */
+    public static getInstalledProviders(): FileSystemProvider[] {
+        return this.installedProviders;
+    }
 }

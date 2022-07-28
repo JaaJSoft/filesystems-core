@@ -2,13 +2,13 @@ import {FileSystem} from "../../FileSystem";
 import {FileStore} from "../../FileStore";
 import {PathMatcher} from "../../PathMatcher";
 import {Path} from "../../Path";
-import {UserPrincipalLookupService} from "../../attribute/UserPrincipalLookupService";
-import {FileSystemProvider} from "../../spi/FileSystemProvider";
+import {UserPrincipalLookupService} from "../../attribute";
+import {FileSystemProvider} from "../../spi";
 import {LocalFileSystemProvider} from "./LocalFileSystemProvider";
-import {UnsupportedOperationException} from "../../../exception/UnsupportedOperationException";
+import {UnsupportedOperationException} from "../../../exception";
 import {LocalPath} from "./LocalPath";
-import * as path from "path";
-import os from "os";
+import * as jsPath from "path";
+import {Objects} from "../../../utils";
 
 export class LocalFileSystem extends FileSystem {
     private readonly fileSystem: FileSystemProvider;
@@ -18,7 +18,7 @@ export class LocalFileSystem extends FileSystem {
     public constructor(provider: LocalFileSystemProvider, dir: string) {
         super();
         this.fileSystem = provider;
-        const parsedPath: path.ParsedPath = path.parse(dir);
+        const parsedPath: jsPath.ParsedPath = jsPath.parse(dir);
         this.defaultDirectory = parsedPath.dir;
         this.defaultRoot = parsedPath.root;
     }
@@ -28,13 +28,11 @@ export class LocalFileSystem extends FileSystem {
     }
 
     public getFileStores(): Iterable<FileStore> {
-        return undefined;
+        throw new Error("Method not implemented.");
     }
 
     public getPath(first: string, more?: string[]): Path {
-        if (!first) {
-            return null;
-        }
+        Objects.requireNonNullUndefined(first);
         let path: string = "";
         if (!more || more.length === 0) {
             path = first;
@@ -42,7 +40,7 @@ export class LocalFileSystem extends FileSystem {
             for (const segment of more) {
                 if (segment.length !== 0) {
                     if (path.length > 0)
-                        path += '\\';
+                        path += this.getSeparator();
                     path += segment;
                 }
             }
@@ -55,11 +53,15 @@ export class LocalFileSystem extends FileSystem {
     }
 
     public getRootDirectories(): Iterable<Path> { // TODO find a better way
-        return [this.getPath("/")]
+        const path = this.getPath("/");
+        if (path) {
+            return [path];
+        }
+        return [];
     }
 
     public getSeparator(): string {
-       return path.sep
+        return jsPath.sep
     }
 
     public getUserPrincipalLookupService(): UserPrincipalLookupService {
@@ -82,5 +84,14 @@ export class LocalFileSystem extends FileSystem {
 
     public supportedFileAttributeViews(): Set<string> {
         return LocalFileSystem.supportedFileAttributeViews;
+    }
+
+
+    public getDefaultDirectory(): string {
+        return this.defaultDirectory;
+    }
+
+    public getDefaultRoot(): string {
+        return this.defaultRoot;
     }
 }

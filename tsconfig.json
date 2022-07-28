@@ -3,8 +3,9 @@
     "module": "commonjs",
     "target": "ES6",
     "sourceMap": true,
+    "incremental": true,
     "outDir": "./dist",
-    /*"strict": true,
+    "strict": true,
     "strictFunctionTypes": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
@@ -12,13 +13,17 @@
     "strictNullChecks": true,
     "alwaysStrict": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "skipLibCheck": true,*/
+    "noUnusedParameters": false,
+    "skipLibCheck": true,
     "declaration": true,
+    "declarationMap": true,
     "esModuleInterop": true
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*"
+  ],
   "exclude": [
-    "node_modules", "test"
+    "node_modules",
+    "test"
   ]
 }
