@@ -799,4 +799,30 @@ export class Files {
             }
         }
     }
+
+    // -- Stream APIs --
+
+    /**
+     * Given a directory, return a list of all the files in that directory.
+     *
+     * @param {Path} dir - Path - The directory to list
+     * @returns An array of Path objects.
+     */
+    public static list(dir: Path): Path[] {
+        const ds: DirectoryStream<Path> = Files.newDirectoryStream(dir);
+        let files: Path[] = [];
+        try {
+            files = [...ds];
+        } catch (e) {
+            try {
+                ds.close();
+            } catch (x) {
+                if (!(x instanceof IOException)) {
+                    throw x;
+                }
+            }
+            throw e;
+        }
+        return files;
+    }
 }
