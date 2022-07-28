@@ -610,6 +610,12 @@ export class Files {
         }
     }
 
+    /**
+     * Check if the file is accessible
+     * @param {Path} path - The path to the file or directory
+     * @param {AccessMode[]} [modes] - An array of AccessMode objects.
+     * @returns A boolean value.
+     */
     private static isAccessible(path: Path, modes?: AccessMode[]): boolean {
         try {
             this.provider(path).checkAccess(path, modes);
@@ -622,14 +628,29 @@ export class Files {
         }
     }
 
+    /**
+     * If the path is accessible for reading, return true, otherwise return false.
+     * @param {Path} path - Path
+     * @returns A boolean value.
+     */
     public static isReadable(path: Path): boolean {
         return this.isAccessible(path, [AccessMode.READ]);
     }
 
+    /**
+     * If the path is accessible for writing, return true, otherwise return false.
+     * @param {Path} path - Path
+     * @returns A boolean value.
+     */
     public static isWritable(path: Path): boolean {
         return this.isAccessible(path, [AccessMode.WRITE]);
     }
 
+    /**
+     * Returns true if the file or directory at the given path is executable
+     * @param {Path} path - The path to the file or directory.
+     * @returns A boolean value.
+     */
     public static isExecutable(path: Path): boolean {
         return this.isAccessible(path, [AccessMode.EXECUTE]);
     }
