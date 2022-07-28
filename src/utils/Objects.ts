@@ -11,7 +11,7 @@ export class Objects {
     }
 
     public static isUndefined(o: any): boolean {
-        return o === undefined
+        return o === undefined;
     }
 
     public static nonUndefined(o: any): boolean {
@@ -26,10 +26,11 @@ export class Objects {
         return !this.isUndefined(o);
     }
 
-    public static requireNonNullUndefined(o: any): void {
+    public static requireNonNullUndefined(o: any): any {
         if (this.isNullUndefined(o)) {
             throw new NullPointerException();
         }
+        return o;
     }
 
 }

@@ -93,7 +93,7 @@ export class FileTreeWalker implements Closeable {
             attrs = this.getAttributes(entry, canUseCached);
         } catch (e) {
             if (e instanceof IOException) {
-                return new FileTreeWalkerEvent(EventType.ENTRY, entry, undefined, e);
+                return new FileTreeWalkerEvent(FileTreeWalkerEventType.ENTRY, entry, undefined, e);
             }
             if (e instanceof SecurityException) {
                 if (ignoreSecurityException) {
@@ -105,12 +105,12 @@ export class FileTreeWalker implements Closeable {
         // at maximum depth or file is not a directory
         const depth = this.stack.length;
         if (depth >= this.maxDepth || !attrs.isDirectory()) {
-            return new FileTreeWalkerEvent(EventType.ENTRY, entry, attrs);
+            return new FileTreeWalkerEvent(FileTreeWalkerEventType.ENTRY, entry, attrs);
         }
 
         // check for cycles when following links
         if (this.followLinks && this.wouldLoop(entry, attrs.fileKey())) {
-            return new FileTreeWalkerEvent(EventType.ENTRY, entry, undefined, new FileSystemLoopException(entry.toString()));
+            return new FileTreeWalkerEvent(FileTreeWalkerEventType.ENTRY, entry, undefined, new FileSystemLoopException(entry.toString()));
         }
 
         // file is a directory, attempt to open it
@@ -119,7 +119,7 @@ export class FileTreeWalker implements Closeable {
             stream = Files.newDirectoryStream(entry);
         } catch (e) {
             if (e instanceof IOException) {
-                return new FileTreeWalkerEvent(EventType.ENTRY, entry, undefined, e);
+                return new FileTreeWalkerEvent(FileTreeWalkerEventType.ENTRY, entry, undefined, e);
             }
             if (e instanceof SecurityException) {
                 if (ignoreSecurityException) {
@@ -129,7 +129,7 @@ export class FileTreeWalker implements Closeable {
             throw e;
         }
         this.stack.push(new DirectoryNode(entry, attrs.fileKey(), stream));
-        return new FileTreeWalkerEvent(EventType.START_DIRECTORY, entry, attrs);
+        return new FileTreeWalkerEvent(FileTreeWalkerEventType.START_DIRECTORY, entry, attrs);
     }
 
     public walk(file: Path): FileTreeWalkerEvent {
@@ -180,7 +180,7 @@ export class FileTreeWalker implements Closeable {
                     }
                 }
                 this.stack.pop();
-                return new FileTreeWalkerEvent(EventType.END_DIRECTORY, top.directory(), undefined, ioe);
+                return new FileTreeWalkerEvent(FileTreeWalkerEventType.END_DIRECTORY, top.directory(), undefined, ioe);
             }
 
             ev = this.visit(entry, true, true);
@@ -279,13 +279,13 @@ class DirectoryNode implements Iterable<Path> {
 /**
  * Events returned by the {@link #walk} and {@link #next} methods.
  */
-class FileTreeWalkerEvent {
-    private readonly _type: EventType;
+export class FileTreeWalkerEvent {
+    private readonly _type: FileTreeWalkerEventType;
     private readonly _file: Path;
     private readonly _attributes: BasicFileAttributes | undefined;
     private readonly _ioeException: IOException | undefined;
 
-    constructor(type: EventType, file: Path, attrs?: BasicFileAttributes, ioe?: IOException) {
+    constructor(type: FileTreeWalkerEventType, file: Path, attrs?: BasicFileAttributes, ioe?: IOException) {
         this._type = type;
         this._file = file;
         this._attributes = attrs;
@@ -293,7 +293,7 @@ class FileTreeWalkerEvent {
     }
 
 
-    public type(): EventType {
+    public type(): FileTreeWalkerEventType {
         return this._type;
     }
 
@@ -314,7 +314,7 @@ class FileTreeWalkerEvent {
 /**
  * The event types.
  */
-enum EventType {
+export enum FileTreeWalkerEventType {
     /**
      * Start of a directory
      */

@@ -33,6 +33,10 @@ import {copyToForeignTarget, moveToForeignTarget} from "./CopyMoveHelper";
 import {Objects} from "../utils";
 import {FileStore} from "./FileStore";
 import * as assert from "assert";
+import {FileVisitOption} from "./FileVisitOption";
+import {FileVisitor} from "./FileVisitor";
+import {FileTreeWalker, FileTreeWalkerEvent, FileTreeWalkerEventType} from "./FileTreeWalker";
+import {FileVisitResult} from "./FileVisitResult";
 
 /* It provides a set of static methods for working with files and directories */
 export class Files {
@@ -631,6 +635,71 @@ export class Files {
     }
 
     // -- Recursive operations --
+    /**
+     * It walks a file tree, starting at the given path, and invokes the given visitor for each event
+     * @param {Path} start - Path - The starting directory
+     * file is visited. A value of MAX_VALUE may be used to indicate that all levels should be visited.
+     * @param visitor - FileVisitor<Path>
+     * @param {number} maxDepth - The maximum number of directory levels to search. A value of 0 means only the starting
+     * @param {FileVisitOption[]} options - FileVisitOption[]
+     * @returns The start path.
+     */
+    public static walkFileTree(start: Path, visitor: FileVisitor<Path>, maxDepth: number = Number.MAX_VALUE, options: FileVisitOption[] = []): Path {
+        let walker: FileTreeWalker | undefined = undefined;
+        try {
+            walker = new FileTreeWalker(options, maxDepth);
+            let ev: FileTreeWalkerEvent | undefined = walker.walk(start);
+            do {
+                let result: FileVisitResult;
+                switch (ev?.type()) {
+                    case FileTreeWalkerEventType.ENTRY:
+                        const ioe = ev.ioeException();
+                        if (!ioe) {
+                            const attrs = Objects.requireNonNullUndefined(ev.attributes());
+                            result = visitor.visitFile(ev.file(), attrs);
+                        } else {
+                            result = visitor.visitFileFailed(ev.file(), ioe);
+                        }
+                        break;
+                    case FileTreeWalkerEventType.START_DIRECTORY:
+                        result = visitor.preVisitDirectory(ev.file(), ev.attributes());
+
+                        // if SKIP_SIBLINGS and SKIP_SUBTREE is returned then
+                        // there shouldn't be any more events for the current
+                        // directory.
+                        if (result === FileVisitResult.SKIP_SUBTREE ||
+                            result === FileVisitResult.SKIP_SIBLINGS)
+                            walker.pop();
+                        break;
+                    case FileTreeWalkerEventType.END_DIRECTORY:
+                        result = visitor.postVisitDirectory(ev.file(), ev.ioeException());
+
+                        // SKIP_SIBLINGS is a no-op for postVisitDirectory
+                        if (result === FileVisitResult.SKIP_SIBLINGS)
+                            result = FileVisitResult.CONTINUE;
+                        break;
+                    default:
+                        throw new Error("Should not get here");
+
+                }
+                if (Objects.requireNonNullUndefined(result) != FileVisitResult.CONTINUE) {
+                    if (result === FileVisitResult.TERMINATE) {
+                        break;
+                    } else if (result === FileVisitResult.SKIP_SIBLINGS) {
+                        walker.skipRemainingSiblings();
+                    }
+                }
+                ev = walker.next();
+            } while (Objects.nonNullUndefined(ev));
+        } finally {
+            if (walker) {
+                walker.close();
+            }
+        }
+
+        return start;
+    }
+
 
     // -- Utility methods for simple usages --
 
