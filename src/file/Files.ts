@@ -11,7 +11,7 @@ import {
     PosixFileAttributes,
     PosixFileAttributeView,
     PosixFilePermission,
-    UserPrincipal
+    UserPrincipal,
 } from "./attribute";
 import {DirectoryStream} from "./DirectoryStream";
 import {FileSystem} from "./FileSystem";
@@ -20,9 +20,10 @@ import {FileAlreadyExistsException, FileSystemException, NoSuchFileException} fr
 import {LinkOption} from "./LinkOption";
 import {
     IllegalArgumentException,
+    IOException,
     NullPointerException,
     SecurityException,
-    UnsupportedOperationException
+    UnsupportedOperationException,
 } from "../exception";
 import {AccessMode} from "./AccessMode";
 import {CopyOption} from "./CopyOption";
@@ -70,7 +71,7 @@ export class Files {
     // -- Directories --
 
     public static newDirectoryStream(dir: Path): DirectoryStream<Path> {
-        return this.provider(dir).newDirectoryStream(dir, _ => true)
+        return this.provider(dir).newDirectoryStream(dir, _ => true);
     }
 
     public static newDirectoryStreamFilteredWithGlob(dir: Path, glob: string): DirectoryStream<Path> {
@@ -79,7 +80,7 @@ export class Files {
         }
         const fs: FileSystem = dir.getFileSystem();
         const matcher: PathMatcher = fs.getPathMatcher("glob:" + glob);
-        return this.provider(dir).newDirectoryStream(dir, path => matcher.matches(path.getFileName()))
+        return this.provider(dir).newDirectoryStream(dir, path => matcher.matches(path.getFileName()));
     }
 
     public static newDirectoryStreamFiltered(dir: Path, filter: (path: Path) => boolean): DirectoryStream<Path> {
@@ -96,7 +97,7 @@ export class Files {
      */
     public static createFile(path: Path, attrs?: FileAttribute<any>[]): Path {
         this.provider(path).createFile(path, attrs);
-        return path
+        return path;
     }
 
     /**
@@ -122,8 +123,10 @@ export class Files {
             return dir;
         } catch (x) {
             if (x instanceof FileAlreadyExistsException) {
+                // file exists and is not a directory
                 throw x;
             }
+            // parent may not exist or other reason
         }
         let se: SecurityException | null = null;
         try {
@@ -131,6 +134,8 @@ export class Files {
         } catch (x) {
             if (x instanceof SecurityException) {
                 se = x;
+            } else {
+                throw x;
             }
         }
         let parent: Path | null = dir.getParent();
@@ -141,6 +146,8 @@ export class Files {
             } catch (x) {
                 if (x instanceof NoSuchFileException) {
                     // does not exist
+                } else {
+                    throw x;
                 }
             }
             parent = parent.getParent();
@@ -150,7 +157,7 @@ export class Files {
                 throw new FileSystemException(
                     dir.toString(),
                     undefined,
-                    "Unable to determine if root directory exists"
+                    "Unable to determine if root directory exists",
                 );
             } else {
                 throw se;
@@ -169,7 +176,11 @@ export class Files {
         try {
             this.createDirectory(dir, attrs);
         } catch (x) {
-            if (x instanceof FileAlreadyExistsException && !this.isDirectory(dir, [LinkOption.NOFOLLOW_LINKS])) {
+            if (x instanceof FileAlreadyExistsException) {
+                if (!this.isDirectory(dir, [LinkOption.NOFOLLOW_LINKS])) {
+                    throw x;
+                }
+            } else {
                 throw x;
             }
         }
@@ -251,7 +262,7 @@ export class Files {
      * @param {Path} path - The path to the file or directory to delete.
      */
     public static delete(path: Path): void {
-        this.provider(path).delete(path)
+        this.provider(path).delete(path);
     }
 
     /**
@@ -277,7 +288,7 @@ export class Files {
         if (this.provider(target) === provider) {
             await provider.copy(source, target, options);
         } else {
-            await copyToForeignTarget(source, target, options)
+            await copyToForeignTarget(source, target, options);
         }
         return target;
     }
@@ -294,7 +305,7 @@ export class Files {
         if (this.provider(target) === provider) {
             await provider.move(source, target, options);
         } else {
-            await moveToForeignTarget(source, target, options)
+            await moveToForeignTarget(source, target, options);
         }
         return target;
     }
@@ -341,8 +352,8 @@ export class Files {
      * @param {LinkOption} [options] - LinkOption
      * @returns BasicFileAttributes
      */
-    public static readAttributesWithType(path: Path, type?: string, options?: LinkOption[]): BasicFileAttributes {
-        return this.provider(path).readAttributesWithType(path, type, options);
+    public static readAttributesByType(path: Path, type?: string, options?: LinkOption[]): BasicFileAttributes {
+        return this.provider(path).readAttributesByType(path, type, options);
     }
 
     /**
@@ -381,12 +392,12 @@ export class Files {
      */
     public static getAttribute(path: Path, attribute: string, options?: LinkOption[]): any {
         // only one attribute should be read
-        if (attribute.indexOf('*') >= 0 || attribute.indexOf(',') >= 0)
+        if (attribute.indexOf("*") >= 0 || attribute.indexOf(",") >= 0)
             throw new IllegalArgumentException(attribute);
         const map = this.readAttributes(path, attribute, options);
         assert.equal(map.size, 1);
         let name;
-        let pos = attribute.indexOf(':');
+        let pos = attribute.indexOf(":");
         if (pos == -1) {
             name = attribute;
         } else {
@@ -403,7 +414,7 @@ export class Files {
      * @returns A Set of PosixFilePermission
      */
     public static getPosixFilePermissions(path: Path, options?: LinkOption[]): Set<PosixFilePermission> {
-        return (this.readAttributesWithType(path, "PosixFileAttributes", options) as PosixFileAttributes).permissions();
+        return (this.readAttributesByType(path, "PosixFileAttributes", options) as PosixFileAttributes).permissions();
     }
 
     /**
@@ -457,7 +468,7 @@ export class Files {
      */
     public static isSymbolicLink(path: Path): boolean {
         try {
-            return this.readAttributesWithType(path, undefined, [LinkOption.NOFOLLOW_LINKS]).isSymbolicLink();
+            return this.readAttributesByType(path, undefined, [LinkOption.NOFOLLOW_LINKS]).isSymbolicLink();
         } catch (ioe) {
             return false;
         }
@@ -471,7 +482,7 @@ export class Files {
      */
     public static isDirectory(path: Path, options?: LinkOption[]): boolean {
         try {
-            return this.readAttributesWithType(path, undefined, options).isDirectory();
+            return this.readAttributesByType(path, undefined, options).isDirectory();
         } catch (ioe) {
             return false;
         }
@@ -485,7 +496,7 @@ export class Files {
      */
     public static isRegularFile(path: Path, options?: LinkOption[]): boolean {
         try {
-            return this.readAttributesWithType(path, undefined, options).isRegularFile();
+            return this.readAttributesByType(path, undefined, options).isRegularFile();
         } catch (ioe) {
             return false;
         }
@@ -498,7 +509,7 @@ export class Files {
      * @returns The last modified time of the file.
      */
     public static getLastModifiedTime(path: Path, options?: LinkOption[]): FileTime {
-        return this.readAttributesWithType(path, undefined, options).lastModifiedTime();
+        return this.readAttributesByType(path, undefined, options).lastModifiedTime();
     }
 
     /**
@@ -520,7 +531,7 @@ export class Files {
      * @returns The size of the file.
      */
     public static size(path: Path): bigint {
-        return this.readAttributesWithType(path).size();
+        return this.readAttributesByType(path).size();
     }
 
     // -- Accessibility --
@@ -539,7 +550,7 @@ export class Files {
                 throw Error("Should not get here");
             }
         }
-        return followLinks
+        return followLinks;
     }
 
     /**
@@ -554,13 +565,16 @@ export class Files {
                 this.provider(path).checkAccess(path);
             } else {
                 // attempt to read attributes without following links
-                this.readAttributesWithType(path, "BasicFileAttributes", [LinkOption.NOFOLLOW_LINKS]);
+                this.readAttributesByType(path, "BasicFileAttributes", [LinkOption.NOFOLLOW_LINKS]);
             }
             // file exists
             return true;
         } catch (x) {
-            // does not exist or unable to determine if file exists
-            return false;
+            if (x instanceof IOException) {
+                // does not exist or unable to determine if file exists
+                return false;
+            }
+            throw x;
         }
     }
 
@@ -576,16 +590,19 @@ export class Files {
                 this.provider(path).checkAccess(path);
             } else {
                 // attempt to read attributes without following links
-                this.readAttributesWithType(path, "BasicFileAttributes", [LinkOption.NOFOLLOW_LINKS]);
+                this.readAttributesByType(path, "BasicFileAttributes", [LinkOption.NOFOLLOW_LINKS]);
             }
             // file exists
             return false;
         } catch (x) {
             if (x instanceof NoSuchFileException) {
-                return true
+                // file confirmed not to exist
+                return true;
             }
-            // does not exist or unable to determine if file exists
-            return false;
+            if (x instanceof IOException) {
+                return false;
+            }
+            throw x;
         }
     }
 
@@ -594,7 +611,10 @@ export class Files {
             this.provider(path).checkAccess(path, modes);
             return true;
         } catch (x) {
-            return false;
+            if (x instanceof IOException) {
+                return false;
+            }
+            throw x;
         }
     }
 
@@ -644,6 +664,8 @@ export class Files {
             } catch (e) {
                 if (e instanceof SecurityException) {
                     se = e;
+                } else {
+                    throw e;
                 }
             }
         }
@@ -660,6 +682,7 @@ export class Files {
                 // someone else won the race and created the file
                 throw x;
             }
+            throw x;
         } finally {
             if (outputStream) {
                 await outputStream.close();

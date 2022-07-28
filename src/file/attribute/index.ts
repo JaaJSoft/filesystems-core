@@ -11,3 +11,4 @@ export * from "./PosixFileAttributeView";
 export * from "./PosixFilePermission";
 export * from "./UserPrincipal";
 export * from "./UserPrincipalLookupService";
+export * from "./BasicFileAttributesHolder";

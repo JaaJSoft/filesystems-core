@@ -66,7 +66,7 @@ export async function copyToForeignTarget(source: Path, target: Path, options?: 
     const opts: CopyOptions = CopyOptions.parse(options);
     const linkOptions: LinkOption[] = opts.followLinks ? [] : [LinkOption.NOFOLLOW_LINKS];
 
-    const attrs = Files.readAttributesWithType(source, "BasicFileAttributes", linkOptions);
+    const attrs = Files.readAttributesByType(source, "BasicFileAttributes", linkOptions);
     if (attrs.isSymbolicLink()) {
         throw new IOException("Copying of symbolic links not supported");
     }
