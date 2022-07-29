@@ -37,6 +37,7 @@ import {FileVisitOption} from "./FileVisitOption";
 import {FileVisitor} from "./FileVisitor";
 import {FileTreeWalker, FileTreeWalkerEvent, FileTreeWalkerEventType} from "./FileTreeWalker";
 import {FileVisitResult} from "./FileVisitResult";
+import {FileTreeIterator} from "./FileTreeIterator";
 
 /* It provides a set of static methods for working with files and directories */
 export class Files {
@@ -812,7 +813,7 @@ export class Files {
         const ds: DirectoryStream<Path> = Files.newDirectoryStream(dir);
         let files: Path[] = [];
         try {
-            files = [...ds];
+            files = [...new Set([...ds])];
         } catch (e) {
             try {
                 ds.close();
@@ -824,5 +825,56 @@ export class Files {
             throw e;
         }
         return files;
+    }
+
+    /**
+     * It takes a starting path, a maximum depth, and an array of options, and returns an array of paths
+     * @param {Path} start - Path - The starting point of the walk.
+     * @param {number} maxDepth - The maximum depth to walk.
+     * @param {FileVisitOption[]} [options] - FileVisitOption[]
+     * @returns An array of Paths
+     */
+    public static walk(start: Path, maxDepth: number = Number.MAX_VALUE, options?: FileVisitOption[]): Path[] {
+        const iterator: FileTreeIterator = new FileTreeIterator(start, maxDepth, options);
+        try {
+            const paths = new Set<Path>();
+            let next: IteratorYieldResult<FileTreeWalkerEvent | undefined> | IteratorReturnResult<FileTreeWalkerEvent> = iterator.next();
+            if (next.value) {
+                paths.add(next.value.file());
+            }
+            while (!next.done) {
+                next = iterator.next();
+                if (next.value) {
+                    paths.add(next.value.file());
+                }
+            }
+            iterator.close();
+            return [...paths];
+        } catch (e) {
+            iterator.close();
+            throw e;
+        }
+    }
+
+    public static find(start: Path, matcher: (path: Path, attrs: BasicFileAttributes | undefined) => boolean, maxDepth: number = Number.MAX_VALUE, options?: FileVisitOption[]): Path[] {
+        const iterator: FileTreeIterator = new FileTreeIterator(start, maxDepth, options);
+        try {
+            const paths = new Set<Path>();
+            let next: IteratorYieldResult<FileTreeWalkerEvent | undefined> | IteratorReturnResult<FileTreeWalkerEvent> = iterator.next();
+            if (next.value && matcher(next.value.file(), next.value.attributes())) {
+                paths.add(next.value.file());
+            }
+            while (!next.done) {
+                next = iterator.next();
+                if (next.value && matcher(next.value.file(), next.value.attributes())) {
+                    paths.add(next.value.file());
+                }
+            }
+            iterator.close();
+            return [...paths];
+        } catch (e) {
+            iterator.close();
+            throw e;
+        }
     }
 }
