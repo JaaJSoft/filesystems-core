@@ -40,7 +40,7 @@ export abstract class FileSystemProvider {
 
     protected abstract newInputStreamImpl(path: Path, options?: OpenOption[]): ReadableStream; // TODO replace this by channels if possible
 
-    private static readonly DEFAULT_OPEN_OPTIONS = [StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE]
+    private static readonly DEFAULT_OPEN_OPTIONS = [StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE];
 
     /**
      * creates a new output stream.
@@ -139,7 +139,7 @@ export abstract class FileSystemProvider {
             this.delete(path);
             return true;
         } catch (e) {
-            return false
+            return false;
         }
     }
 

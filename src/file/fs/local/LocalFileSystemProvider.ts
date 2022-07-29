@@ -31,7 +31,7 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         const path = this.theFileSystem.getPath(url.pathname);
         if (path)
             return path.getFileSystem();
-        return null
+        return null;
     }
 
     public getPath(url: URL): Path {
@@ -87,13 +87,13 @@ export class LocalFileSystemProvider extends FileSystemProvider {
             for (let mode of accessModesTocheck) {
                 switch (mode) {
                     case AccessMode.READ:
-                        fs.accessSync(path, fs.constants.R_OK)
+                        fs.accessSync(path, fs.constants.R_OK);
                         break;
                     case AccessMode.WRITE:
-                        fs.accessSync(path, fs.constants.W_OK)
+                        fs.accessSync(path, fs.constants.W_OK);
                         break;
                     case AccessMode.EXECUTE:
-                        fs.accessSync(path, fs.constants.X_OK)
+                        fs.accessSync(path, fs.constants.X_OK);
                         break;
                 }
             }
@@ -120,7 +120,7 @@ export class LocalFileSystemProvider extends FileSystemProvider {
     }
 
     public delete(path: Path): void {
-        fs.rmSync(path.toAbsolutePath().toString())
+        fs.rmSync(path.toAbsolutePath().toString());
     }
 
     public readAttributesByType(path: Path, type?: string, options?: LinkOption[]): BasicFileAttributes {

@@ -326,16 +326,17 @@ export class LocalPath extends Path {
         return this.offsets;
     }
 
-    private elementAsString(i: number) {
+    private elementAsString(i: number): string {
         this.offsets = this.initOffsets();
         if (i == (this.offsets.length - 1))
             return this.path.substring(this.offsets[i]);
         return this.path.substring(this.offsets[i], this.offsets[i + 1] - 1);
     }
 
-    [Symbol.iterator](): Iterator<Path, any, undefined> {
+    public [Symbol.iterator](): Iterator<Path> {
         throw new Error("Method not implemented.");
     }
+
 
     public valueOf(): Object { // TODO
         return super.valueOf();
