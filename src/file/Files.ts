@@ -856,6 +856,15 @@ export class Files {
         }
     }
 
+    /**
+     * It takes a starting path, a matcher function, a maximum depth, and an optional array of FileVisitOptions, and
+     * returns an array of Paths that match the matcher function
+     * @param {Path} start - Path - The starting point of the search.
+     * @param matcher - (path: Path, attrs: BasicFileAttributes | undefined) => boolean
+     * @param {number} maxDepth - The maximum depth to search.
+     * @param {FileVisitOption[]} [options] - FileVisitOption[]
+     * @returns An array of Paths
+     */
     public static find(start: Path, matcher: (path: Path, attrs: BasicFileAttributes | undefined) => boolean, maxDepth: number = Number.MAX_VALUE, options?: FileVisitOption[]): Path[] {
         const iterator: FileTreeIterator = new FileTreeIterator(start, maxDepth, options);
         try {

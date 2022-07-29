@@ -3,8 +3,8 @@ import {FileSystem} from "../../FileSystem";
 import {LinkOption} from "../../LinkOption";
 import {LocalPathType} from "./LocalPathType";
 import * as pathFs from "path";
-import * as jsurl from "url"
-import fs from "fs"
+import * as jsurl from "url";
+import fs from "fs";
 import {ProviderMismatchException} from "../../exception/ProviderMismatchException";
 import {IllegalArgumentException} from "../../../exception/IllegalArgumentException";
 import {NullPointerException} from "../../../exception";
@@ -18,7 +18,7 @@ export class LocalPath extends Path {
     private readonly type: LocalPathType;
     private readonly fileSystem: FileSystem;
     // offsets into name components (computed lazily)
-    private offsets: number[] | undefined
+    private offsets: number[] | undefined;
 
     public constructor(fileSystem: FileSystem, type: LocalPathType, root: string, path: string) {
         super();
@@ -95,7 +95,7 @@ export class LocalPath extends Path {
         // represents root component only
         if (this.root.length == this.path.length)
             return null;
-        const off = this.path.lastIndexOf('\\');
+        const off = this.path.lastIndexOf(this.fileSystem.getSeparator());
         if (off < this.root.length)
             return this.getRoot();
         else
@@ -112,11 +112,11 @@ export class LocalPath extends Path {
     }
 
     public getType(): LocalPathType {
-        return this.type
+        return this.type;
     }
 
     public isAbsolute(): boolean {
-        return this.type === LocalPathType.ABSOLUTE || this.type === LocalPathType.UNC
+        return this.type === LocalPathType.ABSOLUTE || this.type === LocalPathType.UNC;
     }
 
     private isEmpty(): boolean {
@@ -309,7 +309,7 @@ export class LocalPath extends Path {
                 let start = this.root.length;
                 let off = this.root.length;
                 while (off < this.path.length) {
-                    if (this.path.charAt(off) != '\\') {
+                    if (this.path.charAt(off) !== this.fileSystem.getSeparator()) {
                         off++;
                     } else {
                         list.push(start);
@@ -335,5 +335,9 @@ export class LocalPath extends Path {
 
     [Symbol.iterator](): Iterator<Path, any, undefined> {
         throw new Error("Method not implemented.");
+    }
+
+    public valueOf(): Object { // TODO
+        return super.valueOf();
     }
 }
