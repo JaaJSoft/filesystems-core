@@ -5,7 +5,7 @@ import {StandardCopyOption} from "./StandardCopyOption";
 import {AtomicMoveNotSupportedException} from "./exception/AtomicMoveNotSupportedException";
 import {Path} from "./Path";
 import {Files} from "./Files";
-import {FileAlreadyExistsException} from "./exception/FileAlreadyExistsException";
+import {FileAlreadyExistsException} from "./exception";
 import {BasicFileAttributeView} from "./attribute";
 
 class CopyOptions {
@@ -44,11 +44,11 @@ class CopyOptions {
 }
 
 function convertMoveToCopyOptions(options?: CopyOption[]): CopyOption[] {
-    const newOptions: CopyOption[] = []
+    const newOptions: CopyOption[] = [];
     if (options) {
         for (let option of options) {
             if (option === StandardCopyOption.ATOMIC_MOVE) {
-                throw new AtomicMoveNotSupportedException(undefined, undefined, "Atomic move between providers is not supported")
+                throw new AtomicMoveNotSupportedException(undefined, undefined, "Atomic move between providers is not supported");
             }
             newOptions.push(option);
         }
@@ -97,7 +97,7 @@ export async function copyToForeignTarget(source: Path, target: Path, options?: 
             view.setTimes(
                 attrs.lastModifiedTime(),
                 attrs.lastAccessTime(),
-                attrs.creationTime()
+                attrs.creationTime(),
             );
         } catch (x) {
             // rollback
