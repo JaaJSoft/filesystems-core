@@ -293,7 +293,7 @@ export class LocalPath extends Path {
         return false;
     }
 
-    private static pathFromJsPath(path: pathFs.ParsedPath, fileSystem: FileSystem, pathType: LocalPathType) {
+    private static pathFromJsPath(path: pathFs.ParsedPath, fileSystem: FileSystem, pathType: LocalPathType) {// TODO check separator
         const newPath = path.dir.length !== 0 && path.base.length !== 0 ? path.dir + fileSystem.getSeparator() + path.base : path.dir + path.base;
         return new LocalPath(fileSystem, pathType, path.root, newPath); // TODO set type
     }

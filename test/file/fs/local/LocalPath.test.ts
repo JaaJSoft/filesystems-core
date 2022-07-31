@@ -1,44 +1,70 @@
 import {Files, Path, Paths} from "../../../../src/file";
 import os from "os";
 import {Objects} from "../../../../src/utils";
+import {TextDecoderStream} from "node:stream/web";
 
 const rootPath: Path = Paths.of("/");
 const currentPath: Path = Paths.of(".");
 
-test('LocalPathRoot', () => {
+test("LocalPathRoot", () => {
     const myRoot = rootPath.getRoot();
-    expect(myRoot?.equals(rootPath)).toBeTruthy()
-})
+    expect(myRoot?.equals(rootPath)).toBeTruthy();
+});
 
-test('LocalPathRootWithURL', () => {
+test("LocalPathRootWithURL", () => {
     const root = Paths.ofURL(new URL("file:///"));
-    expect(root?.getRoot()?.equals(root)).toBeTruthy()
-})
+    expect(root?.getRoot()?.equals(root)).toBeTruthy();
+});
 
-test('LocalPathNotRootWithURL', () => {
+test("LocalPathNotRootWithURL", () => {
     const root = Paths.ofURL(new URL("file:///test.txt"));
     Objects.requireNonNullUndefined(root);
-    expect(root?.getRoot()?.equals(root)).toBeFalsy()
-})
+    expect(root?.getRoot()?.equals(root)).toBeFalsy();
+});
 
-test('LocalPathExists', () => {
+test("LocalPathExists", () => {
     const nullPath = Paths.ofURL(new URL("file:///T:/"));
     expect(Files.exists(nullPath)).toBeFalsy();
-})
+});
 
-test('LocalPathCurrentToAbsolutePath', () => {
+test("LocalPathCurrentToAbsolutePath", () => {
     Objects.requireNonNullUndefined(currentPath);
     const absolutePath = currentPath?.toAbsolutePath();
     Objects.requireNonNullUndefined(absolutePath);
     expect(absolutePath?.isAbsolute()).toBeTruthy();
-    expect(absolutePath?.getRoot()?.toURL().toString() === absolutePath?.toURL().toString()).toBeFalsy()
-})
+    expect(absolutePath?.getRoot()?.toURL().toString() === absolutePath?.toURL().toString()).toBeFalsy();
+});
 
 test("LocalPathCurrentGetRoot", () => {
-    expect(currentPath?.getRoot()).toBeNull()
+    expect(currentPath?.getRoot()).toBeNull();
     if (os.platform() == "win32") {
-        expect(currentPath?.toAbsolutePath().getRoot()).toBeDefined()
+        expect(currentPath?.toAbsolutePath().getRoot()).toBeDefined();
     } else {
-        expect(currentPath?.toAbsolutePath()?.getRoot()?.equals(rootPath?.toAbsolutePath())).toBeTruthy()
+        expect(currentPath?.toAbsolutePath()?.getRoot()?.equals(rootPath?.toAbsolutePath())).toBeTruthy();
     }
-})
+});
+
+test("LocalPathNewImputStream", async () => {
+    const path = Paths.of("D:\\JAAJ.txt");
+    if (os.platform() == "win32") {
+        const readableStream: ReadableStream<Int8Array> = Files.newInputStream(path);
+        const textDecoderStream = new TextDecoderStream();
+
+        readableStream.pipeTo(textDecoderStream.writable);
+
+        const reader: ReadableStreamDefaultReader<string> = textDecoderStream.readable.getReader();
+        let done = false;
+        let output: string = "";
+        while (!done) {
+            const v: ReadableStreamDefaultReadValueResult<string> | ReadableStreamDefaultReadDoneResult = await reader.read();
+            done = v.done;
+            if (!done) {
+                output += v.value;
+            }
+        }
+        expect(output).toBe("aaaaBaFFfffGGGtgrZTff");
+    } else {
+        expect(currentPath?.toAbsolutePath()?.getRoot()?.equals(rootPath?.toAbsolutePath())).toBeTruthy();
+    }
+});
+

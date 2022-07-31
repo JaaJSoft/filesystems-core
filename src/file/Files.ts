@@ -59,17 +59,17 @@ export class Files {
         return path.getFileSystem().provider();
     }
 
-    public static newInputStream(path: Path, options?: OpenOption[]): ReadableStream {
+    public static newInputStream(path: Path, options?: OpenOption[]): ReadableStream<Int8Array> {
         return this.provider(path).newInputStream(path, options);
     }
 
     /**
      * It creates a new output stream.
      * @param {Path} path - The path to the file to open.
-     * @param {OpenOption[]} [options] - An array of options specifying how the file is created or opened.
+     * @param {OpenOption[]} [options?] - An array of options specifying how the file is created or opened.
      * @returns A WritableStream
      */
-    public static newOutputStream(path: Path, options?: OpenOption[]): WritableStream {
+    public static newOutputStream(path: Path, options?: OpenOption[]): WritableStream<Int8Array> {
         return this.provider(path).newOutputStream(path, options);
     }
 
@@ -799,6 +799,11 @@ export class Files {
                 await inputStream.cancel();
             }
         }
+    }
+
+    public static readAllLines(path: Path, charsets: string): string[] {
+
+        return [];
     }
 
     // -- Stream APIs --

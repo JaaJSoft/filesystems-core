@@ -12,6 +12,7 @@ import {BasicFileAttributes, FileAttribute, FileAttributeView} from "../../attri
 import {FileStore} from "../../FileStore";
 import {LinkOption} from "../../LinkOption";
 import {DirectoryStream} from "../../DirectoryStream";
+import {ReadableStream} from "node:stream/web";
 
 /* It's a FileSystemProvider that provides a LocalFileSystem */
 export class LocalFileSystemProvider extends FileSystemProvider {
@@ -50,12 +51,54 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         throw new Error("Method not implemented.");
     }
 
-    protected newInputStreamImpl(path: Path, options?: OpenOption[]): ReadableStream {
-        throw new Error("Method not implemented.");
+    private static readonly BUFFER_SIZE: number = 8192;
+
+    protected newInputStreamImpl(path: Path, options?: OpenOption[]): ReadableStream<Int8Array> {
+        let fd: number = -1; // TODO Handle options
+        return new ReadableStream<Int8Array>({
+            start: controller => {
+                try {
+                    fd = fs.openSync(path.toString(), "r"); // TODO options
+                } catch (e) {
+                    controller.error(e);
+                }
+            },
+            pull: controller => {
+                try {
+                    let buffer: Int8Array = new Int8Array(LocalFileSystemProvider.BUFFER_SIZE);
+                    const bytesRead: number = fs.readSync(fd, buffer, 0, LocalFileSystemProvider.BUFFER_SIZE, null);
+                    if (bytesRead > 0) {
+                        controller.enqueue(buffer.slice(0, bytesRead));
+                    } else {
+                        controller.close();
+                    }
+                } catch (e) {
+                    controller.error(e);
+                }
+            },
+            cancel: reason => {
+                fs.closeSync(fd);
+            },
+        });
     }
 
-    protected newOutputStreamImpl(path: Path, options?: OpenOption[]): WritableStream {
-        throw new Error("Method not implemented.");
+    protected newOutputStreamImpl(path: Path, options?: OpenOption[]): WritableStream<Int8Array> {
+
+        return new WritableStream<Int8Array>({
+            start: controller => {
+
+            },
+            write: (chunk, controller) => {
+
+            },
+            close: () => {
+
+            },
+            abort: reason => {
+
+            },
+        });
+        // throw new Error("Method not implemented.");
     }
 
     public createFile(dir: Path, attrs?: FileAttribute<any>[]): void {
@@ -75,7 +118,7 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         throw new Error("Method not implemented.");
     }
 
-    public checkAccess(obj: Path, modes?: AccessMode[]): void { // TODO finish this use readAttributes & co ?
+    public checkAccess(obj: Path, modes?: AccessMode[]): void { // TODO finish this
         const accessModesTocheck: AccessMode[] = [];
         if (modes) {
             accessModesTocheck.push(...modes);
