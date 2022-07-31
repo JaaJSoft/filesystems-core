@@ -68,3 +68,24 @@ test("LocalPathNewImputStream", async () => {
     }
 });
 
+test("LocalPathNewBufferedReader", async () => {
+    const path = Paths.of("D:\\JAAJ.txt");
+    if (os.platform() == "win32") {
+        const readableStream: ReadableStream<string> = Files.newBufferedReader(path);
+        const reader: ReadableStreamDefaultReader<string> = readableStream.getReader();
+        let done = false;
+        let output: string = "";
+        while (!done) {
+            const v: ReadableStreamDefaultReadValueResult<string> | ReadableStreamDefaultReadDoneResult = await reader.read();
+            done = v.done;
+            if (!done) {
+                output += v.value;
+            }
+        }
+        expect(output).toBe("aaaaBaFFfffGGGtgrZTff");
+    } else {
+        expect(currentPath?.toAbsolutePath()?.getRoot()?.equals(rootPath?.toAbsolutePath())).toBeTruthy();
+    }
+});
+
+

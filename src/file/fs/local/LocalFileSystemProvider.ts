@@ -6,13 +6,14 @@ import * as os from "os";
 import * as fs from "fs";
 import {AccessMode} from "../../AccessMode";
 import {CopyOption} from "../../CopyOption";
-import {AccessDeniedException} from "../../exception/AccessDeniedException";
+import {AccessDeniedException} from "../../exception";
 import {OpenOption} from "../../OpenOption";
 import {BasicFileAttributes, FileAttribute, FileAttributeView} from "../../attribute";
 import {FileStore} from "../../FileStore";
 import {LinkOption} from "../../LinkOption";
 import {DirectoryStream} from "../../DirectoryStream";
-import {ReadableStream} from "node:stream/web";
+import {ReadableStream, TextDecoderStream, TextEncoderStream} from "node:stream/web";
+import {StandardOpenOption} from "../../StandardOpenOption";
 
 /* It's a FileSystemProvider that provides a LocalFileSystem */
 export class LocalFileSystemProvider extends FileSystemProvider {
@@ -53,15 +54,65 @@ export class LocalFileSystemProvider extends FileSystemProvider {
 
     private static readonly BUFFER_SIZE: number = 8192;
 
+    public override newTextDecoder(charsets: string): TextDecoderStream {
+        return new TextDecoderStream(charsets);
+    }
+
+    public override newTextEncoder(): TextEncoderStream {
+        return new TextEncoderStream();
+    }
+
+    private static start(path: Path, controller: ReadableStreamDefaultController<Int8Array> | WritableStreamDefaultController, options?: OpenOption[]): number {
+        let fd: number = -1;
+        try {
+            fd = fs.openSync(path.toString(), this.mapOptionsToFlags(options)); // TODO options
+        } catch (e) {
+            controller.error(e);
+        }
+        return fd;
+    }
+
+    private static mapOptionsToFlags(options: OpenOption[] = [StandardOpenOption.READ]): string {
+        return "r+";
+        /* let flags: number[] = options.flatMap(value => {
+             switch (value) {
+                 case StandardOpenOption.READ:
+                     return [fs.constants.O_RDONLY];
+                 case StandardOpenOption.WRITE:
+                     return [fs.constants.O_WRONLY];
+                 case StandardOpenOption.APPEND:
+                     return [fs.constants.O_APPEND];
+                 case StandardOpenOption.TRUNCATE_EXISTING:
+                     return [fs.constants.O_TRUNC];
+                 case StandardOpenOption.CREATE:
+                     return [fs.constants.O_CREAT];
+                 case StandardOpenOption.CREATE_NEW:
+                     return [fs.constants.O_CREAT, fs.constants.O_EXCL];
+                 case StandardOpenOption.SYNC:
+                     return [fs.constants.O_SYNC];
+                 case StandardOpenOption.DSYNC:
+                     return [fs.constants.O_DSYNC];
+                 case LinkOption.NOFOLLOW_LINKS:
+                     return [fs.constants.O_NOFOLLOW];
+                 default:
+                     return [];
+             }
+         });
+         if (flags.length === 1) {
+             return String(flags[0]);
+         }
+         return String(flags.reduce((previousValue, currentValue) => previousValue | currentValue));*/
+    }
+
+    private static close(fd: number): void {
+        fs.closeSync(fd);
+    }
+
     protected newInputStreamImpl(path: Path, options?: OpenOption[]): ReadableStream<Int8Array> {
-        let fd: number = -1; // TODO Handle options
+        let fd: number = -1;
         return new ReadableStream<Int8Array>({
             start: controller => {
-                try {
-                    fd = fs.openSync(path.toString(), "r"); // TODO options
-                } catch (e) {
-                    controller.error(e);
-                }
+                fd = LocalFileSystemProvider.start(path, controller, options);
             },
             pull: controller => {
                 try {
@@ -76,26 +127,27 @@ export class LocalFileSystemProvider extends FileSystemProvider {
                     controller.error(e);
                 }
             },
-            cancel: reason => {
-                fs.closeSync(fd);
-            },
+            cancel: _ => LocalFileSystemProvider.close(fd),
         });
     }
 
     protected newOutputStreamImpl(path: Path, options?: OpenOption[]): WritableStream<Int8Array> {
-
+        let fd: number = -1;
         return new WritableStream<Int8Array>({
             start: controller => {
-
+                fd = LocalFileSystemProvider.start(path, controller, options);
             },
             write: (chunk, controller) => {
-
+                try {
+                    fs.writeSync(fd, chunk);
+                } catch (e) {
+                    controller.error(e);
+                }
             },
-            close: () => {
-
-            },
+            close: () => LocalFileSystemProvider.close(fd),
             abort: reason => {
-
+                LocalFileSystemProvider.close(fd);
+                // TODO search if there is another thing to do
             },
         });
         // throw new Error("Method not implemented.");

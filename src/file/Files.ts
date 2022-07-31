@@ -726,6 +726,22 @@ export class Files {
     // -- Utility methods for simple usages --
 
     /**
+     * "It returns a readable stream of strings, which is the result of decoding the bytes of the file at the given path,
+     * using the given character set."
+     *
+     * @param {Path} path - The path to the file to read.
+     * @param {string} [charsets=utf-8] - The character set to use. Defaults to "utf-8".
+     * @param {OpenOption[]} [options] - An array of options specifying how the file is opened.
+     * @returns A ReadableStream<string>
+     */
+    public static newBufferedReader(path: Path, charsets: string = "utf-8", options?: OpenOption[]): ReadableStream<string> {
+        const textDecoderStream: TextDecoderStream = this.provider(path).newTextDecoder(charsets);
+        const inputStream: ReadableStream<Int8Array> = Files.newInputStream(path, options);
+        inputStream.pipeTo(textDecoderStream.writable);
+        return textDecoderStream.readable;
+    }
+
+    /**
      * It copies the contents of a file to another file.
      * @param {ReadableStream} inputStream - ReadableStream
      * @param {Path} target - Path

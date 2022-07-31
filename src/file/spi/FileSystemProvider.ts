@@ -38,6 +38,14 @@ export abstract class FileSystemProvider {
         return this.newInputStreamImpl(path, options);
     }
 
+    public newTextDecoder(charsets: string): TextDecoderStream {
+        return new TextDecoderStream(charsets);
+    }
+
+    public newTextEncoder(): TextEncoderStream {
+        return new TextEncoderStream();
+    }
+
     protected abstract newInputStreamImpl(path: Path, options?: OpenOption[]): ReadableStream<Int8Array>; // TODO replace this by channels if possible
 
     private static readonly DEFAULT_OPEN_OPTIONS = [StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE];
