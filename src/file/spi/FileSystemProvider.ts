@@ -24,7 +24,7 @@ export abstract class FileSystemProvider {
 
     public abstract getPath(url: URL): Path ;
 
-    public newInputStream(path: Path, options?: OpenOption[]): ReadableStream<Int8Array> {
+    public newInputStream(path: Path, options?: OpenOption[]): ReadableStream<Uint8Array> {
         if (options && options.length > 0) {
             for (let opt of options) {
                 // All OpenOption values except for APPEND and WRITE are allowed
@@ -46,7 +46,7 @@ export abstract class FileSystemProvider {
         return new TextEncoderStream();
     }
 
-    protected abstract newInputStreamImpl(path: Path, options?: OpenOption[]): ReadableStream<Int8Array>; // TODO replace this by channels if possible
+    protected abstract newInputStreamImpl(path: Path, options?: OpenOption[]): ReadableStream<Uint8Array>; // TODO replace this by channels if possible
 
     private static readonly DEFAULT_OPEN_OPTIONS = [StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE];
 
@@ -56,7 +56,7 @@ export abstract class FileSystemProvider {
      * @param {OpenOption[]} [options?] - OpenOption[]
      * @returns A WritableStream
      */
-    public newOutputStream(path: Path, options?: OpenOption[]): WritableStream<Int8Array> {
+    public newOutputStream(path: Path, options?: OpenOption[]): WritableStream<Uint8Array> {
         let opts: Set<OpenOption>;
         if (!options || options.length == 0) {
             opts = new Set<OpenOption>(FileSystemProvider.DEFAULT_OPEN_OPTIONS);
@@ -73,7 +73,7 @@ export abstract class FileSystemProvider {
         return this.newOutputStreamImpl(path, [...opts]);
     }
 
-    protected abstract newOutputStreamImpl(path: Path, options?: OpenOption[]): WritableStream<Int8Array>; // TODO replace this by channels if possible
+    protected abstract newOutputStreamImpl(path: Path, options?: OpenOption[]): WritableStream<Uint8Array>; // TODO replace this by channels if possible
     public abstract newDirectoryStream(dir: Path, acceptFilter: (path: Path) => boolean): DirectoryStream<Path>;
 
     public abstract createFile(dir: Path, attrs?: FileAttribute<any>[]): void;

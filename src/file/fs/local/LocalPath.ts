@@ -5,9 +5,8 @@ import {LocalPathType} from "./LocalPathType";
 import * as pathFs from "path";
 import * as jsurl from "url";
 import fs from "fs";
-import {ProviderMismatchException} from "../../exception/ProviderMismatchException";
-import {IllegalArgumentException} from "../../../exception/IllegalArgumentException";
-import {NullPointerException} from "../../../exception";
+import {ProviderMismatchException} from "../../exception";
+import {IllegalArgumentException, NullPointerException} from "../../../exception";
 
 /* `LocalPath` is a class that represents a path on the local file system. */
 export class LocalPath extends Path {
@@ -259,7 +258,8 @@ export class LocalPath extends Path {
     }
 
     public toURL(): URL {
-        return jsurl.pathToFileURL(this.toAbsolutePath().toString());
+        const path: string = this.toAbsolutePath().toString();
+        return jsurl.pathToFileURL(path);
     }
 
     public toString(): string {

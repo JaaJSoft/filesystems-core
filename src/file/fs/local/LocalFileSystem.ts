@@ -61,7 +61,7 @@ export class LocalFileSystem extends FileSystem {
     }
 
     public getSeparator(): string {
-        return jsPath.sep
+        return jsPath.sep;
     }
 
     public getUserPrincipalLookupService(): UserPrincipalLookupService {

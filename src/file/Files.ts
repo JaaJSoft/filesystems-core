@@ -59,7 +59,7 @@ export class Files {
         return path.getFileSystem().provider();
     }
 
-    public static newInputStream(path: Path, options?: OpenOption[]): ReadableStream<Int8Array> {
+    public static newInputStream(path: Path, options?: OpenOption[]): ReadableStream<Uint8Array> {
         return this.provider(path).newInputStream(path, options);
     }
 
@@ -69,7 +69,7 @@ export class Files {
      * @param {OpenOption[]} [options?] - An array of options specifying how the file is created or opened.
      * @returns A WritableStream
      */
-    public static newOutputStream(path: Path, options?: OpenOption[]): WritableStream<Int8Array> {
+    public static newOutputStream(path: Path, options?: OpenOption[]): WritableStream<Uint8Array> {
         return this.provider(path).newOutputStream(path, options);
     }
 
@@ -736,9 +736,23 @@ export class Files {
      */
     public static newBufferedReader(path: Path, charsets: string = "utf-8", options?: OpenOption[]): ReadableStream<string> {
         const textDecoderStream: TextDecoderStream = this.provider(path).newTextDecoder(charsets);
-        const inputStream: ReadableStream<Int8Array> = Files.newInputStream(path, options);
+        const inputStream: ReadableStream<Uint8Array> = Files.newInputStream(path, options);
         inputStream.pipeTo(textDecoderStream.writable);
         return textDecoderStream.readable;
+    }
+
+    /**
+     * "Create a new buffered writer for the given path, using the given options."
+     *
+     * @param {Path} path - Path
+     * @param {OpenOption[]} [options] - OpenOption[]
+     * @returns A WritableStream<string>
+     */
+    public static newBufferedWriter(path: Path, options?: OpenOption[]): WritableStream<string> { // TODO support charset
+        const textEncoderStream: TextEncoderStream = this.provider(path).newTextEncoder();
+        const outputStream: WritableStream<Uint8Array> = Files.newOutputStream(path, options);
+        textEncoderStream.readable.pipeTo(outputStream);
+        return textEncoderStream.writable;
     }
 
     /**

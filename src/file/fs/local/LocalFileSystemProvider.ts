@@ -14,6 +14,7 @@ import {LinkOption} from "../../LinkOption";
 import {DirectoryStream} from "../../DirectoryStream";
 import {ReadableStream, TextDecoderStream, TextEncoderStream} from "node:stream/web";
 import {StandardOpenOption} from "../../StandardOpenOption";
+import jsurl from "url";
 
 /* It's a FileSystemProvider that provides a LocalFileSystem */
 export class LocalFileSystemProvider extends FileSystemProvider {
@@ -37,7 +38,7 @@ export class LocalFileSystemProvider extends FileSystemProvider {
     }
 
     public getPath(url: URL): Path {
-        return this.theFileSystem.getPath(url.pathname);
+        return this.theFileSystem.getPath(jsurl.fileURLToPath(url));
     }
 
     public getScheme(): string {
@@ -62,7 +63,7 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         return new TextEncoderStream();
     }
 
-    private static start(path: Path, controller: ReadableStreamDefaultController<Int8Array> | WritableStreamDefaultController, options?: OpenOption[]): number {
+    private static start(path: Path, controller: ReadableStreamDefaultController<Uint8Array> | WritableStreamDefaultController, options?: OpenOption[]): number {
         let fd: number = -1;
         try {
             fd = fs.openSync(path.toString(), this.mapOptionsToFlags(options)); // TODO options
@@ -107,15 +108,15 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         fs.closeSync(fd);
     }
 
-    protected newInputStreamImpl(path: Path, options?: OpenOption[]): ReadableStream<Int8Array> {
+    protected newInputStreamImpl(path: Path, options?: OpenOption[]): ReadableStream<Uint8Array> {
         let fd: number = -1;
-        return new ReadableStream<Int8Array>({
+        return new ReadableStream<Uint8Array>({
             start: controller => {
                 fd = LocalFileSystemProvider.start(path, controller, options);
             },
             pull: controller => {
                 try {
-                    let buffer: Int8Array = new Int8Array(LocalFileSystemProvider.BUFFER_SIZE);
+                    let buffer: Uint8Array = new Uint8Array(LocalFileSystemProvider.BUFFER_SIZE);
                     const bytesRead: number = fs.readSync(fd, buffer, 0, LocalFileSystemProvider.BUFFER_SIZE, null);
                     if (bytesRead > 0) {
                         controller.enqueue(buffer.slice(0, bytesRead));
@@ -130,9 +131,9 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         });
     }
 
-    protected newOutputStreamImpl(path: Path, options?: OpenOption[]): WritableStream<Int8Array> {
+    protected newOutputStreamImpl(path: Path, options?: OpenOption[]): WritableStream<Uint8Array> {
         let fd: number = -1;
-        return new WritableStream<Int8Array>({
+        return new WritableStream<Uint8Array>({
             start: controller => {
                 fd = LocalFileSystemProvider.start(path, controller, options);
             },
@@ -214,7 +215,7 @@ export class LocalFileSystemProvider extends FileSystemProvider {
     }
 
     public delete(path: Path): void {
-        fs.rmSync(path.toAbsolutePath().toString());
+        fs.rmSync(path.toString());
     }
 
     public readAttributesByType(path: Path, type?: string, options?: LinkOption[]): BasicFileAttributes {

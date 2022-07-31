@@ -1,6 +1,6 @@
 import {FileSystem} from "./FileSystem";
 import {IllegalArgumentException, UnsupportedOperationException} from "../exception";
-import {ProviderNotFoundException} from "./exception/ProviderNotFoundException";
+import {ProviderNotFoundException} from "./exception";
 import {FileSystemProviders} from "./spi";
 import {LocalFileSystemProvider} from "./fs/local";
 
@@ -30,7 +30,7 @@ export class FileSystems {
                 return provider.getFileSystem(url);
             }
         }
-        throw new ProviderNotFoundException(`Provider "${scheme}" not found`)
+        throw new ProviderNotFoundException(`Provider "${scheme}" not found`);
     }
 
     public newFileSystem(uri: URL, env: Map<string, any>): FileSystem {
