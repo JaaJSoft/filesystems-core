@@ -72,36 +72,35 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         return fd;
     }
 
-    private static mapOptionsToFlags(options: OpenOption[] = [StandardOpenOption.READ]): string {
-        return "r+";
-        /* let flags: number[] = options.flatMap(value => {
-             switch (value) {
-                 case StandardOpenOption.READ:
-                     return [fs.constants.O_RDONLY];
-                 case StandardOpenOption.WRITE:
-                     return [fs.constants.O_WRONLY];
-                 case StandardOpenOption.APPEND:
-                     return [fs.constants.O_APPEND];
-                 case StandardOpenOption.TRUNCATE_EXISTING:
-                     return [fs.constants.O_TRUNC];
-                 case StandardOpenOption.CREATE:
-                     return [fs.constants.O_CREAT];
-                 case StandardOpenOption.CREATE_NEW:
-                     return [fs.constants.O_CREAT, fs.constants.O_EXCL];
-                 case StandardOpenOption.SYNC:
-                     return [fs.constants.O_SYNC];
-                 case StandardOpenOption.DSYNC:
-                     return [fs.constants.O_DSYNC];
-                 case LinkOption.NOFOLLOW_LINKS:
-                     return [fs.constants.O_NOFOLLOW];
-                 default:
-                     return [];
-             }
-         });
-         if (flags.length === 1) {
-             return String(flags[0]);
-         }
-         return String(flags.reduce((previousValue, currentValue) => previousValue | currentValue));*/
+    private static mapOptionsToFlags(options: OpenOption[] = [StandardOpenOption.READ]): number {
+        let flags: number[] = options.flatMap(value => {
+            switch (value) {
+                case StandardOpenOption.READ:
+                    return [fs.constants.O_RDONLY];
+                case StandardOpenOption.WRITE:
+                    return [fs.constants.O_WRONLY];
+                case StandardOpenOption.APPEND:
+                    return [fs.constants.O_APPEND];
+                case StandardOpenOption.TRUNCATE_EXISTING:
+                    return [fs.constants.O_TRUNC];
+                case StandardOpenOption.CREATE:
+                    return [fs.constants.O_CREAT];
+                case StandardOpenOption.CREATE_NEW:
+                    return [fs.constants.O_CREAT, fs.constants.O_EXCL];
+                case StandardOpenOption.SYNC:
+                    return [fs.constants.O_SYNC];
+                case StandardOpenOption.DSYNC:
+                    return [fs.constants.O_DSYNC];
+                case LinkOption.NOFOLLOW_LINKS:
+                    return [fs.constants.O_NOFOLLOW];
+                default:
+                    return [];
+            }
+        });
+        if (flags.length === 1) {
+            return flags[0];
+        }
+        return flags.reduce((previousValue, currentValue) => previousValue | currentValue);
     }
 
     private static close(fd: number): void {
