@@ -12,13 +12,15 @@ test("LocalPathRoot", () => {
 });
 
 test("LocalPathRootWithURL", () => {
-    const root = Paths.ofURL(new URL("file:///C:/"));
-    expect(root?.getRoot()?.equals(root)).toBeTruthy();
+    const root = Paths.ofURL(new URL(os.platform() === "win32" ? "file://c:/" : "file:///"));
+    expect(root.getRoot()?.equals(root)).toBeTruthy();
 });
 
 test("LocalPathNotRootWithURL", () => {
-    const path = Paths.ofURL(new URL("file://D:/test.txt"));
-    expect(path.getRoot()?.equals(rootPath)).toBeFalsy();
+    if (os.platform() === "win32") {
+        const path = Paths.ofURL(new URL("file:///D:/test.txt"));
+        expect(path.getRoot()?.equals(rootPath)).toBeFalsy();
+    }
 });
 
 test("LocalPathExists", () => {
