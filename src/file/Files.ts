@@ -100,7 +100,7 @@ export class Files {
      * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
      * @returns The path
      */
-    public static createFile(path: Path, attrs?: FileAttribute<any>[]): Path {
+    public static createFile(path: Path, attrs?: FileAttribute<any>[]): Path { // TODO use stream ?
         this.provider(path).createFile(path, attrs);
         return path;
     }
@@ -831,6 +831,51 @@ export class Files {
         }
     }
 
+    public static async readAllBytes(path: Path): Promise<Uint8Array> {
+        let inputStream: ReadableStream<Uint8Array> | undefined = undefined;
+        try {
+            inputStream = this.newInputStream(path);
+            const reader: ReadableStreamDefaultReader<Uint8Array> = inputStream.getReader();
+            let done = false;
+            const values = [];
+            do {
+                const v = await reader.read();
+                done = v.done;
+                if (v.value) {
+                    values.push(v.value);
+                }
+            } while (!done);
+            const bytes: number[] = values.flatMap(b => [...b]);
+            const uint8Array = new Uint8Array(bytes.length);
+            uint8Array.set(bytes);
+            return uint8Array;
+        } catch (e) {
+            await inputStream?.cancel(e);
+            throw e;
+        }
+    }
+
+    public static async readString(path: Path, charset: string = "utf-8"): Promise<string> {
+        let inputStream: ReadableStream<string> | undefined = undefined;
+        try {
+            inputStream = this.newBufferedReader(path, charset);
+            const reader: ReadableStreamDefaultReader<string> = inputStream.getReader();
+            let done = false;
+            const values = [];
+            do {
+                const v = await reader.read();
+                done = v.done;
+                if (v.value) {
+                    values.push(v.value);
+                }
+            } while (!done);
+            return values.join();
+        } catch (e) {
+            await inputStream?.cancel(e);
+            throw e;
+        }
+    }
+
     public static readAllLines(path: Path, charsets: string): string[] {
 
         return [];
@@ -884,7 +929,7 @@ export class Files {
                 }
             }
             iterator.close();
-            return [...paths];
+            return [...paths]; // TODO return a stream like (lazy)
         } catch (e) {
             iterator.close();
             throw e;
@@ -915,7 +960,7 @@ export class Files {
                 }
             }
             iterator.close();
-            return [...paths];
+            return [...paths]; // TODO return a stream like (lazy)
         } catch (e) {
             iterator.close();
             throw e;

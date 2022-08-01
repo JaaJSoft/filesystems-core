@@ -15,7 +15,7 @@ test("URL", () => {
         expect(Paths.of("c:/").toURL().toString()).toEqual(Paths.of("c:/").toURL().toString());
 
 
-        expect(Paths.of("/").toURL().toString()).toEqual("file:///D:/");
+        expect(Paths.of("c:/").toURL().toString()).toEqual("file:///c:/");
         expect(Paths.ofURL(new URL("file://D:/"))?.toURL().toString()).toEqual("file:///D:/");
     } else {
         expect(Paths.of("/").toURL().toString()).toEqual("file:///");

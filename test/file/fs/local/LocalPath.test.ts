@@ -107,5 +107,22 @@ test("LocalPathNewBufferedReader", async () => {
     }
 });
 
+test("LocalPathReadAllBytes", async () => {
+    const path = Paths.of("D:\\JAAJ.txt");
+    if (os.platform() == "win32") {
+        expect((await Files.readAllBytes(path)).toString()).toEqual("97,97,97,97,66,97,70,70,102,102,102,71,71,71,116,103,114,90,84,102,102");
+    } else {
+        // TODO
+    }
+});
+
+test("LocalPathReadString", async () => {
+    const path = Paths.of("D:\\JAAJ.txt");
+    if (os.platform() == "win32") {
+        expect((await Files.readString(path))).toEqual("aaaaBaFFfffGGGtgrZTff");
+    } else {
+        //TODO
+    }
+});
 
 
