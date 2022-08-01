@@ -42,10 +42,6 @@ import {FileTreeIterator} from "./FileTreeIterator";
 /* It provides a set of static methods for working with files and directories */
 export class Files {
 
-    // buffer size used for reading and writing
-    // @ts-ignore
-    private static BUFFER_SIZE: number = 8192;
-
     private constructor() {
         // static
     }
