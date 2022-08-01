@@ -18,7 +18,7 @@ test("LocalPathRootWithURL", () => {
 
 test("LocalPathNotRootWithURL", () => {
     if (os.platform() === "win32") {
-        const path = Paths.ofURL(new URL("file:///D:/test.txt"));
+        const path = Paths.ofURL(new URL("file://D:/test.txt"));
         expect(path.getRoot()?.equals(rootPath)).toBeFalsy();
     }
 });
