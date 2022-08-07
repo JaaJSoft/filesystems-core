@@ -127,4 +127,15 @@ test("LocalPathReadString", async () => {
     }
 });
 
+test("LocalPathReadAllString", async () => {
+    const path = Paths.of("D:\\JAAJ2.txt");
+    if (os.platform() == "win32") {
+        const lines: string[] = await Files.readAllLines(path);
+        expect(lines.length).toEqual(2);
+        expect(lines[0]).toEqual("aaaaBaFFfffGGGtgrZTff");
+        expect(lines[1]).toEqual("test");
+    } else {
+        //TODO
+    }
+});
 

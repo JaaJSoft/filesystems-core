@@ -827,6 +827,11 @@ export class Files {
         }
     }
 
+    /**
+     * It reads all the bytes from a file and returns them as a Uint8Array
+     * @param {Path} path - The path to the file to read.
+     * @returns A Uint8Array
+     */
     public static async readAllBytes(path: Path): Promise<Uint8Array> {
         let inputStream: ReadableStream<Uint8Array> | undefined = undefined;
         try {
@@ -851,6 +856,12 @@ export class Files {
         }
     }
 
+    /**
+     * It reads a file and returns a promise that resolves to the file's contents as a string
+     * @param {Path} path - The path to the file to read.
+     * @param {string} [charset=utf-8] - The character set to use when reading the file.
+     * @returns A string
+     */
     public static async readString(path: Path, charset: string = "utf-8"): Promise<string> {
         let inputStream: ReadableStream<string> | undefined = undefined;
         try {
@@ -878,8 +889,8 @@ export class Files {
      * @param {Path} path - The path to the file to read.
      * @param {string} [charsets=utf-8] - The character set to use.
      */
-    public static readAllLines(path: Path, charsets: string = "utf-8"): string[] {
-        throw [...Files.lines(path, charsets)];
+    public static async readAllLines(path: Path, charsets: string = "utf-8"): Promise<string[]> {
+        return this.readString(path, charsets).then(string => string.split(/\r?\n/));
     }
 
     // -- Stream APIs --
@@ -932,15 +943,14 @@ export class Files {
         return new FileTreeIterator(start, maxDepth, options).toIterablePath(matcher);
     }
 
+
     /**
-     * "Given a path, return an iterable lazily computed of paths, one for each line in the file."
-     *
-     * The first parameter, path, is a Path object. The second parameter, charsets, is a string that specifies the
-     * character set to use when reading the file. The default value is "utf-8"
-     * @param {Path} path - The path to the file to read.
-     * @param {string} [charsets=utf-8] - The character set to use when reading the file.
+     * It reads a file line by line.
+     * @param {Path} path - Path
+     * @param {string} [charsets=utf-8] - string = "utf-8"
      */
-    public static lines(path: Path, charsets: string = "utf-8"): Iterable<Path> {
+    public static lines(path: Path, charsets: string = "utf-8"): Iterable<string> {
+
         throw new Error("Method not implemented.");
     }
 }
