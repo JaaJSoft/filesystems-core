@@ -949,8 +949,8 @@ export class Files {
      * @param {Path} path - Path
      * @param {string} [charsets=utf-8] - string = "utf-8"
      */
-    public static lines(path: Path, charsets: string = "utf-8"): Iterable<string> {
-
-        throw new Error("Method not implemented.");
+    public static async lines(path: Path, charsets: string = "utf-8"): Promise<Iterable<string>> {
+        console.warn("Files.lines is not lazily computed yet"); // TODO lazily
+        return Files.readAllLines(path, charsets);
     }
 }
