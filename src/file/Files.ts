@@ -872,9 +872,14 @@ export class Files {
         }
     }
 
-    public static readAllLines(path: Path, charsets: string): string[] {
-
-        return [];
+    /**
+     * Reads all lines from a file as a string array, using the specified encoding, and optionally, the specified buffer
+     * size
+     * @param {Path} path - The path to the file to read.
+     * @param {string} [charsets=utf-8] - The character set to use.
+     */
+    public static readAllLines(path: Path, charsets: string = "utf-8"): string[] {
+        throw [...Files.lines(path, charsets)];
     }
 
     // -- Stream APIs --
@@ -904,32 +909,14 @@ export class Files {
     }
 
     /**
-     * It takes a starting path, a maximum depth, and an array of options, and returns an array of paths
-     * @param {Path} start - Path - The starting point of the walk.
-     * @param {number} maxDepth - The maximum depth to walk.
+     * It returns an iterable of Path objects.
+     * @param {Path} start - Path - The starting directory
+     * @param {number} maxDepth - The maximum depth to search.
      * @param {FileVisitOption[]} [options] - FileVisitOption[]
-     * @returns An array of Paths
+     * @returns An iterable of Path objects.
      */
-    public static walk(start: Path, maxDepth: number = Number.MAX_VALUE, options?: FileVisitOption[]): Path[] {
-        const iterator: FileTreeIterator = new FileTreeIterator(start, maxDepth, options);
-        try {
-            const paths = new Set<Path>();
-            let next: IteratorYieldResult<FileTreeWalkerEvent | undefined> | IteratorReturnResult<FileTreeWalkerEvent> = iterator.next();
-            if (next.value) {
-                paths.add(next.value.file());
-            }
-            while (!next.done) {
-                next = iterator.next();
-                if (next.value) {
-                    paths.add(next.value.file());
-                }
-            }
-            iterator.close();
-            return [...paths]; // TODO return a stream like (lazy)
-        } catch (e) {
-            iterator.close();
-            throw e;
-        }
+    public static walk(start: Path, maxDepth: number = Number.MAX_VALUE, options?: FileVisitOption[]): Iterable<Path> {
+        return new FileTreeIterator(start, maxDepth, options).toIterablePath();
     }
 
     /**
@@ -941,25 +928,19 @@ export class Files {
      * @param {FileVisitOption[]} [options] - FileVisitOption[]
      * @returns An array of Paths
      */
-    public static find(start: Path, matcher: (path: Path, attrs: BasicFileAttributes | undefined) => boolean, maxDepth: number = Number.MAX_VALUE, options?: FileVisitOption[]): Path[] {
-        const iterator: FileTreeIterator = new FileTreeIterator(start, maxDepth, options);
-        try {
-            const paths = new Set<Path>();
-            let next: IteratorYieldResult<FileTreeWalkerEvent | undefined> | IteratorReturnResult<FileTreeWalkerEvent> = iterator.next();
-            if (next.value && matcher(next.value.file(), next.value.attributes())) {
-                paths.add(next.value.file());
-            }
-            while (!next.done) {
-                next = iterator.next();
-                if (next.value && matcher(next.value.file(), next.value.attributes())) {
-                    paths.add(next.value.file());
-                }
-            }
-            iterator.close();
-            return [...paths]; // TODO return a stream like (lazy)
-        } catch (e) {
-            iterator.close();
-            throw e;
-        }
+    public static find(start: Path, matcher: (path: Path, attrs: BasicFileAttributes | undefined) => boolean, maxDepth: number = Number.MAX_VALUE, options?: FileVisitOption[]): Iterable<Path> {
+        return new FileTreeIterator(start, maxDepth, options).toIterablePath(matcher);
+    }
+
+    /**
+     * "Given a path, return an iterable lazily computed of paths, one for each line in the file."
+     *
+     * The first parameter, path, is a Path object. The second parameter, charsets, is a string that specifies the
+     * character set to use when reading the file. The default value is "utf-8"
+     * @param {Path} path - The path to the file to read.
+     * @param {string} [charsets=utf-8] - The character set to use when reading the file.
+     */
+    public static lines(path: Path, charsets: string = "utf-8"): Iterable<Path> {
+        throw new Error("Method not implemented.");
     }
 }
