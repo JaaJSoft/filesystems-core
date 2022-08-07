@@ -33,6 +33,16 @@ export class FileSystems {
         throw new ProviderNotFoundException(`Provider "${scheme}" not found`);
     }
 
+    /**
+     * "If the scheme of the given URI is supported by any of the installed providers, then return a new file system
+     * created by that provider, otherwise throw an exception."
+     *
+     * The first thing the function does is to get the scheme of the given URI. The scheme is the part of the URI before
+     * the first colon. For example, the scheme of the URI "http://www.example.com" is "http"
+     * @param {URL} uri - The URI of the file system to open or create.
+     * @param env - A map of environment variables to be used by the file system provider.
+     * @returns A FileSystem object
+     */
     public newFileSystem(uri: URL, env: Map<string, any>): FileSystem {
         const scheme: string = uri.protocol.toLowerCase();
 

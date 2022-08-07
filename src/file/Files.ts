@@ -57,6 +57,12 @@ export class Files {
         return path.getFileSystem().provider();
     }
 
+    /**
+     * It creates a new input stream.
+     * @param {Path} path - The path to the file to open.
+     * @param {OpenOption[]} [options?] - An array of options specifying how the file is opened.
+     * @returns A ReadableStream of bytes
+     */
     public static newInputStream(path: Path, options?: OpenOption[]): ReadableStream<Uint8Array> {
         return this.provider(path).newInputStream(path, options);
     }
@@ -73,10 +79,22 @@ export class Files {
 
     // -- Directories --
 
+    /**
+     * Returns a new directory stream for the given directory.
+     * @param {Path} dir - Path
+     * @returns A DirectoryStream<Path>
+     */
     public static newDirectoryStream(dir: Path): DirectoryStream<Path> {
         return this.provider(dir).newDirectoryStream(dir, _ => true);
     }
 
+    /**
+     * "If the glob is '*', then return a new directory stream, otherwise return a new directory stream filtered with the
+     * glob."
+     * @param {Path} dir - Path - the directory to list
+     * @param {string} glob - The glob pattern to filter the directory stream.
+     * @returns A DirectoryStream<Path>
+     */
     public static newDirectoryStreamFilteredWithGlob(dir: Path, glob: string): DirectoryStream<Path> {
         if (glob === "*") {
             return this.newDirectoryStream(dir);
@@ -324,10 +342,22 @@ export class Files {
         return this.provider(link).readSymbolicLink(link);
     }
 
+
+    /**
+     * Returns the FileStore representing the file store where a file is located
+     * @param {Path} path - The path to the file or directory.
+     * @returns A FileStore object
+     */
     public static getFileStore(path: Path): FileStore {
         return this.provider(path).getFileStore(path);
     }
 
+    /**
+     * It checks if two paths are the same.
+     * @param {Path} path - The path to the file.
+     * @param {Path} path2 - Path - The path to compare to.
+     * @returns A boolean value.
+     */
     public static isSameFile(path: Path, path2: Path): boolean {
         return this.provider(path).isSameFile(path, path2);
     }
@@ -336,6 +366,12 @@ export class Files {
         return this.provider(path).isHidden(path);
     }
 
+    /**
+     * It loops through all the installed detectors and returns the first non-null result. If none of the installed
+     * detectors return a non-null result, it returns the result of the default detector
+     * @param {Path} path - The path to the file to be probed.
+     * @returns The content type of the file.
+     */
     public static probeContentType(path: Path): string {
         for (let detector of FileTypeDetectors.installedDetectors) {
             const result = detector.probeContentType(path);
@@ -381,6 +417,14 @@ export class Files {
         return this.provider(path).getFileAttributeView(path, type, options);
     }
 
+    /**
+     * Set the attribute of the path to the value.
+     * @param {Path} path - The path to the file or directory.
+     * @param {string} attribute - The attribute to set.
+     * @param {any} value - The value to set the attribute to.
+     * @param {LinkOption[]} [options] - An array of LinkOption objects.
+     * @returns The path that was passed in.
+     */
     public static setAttribute(path: Path, attribute: string, value: any, options?: LinkOption[]): Path {
         this.provider(path).setAttribute(path, attribute, value, options);
         return path;
@@ -890,6 +934,12 @@ export class Files {
         return this.readString(path, charsets).then(string => string.split(/\r?\n/));
     }
 
+    /**
+     * It writes the bytes in the given array to the given file
+     * @param {Path} path - The path to the file to write to.
+     * @param {Uint8Array} bytes - The bytes to write to the file.
+     * @param {OpenOption[]} [options] - An array of options to be used when opening the file.
+     */
     public static async writeBytes(path: Path, bytes: Uint8Array, options?: OpenOption[]): Promise<void> {
         let writableStream: WritableStream<Uint8Array> | undefined;
         let writer: WritableStreamDefaultWriter<Uint8Array> | undefined;
@@ -915,6 +965,12 @@ export class Files {
         }
     }
 
+    /**
+     * It writes a string to a file
+     * @param {Path} path - The path to the file to write to.
+     * @param {string} string - The string to write to the file.
+     * @param {OpenOption[]} [options] - An array of options to use when opening the file.
+     */
     public static async writeString(path: Path, string: string, options?: OpenOption[]): Promise<void> {
         let writableStream: WritableStream<string> | undefined;
         let writer: WritableStreamDefaultWriter<string> | undefined;
