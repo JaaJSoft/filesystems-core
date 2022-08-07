@@ -42,9 +42,7 @@ import {FileTreeIterator} from "./FileTreeIterator";
 /* It provides a set of static methods for working with files and directories */
 export class Files {
 
-    // buffer size used for reading and writing
-    // @ts-ignore
-    private static BUFFER_SIZE: number = 8192;
+    private static readonly BUFFER_SIZE: number = 8192;
 
     private constructor() {
         // static
@@ -59,26 +57,44 @@ export class Files {
         return path.getFileSystem().provider();
     }
 
-    public static newInputStream(path: Path, options?: OpenOption[]): ReadableStream {
+    /**
+     * It creates a new input stream.
+     * @param {Path} path - The path to the file to open.
+     * @param {OpenOption[]} [options?] - An array of options specifying how the file is opened.
+     * @returns A ReadableStream of bytes
+     */
+    public static newInputStream(path: Path, options?: OpenOption[]): ReadableStream<Uint8Array> {
         return this.provider(path).newInputStream(path, options);
     }
 
     /**
      * It creates a new output stream.
      * @param {Path} path - The path to the file to open.
-     * @param {OpenOption[]} [options] - An array of options specifying how the file is created or opened.
+     * @param {OpenOption[]} [options?] - An array of options specifying how the file is created or opened.
      * @returns A WritableStream
      */
-    public static newOutputStream(path: Path, options?: OpenOption[]): WritableStream {
+    public static newOutputStream(path: Path, options?: OpenOption[]): WritableStream<Uint8Array> {
         return this.provider(path).newOutputStream(path, options);
     }
 
     // -- Directories --
 
+    /**
+     * Returns a new directory stream for the given directory.
+     * @param {Path} dir - Path
+     * @returns A DirectoryStream<Path>
+     */
     public static newDirectoryStream(dir: Path): DirectoryStream<Path> {
         return this.provider(dir).newDirectoryStream(dir, _ => true);
     }
 
+    /**
+     * "If the glob is '*', then return a new directory stream, otherwise return a new directory stream filtered with the
+     * glob."
+     * @param {Path} dir - Path - the directory to list
+     * @param {string} glob - The glob pattern to filter the directory stream.
+     * @returns A DirectoryStream<Path>
+     */
     public static newDirectoryStreamFilteredWithGlob(dir: Path, glob: string): DirectoryStream<Path> {
         if (glob === "*") {
             return this.newDirectoryStream(dir);
@@ -100,7 +116,7 @@ export class Files {
      * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
      * @returns The path
      */
-    public static createFile(path: Path, attrs?: FileAttribute<any>[]): Path {
+    public static createFile(path: Path, attrs?: FileAttribute<any>[]): Path { // TODO use stream ?
         this.provider(path).createFile(path, attrs);
         return path;
     }
@@ -326,10 +342,22 @@ export class Files {
         return this.provider(link).readSymbolicLink(link);
     }
 
+
+    /**
+     * Returns the FileStore representing the file store where a file is located
+     * @param {Path} path - The path to the file or directory.
+     * @returns A FileStore object
+     */
     public static getFileStore(path: Path): FileStore {
         return this.provider(path).getFileStore(path);
     }
 
+    /**
+     * It checks if two paths are the same.
+     * @param {Path} path - The path to the file.
+     * @param {Path} path2 - Path - The path to compare to.
+     * @returns A boolean value.
+     */
     public static isSameFile(path: Path, path2: Path): boolean {
         return this.provider(path).isSameFile(path, path2);
     }
@@ -338,6 +366,12 @@ export class Files {
         return this.provider(path).isHidden(path);
     }
 
+    /**
+     * It loops through all the installed detectors and returns the first non-null result. If none of the installed
+     * detectors return a non-null result, it returns the result of the default detector
+     * @param {Path} path - The path to the file to be probed.
+     * @returns The content type of the file.
+     */
     public static probeContentType(path: Path): string {
         for (let detector of FileTypeDetectors.installedDetectors) {
             const result = detector.probeContentType(path);
@@ -383,6 +417,14 @@ export class Files {
         return this.provider(path).getFileAttributeView(path, type, options);
     }
 
+    /**
+     * Set the attribute of the path to the value.
+     * @param {Path} path - The path to the file or directory.
+     * @param {string} attribute - The attribute to set.
+     * @param {any} value - The value to set the attribute to.
+     * @param {LinkOption[]} [options] - An array of LinkOption objects.
+     * @returns The path that was passed in.
+     */
     public static setAttribute(path: Path, attribute: string, value: any, options?: LinkOption[]): Path {
         this.provider(path).setAttribute(path, attribute, value, options);
         return path;
@@ -726,14 +768,42 @@ export class Files {
     // -- Utility methods for simple usages --
 
     /**
+     * "It returns a readable stream of strings, which is the result of decoding the bytes of the file at the given path,
+     * using the given character set."
+     *
+     * @param {Path} path - The path to the file to read.
+     * @param {string} [charsets=utf-8] - The character set to use. Defaults to "utf-8".
+     * @param {OpenOption[]} [options] - An array of options specifying how the file is opened.
+     * @returns A ReadableStream<string>
+     */
+    public static newBufferedReader(path: Path, charsets: string = "utf-8", options?: OpenOption[]): ReadableStream<string> {
+        const textDecoderStream: TextDecoderStream = this.provider(path).newTextDecoder(charsets);
+        const inputStream: ReadableStream<Uint8Array> = Files.newInputStream(path, options);
+        inputStream.pipeTo(textDecoderStream.writable);
+        return textDecoderStream.readable;
+    }
+
+    /**
+     * "Create a new buffered writer for the given path, using the given options."
+     *
+     * @param {Path} path - Path
+     * @param {OpenOption[]} [options] - OpenOption[]
+     * @returns A WritableStream<string>
+     */
+    public static newBufferedWriter(path: Path, options?: OpenOption[]): WritableStream<string> { // TODO support charset
+        const textEncoderStream: TextEncoderStream = this.provider(path).newTextEncoder();
+        const outputStream: WritableStream<Uint8Array> = Files.newOutputStream(path, options);
+        textEncoderStream.readable.pipeTo(outputStream);
+        return textEncoderStream.writable;
+    }
+
+    /**
      * It copies the contents of a file to another file.
      * @param {ReadableStream} inputStream - ReadableStream
      * @param {Path} target - Path
      * @param {CopyOption[]} [options] - CopyOption[]
      */
     public static async copyFromStream(inputStream: ReadableStream, target: Path, options?: CopyOption[]): Promise<void> {
-        Objects.requireNonNullUndefined(inputStream);
-
         let replaceExisting = false;
         if (options) {
             for (let opt of options) {
@@ -764,7 +834,6 @@ export class Files {
         try {
             outputStream = this.newOutputStream(target, [StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE]);
             await inputStream.pipeTo(outputStream);
-
         } catch (x) {
             if (x instanceof FileAlreadyExistsException) {
                 if (se) {
@@ -775,9 +844,7 @@ export class Files {
             }
             throw x;
         } finally {
-            if (outputStream) {
-                await outputStream.close();
-            }
+            await outputStream?.close();
         }
     }
 
@@ -795,9 +862,128 @@ export class Files {
             inputStream = this.newInputStream(source);
             await inputStream.pipeTo(outputStream);
         } finally {
-            if (inputStream) {
-                await inputStream.cancel();
+            await inputStream?.cancel();
+        }
+    }
+
+    /**
+     * It reads all the bytes from a file and returns them as a Uint8Array
+     * @param {Path} path - The path to the file to read.
+     * @returns A Uint8Array
+     */
+    public static async readAllBytes(path: Path): Promise<Uint8Array> {
+        let inputStream: ReadableStream<Uint8Array> | undefined = undefined;
+        try {
+            inputStream = this.newInputStream(path);
+            const reader: ReadableStreamDefaultReader<Uint8Array> = inputStream.getReader();
+            let done = false;
+            const values = [];
+            do {
+                const v = await reader.read();
+                done = v.done;
+                if (v.value) {
+                    values.push(v.value);
+                }
+            } while (!done);
+            const bytes: number[] = values.flatMap(b => [...b]);
+            const uint8Array = new Uint8Array(bytes.length);
+            reader.releaseLock();
+            uint8Array.set(bytes);
+            return uint8Array;
+        } catch (e) {
+            await inputStream?.cancel(e);
+            throw e;
+        }
+    }
+
+    /**
+     * It reads a file and returns a promise that resolves to the file's contents as a string
+     * @param {Path} path - The path to the file to read.
+     * @param {string} [charset=utf-8] - The character set to use when reading the file.
+     * @returns A string
+     */
+    public static async readString(path: Path, charset: string = "utf-8"): Promise<string> {
+        let inputStream: ReadableStream<string> | undefined = undefined;
+        try {
+            inputStream = this.newBufferedReader(path, charset);
+            const reader: ReadableStreamDefaultReader<string> = inputStream.getReader();
+            let done = false;
+            const values = [];
+            do {
+                const v = await reader.read();
+                done = v.done;
+                if (v.value) {
+                    values.push(v.value);
+                }
+            } while (!done);
+            reader.releaseLock();
+            return values.join();
+        } catch (e) {
+            await inputStream?.cancel(e);
+            throw e;
+        }
+    }
+
+    /**
+     * Reads all lines from a file as a string array, using the specified encoding, and optionally, the specified buffer
+     * size
+     * @param {Path} path - The path to the file to read.
+     * @param {string} [charsets=utf-8] - The character set to use.
+     */
+    public static async readAllLines(path: Path, charsets: string = "utf-8"): Promise<string[]> {
+        return this.readString(path, charsets).then(string => string.split(/\r?\n/));
+    }
+
+    /**
+     * It writes the bytes in the given array to the given file
+     * @param {Path} path - The path to the file to write to.
+     * @param {Uint8Array} bytes - The bytes to write to the file.
+     * @param {OpenOption[]} [options] - An array of options to be used when opening the file.
+     */
+    public static async writeBytes(path: Path, bytes: Uint8Array, options?: OpenOption[]): Promise<void> {
+        let writableStream: WritableStream<Uint8Array> | undefined;
+        let writer: WritableStreamDefaultWriter<Uint8Array> | undefined;
+        try {
+            writableStream = Files.newOutputStream(path, options);
+            writer = writableStream.getWriter();
+            const len = bytes.length;
+            let rem = len;
+            while (rem > 0) {
+                let n = Math.min(rem, this.BUFFER_SIZE);
+                let start = len - rem;
+                let end = start + n;
+                const chunk = bytes.slice(start, end);
+                await writer.write(chunk);
+                rem -= n;
             }
+            writer.releaseLock();
+            await writableStream.close();
+        } catch (e) {
+            writer?.releaseLock();
+            await writableStream?.close();
+            throw e;
+        }
+    }
+
+    /**
+     * It writes a string to a file
+     * @param {Path} path - The path to the file to write to.
+     * @param {string} string - The string to write to the file.
+     * @param {OpenOption[]} [options] - An array of options to use when opening the file.
+     */
+    public static async writeString(path: Path, string: string, options?: OpenOption[]): Promise<void> {
+        let writableStream: WritableStream<string> | undefined;
+        let writer: WritableStreamDefaultWriter<string> | undefined;
+        try {
+            writableStream = Files.newBufferedWriter(path, options);
+            writer = writableStream.getWriter();
+            await writer.write(string);
+            writer.releaseLock();
+            await writableStream.close();
+        } catch (e) {
+            writer?.releaseLock();
+            await writableStream?.close();
+            throw e;
         }
     }
 
@@ -828,32 +1014,14 @@ export class Files {
     }
 
     /**
-     * It takes a starting path, a maximum depth, and an array of options, and returns an array of paths
-     * @param {Path} start - Path - The starting point of the walk.
-     * @param {number} maxDepth - The maximum depth to walk.
+     * It returns an iterable of Path objects.
+     * @param {Path} start - Path - The starting directory
+     * @param {number} maxDepth - The maximum depth to search.
      * @param {FileVisitOption[]} [options] - FileVisitOption[]
-     * @returns An array of Paths
+     * @returns An iterable of Path objects.
      */
-    public static walk(start: Path, maxDepth: number = Number.MAX_VALUE, options?: FileVisitOption[]): Path[] {
-        const iterator: FileTreeIterator = new FileTreeIterator(start, maxDepth, options);
-        try {
-            const paths = new Set<Path>();
-            let next: IteratorYieldResult<FileTreeWalkerEvent | undefined> | IteratorReturnResult<FileTreeWalkerEvent> = iterator.next();
-            if (next.value) {
-                paths.add(next.value.file());
-            }
-            while (!next.done) {
-                next = iterator.next();
-                if (next.value) {
-                    paths.add(next.value.file());
-                }
-            }
-            iterator.close();
-            return [...paths];
-        } catch (e) {
-            iterator.close();
-            throw e;
-        }
+    public static walk(start: Path, maxDepth: number = Number.MAX_VALUE, options?: FileVisitOption[]): Iterable<Path> {
+        return new FileTreeIterator(start, maxDepth, options).toIterablePath();
     }
 
     /**
@@ -865,25 +1033,18 @@ export class Files {
      * @param {FileVisitOption[]} [options] - FileVisitOption[]
      * @returns An array of Paths
      */
-    public static find(start: Path, matcher: (path: Path, attrs: BasicFileAttributes | undefined) => boolean, maxDepth: number = Number.MAX_VALUE, options?: FileVisitOption[]): Path[] {
-        const iterator: FileTreeIterator = new FileTreeIterator(start, maxDepth, options);
-        try {
-            const paths = new Set<Path>();
-            let next: IteratorYieldResult<FileTreeWalkerEvent | undefined> | IteratorReturnResult<FileTreeWalkerEvent> = iterator.next();
-            if (next.value && matcher(next.value.file(), next.value.attributes())) {
-                paths.add(next.value.file());
-            }
-            while (!next.done) {
-                next = iterator.next();
-                if (next.value && matcher(next.value.file(), next.value.attributes())) {
-                    paths.add(next.value.file());
-                }
-            }
-            iterator.close();
-            return [...paths];
-        } catch (e) {
-            iterator.close();
-            throw e;
-        }
+    public static find(start: Path, matcher: (path: Path, attrs: BasicFileAttributes | undefined) => boolean, maxDepth: number = Number.MAX_VALUE, options?: FileVisitOption[]): Iterable<Path> {
+        return new FileTreeIterator(start, maxDepth, options).toIterablePath(matcher);
+    }
+
+
+    /**
+     * It reads a file line by line.
+     * @param {Path} path - Path
+     * @param {string} [charsets=utf-8] - string = "utf-8"
+     */
+    public static async lines(path: Path, charsets: string = "utf-8"): Promise<Iterable<string>> {
+        console.warn("Files.lines is not lazily computed yet"); // TODO lazily
+        return Files.readAllLines(path, charsets);
     }
 }

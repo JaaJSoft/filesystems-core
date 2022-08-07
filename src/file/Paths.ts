@@ -1,7 +1,7 @@
 import {FileSystems} from "./FileSystems";
 import {IllegalArgumentException} from "../exception";
 import {FileSystemProviders} from "./spi";
-import {FileSystemNotFoundException} from "./exception/FileSystemNotFoundException";
+import {FileSystemNotFoundException} from "./exception";
 import {Path} from "./Path";
 
 /* This class provides static methods to create Path objects.*/
@@ -37,7 +37,7 @@ export class Paths {
                 return provider.getPath(url);
             }
         }
-        throw new FileSystemNotFoundException(`Provider "${scheme}" not installed`)
+        throw new FileSystemNotFoundException(`Provider "${scheme}" not installed`);
     }
 
 }

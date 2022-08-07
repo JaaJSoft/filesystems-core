@@ -12,15 +12,20 @@ test("path", () => {
 
 test("URL", () => {
     if (os.platform() == "win32") {
-        expect(Paths.of("/").toURL().toString()).toEqual("file:///D:/");
-        expect(Paths.ofURL(new URL("file:///"))?.toURL().toString()).toEqual("file:///D:/");
-
+        expect(Paths.of("c:/").toURL().toString()).toEqual(Paths.of("c:/").toURL().toString());
+        expect(Paths.of("c:/").toURL().toString()).toEqual("file:///c:/");
+        expect(Paths.ofURL(new URL("file://D:/"))?.toURL().toString()).toEqual("file:///D:/");
     } else {
         expect(Paths.of("/").toURL().toString()).toEqual("file:///");
         expect(Paths.ofURL(new URL("file:///"))?.toURL().toString()).toEqual("file:///");
     }
 });
-
+test("URL2", () => {
+    if (os.platform() == "win32") {
+        const url: string = Paths.of("c:/").toURL().toString();
+        expect(Paths.ofURL(new URL(url)).equals(Paths.of("c:/")));
+    }
+});
 
 test("test", () => {
     const set = new Set([1]);
@@ -32,3 +37,5 @@ test("test", () => {
     expect(nex2.done).toBeTruthy();
     expect(nex2.value).toBeUndefined();
 });
+
+

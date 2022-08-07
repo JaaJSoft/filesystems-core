@@ -60,7 +60,7 @@ export abstract class Path implements Iterable<Path> {
     public startsWithStr(other: string): boolean {
         const path = this.getFileSystem().getPath(other);
         if (path) {
-            return this.startsWith(path)
+            return this.startsWith(path);
         }
         return false;
     }
@@ -70,7 +70,7 @@ export abstract class Path implements Iterable<Path> {
     public endWithStr(other: string): boolean {
         const path = this.getFileSystem().getPath(other);
         if (path) {
-            return this.endWith(path)
+            return this.endWith(path);
         }
         return false;
     }
@@ -89,7 +89,7 @@ export abstract class Path implements Iterable<Path> {
     public resolveFromString(other: string): Path | null {
         const path = this.getFileSystem().getPath(other);
         if (path) {
-            return this.resolve(path)
+            return this.resolve(path);
         }
         return null;
     }
@@ -196,7 +196,7 @@ export abstract class Path implements Iterable<Path> {
 
     abstract compareTo(other: Path): number;
 
-    abstract toString(): string ;
+    abstract toString(): string;
 
     abstract [Symbol.iterator](): Iterator<Path>;
 }

@@ -45,19 +45,7 @@ export enum StandardOpenOption {
     /**
      * Delete on close. When this option is present then the implementation
      * makes a <em>best effort</em> attempt to delete the file when closed
-     * by the appropriate {@code close} method. If the {@code close} method is
-     * not invoked then a <em>best effort</em> attempt is made to delete the
-     * file when the Java virtual machine terminates (either normally, as
-     * defined by the Java Language Specification, or where possible, abnormally).
-     * This option is primarily intended for use with <em>work files</em> that
-     * are used solely by a single instance of the Java virtual machine. This
-     * option is not recommended for use when opening files that are open
-     * concurrently by other entities. Many of the details as to when and how
-     * the file is deleted are implementation specific and therefore not
-     * specified. In particular, an implementation may be unable to guarantee
-     * that it deletes the expected file when replaced by an attacker while the
-     * file is open. Consequently, security sensitive applications should take
-     * care when using this option.
+     * by the appropriate {@code close} method.
      *
      * <p> For security reasons, this option may imply the {@link
         * LinkOption#NOFOLLOW_LINKS} option. In other words, if the option is present
