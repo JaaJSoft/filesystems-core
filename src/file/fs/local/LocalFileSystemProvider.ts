@@ -12,7 +12,7 @@ import {BasicFileAttributes, FileAttribute, FileAttributeView} from "../../attri
 import {FileStore} from "../../FileStore";
 import {LinkOption} from "../../LinkOption";
 import {DirectoryStream} from "../../DirectoryStream";
-import {ReadableStream, TextDecoderStream, TextEncoderStream} from "node:stream/web";
+import {ReadableStream, TextDecoderStream, TextEncoderStream, WritableStream} from "node:stream/web";
 import {StandardOpenOption} from "../../StandardOpenOption";
 import jsurl from "url";
 

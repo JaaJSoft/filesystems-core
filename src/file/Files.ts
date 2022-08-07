@@ -42,6 +42,8 @@ import {FileTreeIterator} from "./FileTreeIterator";
 /* It provides a set of static methods for working with files and directories */
 export class Files {
 
+    private static readonly BUFFER_SIZE: number = 8192;
+
     private constructor() {
         // static
     }
@@ -758,8 +760,6 @@ export class Files {
      * @param {CopyOption[]} [options] - CopyOption[]
      */
     public static async copyFromStream(inputStream: ReadableStream, target: Path, options?: CopyOption[]): Promise<void> {
-        Objects.requireNonNullUndefined(inputStream);
-
         let replaceExisting = false;
         if (options) {
             for (let opt of options) {
@@ -790,7 +790,6 @@ export class Files {
         try {
             outputStream = this.newOutputStream(target, [StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE]);
             await inputStream.pipeTo(outputStream);
-
         } catch (x) {
             if (x instanceof FileAlreadyExistsException) {
                 if (se) {
@@ -801,9 +800,7 @@ export class Files {
             }
             throw x;
         } finally {
-            if (outputStream) {
-                await outputStream.close();
-            }
+            await outputStream?.close();
         }
     }
 
@@ -821,9 +818,7 @@ export class Files {
             inputStream = this.newInputStream(source);
             await inputStream.pipeTo(outputStream);
         } finally {
-            if (inputStream) {
-                await inputStream.cancel();
-            }
+            await inputStream?.cancel();
         }
     }
 
@@ -848,6 +843,7 @@ export class Files {
             } while (!done);
             const bytes: number[] = values.flatMap(b => [...b]);
             const uint8Array = new Uint8Array(bytes.length);
+            reader.releaseLock();
             uint8Array.set(bytes);
             return uint8Array;
         } catch (e) {
@@ -876,6 +872,7 @@ export class Files {
                     values.push(v.value);
                 }
             } while (!done);
+            reader.releaseLock();
             return values.join();
         } catch (e) {
             await inputStream?.cancel(e);
@@ -891,6 +888,47 @@ export class Files {
      */
     public static async readAllLines(path: Path, charsets: string = "utf-8"): Promise<string[]> {
         return this.readString(path, charsets).then(string => string.split(/\r?\n/));
+    }
+
+    public static async writeBytes(path: Path, bytes: Uint8Array, options?: OpenOption[]): Promise<void> {
+        let writableStream: WritableStream<Uint8Array> | undefined;
+        let writer: WritableStreamDefaultWriter<Uint8Array> | undefined;
+        try {
+            writableStream = Files.newOutputStream(path, options);
+            writer = writableStream.getWriter();
+            const len = bytes.length;
+            let rem = len;
+            while (rem > 0) {
+                let n = Math.min(rem, this.BUFFER_SIZE);
+                let start = len - rem;
+                let end = start + n;
+                const chunk = bytes.slice(start, end);
+                await writer.write(chunk);
+                rem -= n;
+            }
+            writer.releaseLock();
+            await writableStream.close();
+        } catch (e) {
+            writer?.releaseLock();
+            await writableStream?.close();
+            throw e;
+        }
+    }
+
+    public static async writeString(path: Path, string: string, options?: OpenOption[]): Promise<void> {
+        let writableStream: WritableStream<string> | undefined;
+        let writer: WritableStreamDefaultWriter<string> | undefined;
+        try {
+            writableStream = Files.newBufferedWriter(path, options);
+            writer = writableStream.getWriter();
+            await writer.write(string);
+            writer.releaseLock();
+            await writableStream.close();
+        } catch (e) {
+            writer?.releaseLock();
+            await writableStream?.close();
+            throw e;
+        }
     }
 
     // -- Stream APIs --

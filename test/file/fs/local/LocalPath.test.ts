@@ -139,3 +139,40 @@ test("LocalPathReadAllString", async () => {
     }
 });
 
+test("LocalPathNewBufferedWriter", async () => {
+    if (os.platform() == "win32") {
+        const path = Paths.of("D:\\JAAJ3.txt");
+        const writableStream: WritableStream<string> = Files.newBufferedWriter(path);
+        const writer: WritableStreamDefaultWriter<string> = writableStream.getWriter();
+        await writer.write("test");
+        await writer.releaseLock();
+        await writableStream.close();
+        expect(await Files.readString(path)).toEqual("test");
+        Files.deleteIfExists(path);
+    } else {
+        //TODO
+    }
+});
+
+test("LocalPathWriteString", async () => {
+    if (os.platform() == "win32") {
+        const path = Paths.of("D:\\JAAJ4.txt");
+        await Files.writeString(path, "test");
+        expect(await Files.readString(path)).toEqual("test");
+        Files.deleteIfExists(path);
+    } else {
+        //TODO
+    }
+});
+
+test("LocalPathWriteBytes", async () => {
+    if (os.platform() == "win32") {
+        const path = Paths.of("D:\\JAAJ4.txt");
+        await Files.writeBytes(path, Uint8Array.of(1, 2, 3, 4));
+        expect((await Files.readAllBytes(path)).toString()).toEqual("1,2,3,4");
+        Files.deleteIfExists(path);
+    } else {
+        //TODO
+    }
+});
+
