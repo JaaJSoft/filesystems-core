@@ -80,7 +80,7 @@ export class LocalFileSystem extends FileSystem {
         return this.fileSystem;
     }
 
-    private static readonly supportedFileAttributeViews: Set<string> = new Set<string>(["basic", "dos", "acl", "owner", "user"]);
+    private static readonly supportedFileAttributeViews: Set<string> = new Set<string>(["basic", "posix", "owner", "user"]);
 
     public supportedFileAttributeViews(): Set<string> {
         return LocalFileSystem.supportedFileAttributeViews;

@@ -12,5 +12,7 @@ export interface AttributeView {
      *
      * @return the name of the attribute view
      */
-    name(): string;
+    name(): AttributeViewName;
 }
+
+export type AttributeViewName = "basic" | "posix" | "owner" | string
