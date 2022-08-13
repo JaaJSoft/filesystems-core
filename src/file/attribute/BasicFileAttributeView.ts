@@ -2,6 +2,7 @@ import {FileAttributeView} from "./FileAttributeView";
 import {BasicFileAttributes} from "./BasicFileAttributes";
 import {FileTime} from "./FileTime";
 
+/* A view of basic file attributes. */
 export interface BasicFileAttributeView extends FileAttributeView {
 
     /**
