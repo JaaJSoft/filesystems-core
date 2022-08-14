@@ -4,6 +4,7 @@ import {FileStore} from "./FileStore";
 import {PathMatcher} from "./PathMatcher";
 import {UserPrincipalLookupService} from "./attribute/UserPrincipalLookupService";
 import {Closeable} from "../Closeable";
+import {AttributeViewName} from "./attribute";
 
 /* A common interface for all file systems. */
 export abstract class FileSystem implements Closeable {
@@ -27,7 +28,7 @@ export abstract class FileSystem implements Closeable {
 
     public abstract getFileStores(): Iterable<FileStore>;
 
-    public abstract supportedFileAttributeViews(): Set<string>;
+    public abstract supportedFileAttributeViews(): Set<AttributeViewName>;
 
     public abstract getPathMatcher(syntaxAndPattern: string): PathMatcher;
 
