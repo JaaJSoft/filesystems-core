@@ -81,7 +81,7 @@ test("LocalPathNewBufferedReader", async () => {
         path = Paths.of("/tmp/bufferedRead.txt");
     }
     Files.deleteIfExists(path);
-    Files.writeString(path, "aaaaBaFFfffGGGtgrZTff");
+    await Files.writeString(path, "aaaaBaFFfffGGGtgrZTff");
     const readableStream: ReadableStream<string> = Files.newBufferedReader(path);
     const reader: ReadableStreamDefaultReader<string> = readableStream.getReader();
     let done = false;
