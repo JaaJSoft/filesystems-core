@@ -2,6 +2,6 @@ pipeline:
   test:
     image: node
     commands:
+      - npm ci
+      - npm run build --if-present
       - npm test
-depends_on:
-  - build
