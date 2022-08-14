@@ -166,13 +166,14 @@ test("LocalPathWriteString", async () => {
 });
 
 test("LocalPathWriteBytes", async () => {
+    let path: Path;
     if (os.platform() == "win32") {
-        const path = Paths.of("D:\\JAAJ4.txt");
-        await Files.writeBytes(path, Uint8Array.of(1, 2, 3, 4));
-        expect((await Files.readAllBytes(path)).toString()).toEqual("1,2,3,4");
-        Files.deleteIfExists(path);
+        path = Paths.of("D:\\JAAJ5.txt");
     } else {
-        //TODO
+        path = Paths.of("/tmp/JAAJ5.txt");
     }
+    await Files.writeBytes(path, Uint8Array.of(1, 2, 3, 4));
+    expect((await Files.readAllBytes(path)).toString()).toEqual("1,2,3,4");
+    Files.deleteIfExists(path);
 });
 
