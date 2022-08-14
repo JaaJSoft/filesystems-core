@@ -1,0 +1,7 @@
+pipeline:
+  test:
+    image: node
+    commands:
+      - npm test
+depends_on:
+  - build
