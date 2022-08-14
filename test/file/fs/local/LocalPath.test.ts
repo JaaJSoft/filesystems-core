@@ -46,67 +46,55 @@ test("LocalPathCurrentGetRoot", () => {
 });
 
 test("LocalPathNewImputStream", async () => {
-    const path = Paths.of("D:\\JAAJ.txt");
+    let path: Path;
     if (os.platform() == "win32") {
-        const readableStream: ReadableStream<Uint8Array> = Files.newInputStream(path);
-        const textDecoderStream = new TextDecoderStream();
+        path = Paths.of("D:\\inputstream.txt");
 
-        readableStream.pipeTo(textDecoderStream.writable);
-
-        const reader: ReadableStreamDefaultReader<string> = textDecoderStream.readable.getReader();
-        let done = false;
-        let output: string = "";
-        while (!done) {
-            const v: ReadableStreamDefaultReadValueResult<string> | ReadableStreamDefaultReadDoneResult = await reader.read();
-            done = v.done;
-            if (!done) {
-                output += v.value;
-            }
-        }
-        expect(output).toBe("aaaaBaFFfffGGGtgrZTff");
     } else {
-        // TODO
+        path = Paths.of("/tmp/inputstream.txt");
     }
+    Files.deleteIfExists(path);
+    await Files.writeString(path, "aaaaBaFFfffGGGtgrZTff");
+    const readableStream: ReadableStream<Uint8Array> = Files.newInputStream(path);
+    const textDecoderStream = new TextDecoderStream();
+
+    readableStream.pipeTo(textDecoderStream.writable);
+
+    const reader: ReadableStreamDefaultReader<string> = textDecoderStream.readable.getReader();
+    let done = false;
+    let output: string = "";
+    while (!done) {
+        const v: ReadableStreamDefaultReadValueResult<string> | ReadableStreamDefaultReadDoneResult = await reader.read();
+        done = v.done;
+        if (!done) {
+            output += v.value;
+        }
+    }
+    expect(output).toBe("aaaaBaFFfffGGGtgrZTff");
 });
 
 test("LocalPathNewBufferedReader", async () => {
-    const path = Paths.of("D:\\JAAJ.txt");
+    let path: Path;
     if (os.platform() == "win32") {
-        const readableStream: ReadableStream<string> = Files.newBufferedReader(path);
-        const reader: ReadableStreamDefaultReader<string> = readableStream.getReader();
-        let done = false;
-        let output: string = "";
-        while (!done) {
-            const v: ReadableStreamDefaultReadValueResult<string> | ReadableStreamDefaultReadDoneResult = await reader.read();
-            done = v.done;
-            if (!done) {
-                output += v.value;
-            }
-        }
-        expect(output).toBe("aaaaBaFFfffGGGtgrZTff");
+        path = Paths.of("D:\\bufferedRead.txt");
     } else {
-        // TODO
+        path = Paths.of("/tmp/bufferedRead.txt");
     }
-});
-
-test("LocalPathNewBufferedReader", async () => {
-    const path = Paths.of("D:\\JAAJ.txt");
-    if (os.platform() == "win32") {
-        const readableStream: ReadableStream<string> = Files.newBufferedReader(path);
-        const reader: ReadableStreamDefaultReader<string> = readableStream.getReader();
-        let done = false;
-        let output: string = "";
-        while (!done) {
-            const v: ReadableStreamDefaultReadValueResult<string> | ReadableStreamDefaultReadDoneResult = await reader.read();
-            done = v.done;
-            if (!done) {
-                output += v.value;
-            }
+    Files.deleteIfExists(path);
+    Files.writeString(path, "aaaaBaFFfffGGGtgrZTff");
+    const readableStream: ReadableStream<string> = Files.newBufferedReader(path);
+    const reader: ReadableStreamDefaultReader<string> = readableStream.getReader();
+    let done = false;
+    let output: string = "";
+    while (!done) {
+        const v: ReadableStreamDefaultReadValueResult<string> | ReadableStreamDefaultReadDoneResult = await reader.read();
+        done = v.done;
+        if (!done) {
+            output += v.value;
         }
-        expect(output).toBe("aaaaBaFFfffGGGtgrZTff");
-    } else {
-        // TODO
     }
+    expect(output).toBe("aaaaBaFFfffGGGtgrZTff");
+    Files.deleteIfExists(path);
 });
 
 test("LocalPathReadAllBytes", async () => {
