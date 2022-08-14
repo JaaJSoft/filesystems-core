@@ -13,8 +13,10 @@ export interface PosixFileAttributeView extends BasicFileAttributeView, FileOwne
 
     readAttributes(): PosixFileAttributes;
 
+    /* Setting the permissions of the file. */
     setPermissions(perms: Set<PosixFilePermission>): void;
 
+    /* Setting the group of the file. */
     setGroup(group: GroupPrincipal): void;
 
 }

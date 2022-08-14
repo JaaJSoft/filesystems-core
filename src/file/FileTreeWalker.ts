@@ -48,11 +48,11 @@ export class FileTreeWalker implements Closeable {
                 return cached as BasicFileAttributes;
             }
         }
-        // attempt to get attributes of file. If fails and we are following
+        // attempt to get attributes of file. If fails, and we are following
         // links then a link target might not exist so get attributes of link
         let attrs: BasicFileAttributes;
         try {
-            attrs = Files.readAttributesByType(file, "BasicFileAttributes", this.linkOptions);
+            attrs = Files.readAttributesByName(file, "basic", this.linkOptions);
         } catch (e) {
             if (!(e instanceof IOException)) {
                 throw e;
@@ -60,7 +60,7 @@ export class FileTreeWalker implements Closeable {
             if (!this.followLinks) {
                 throw e;
             }
-            attrs = Files.readAttributesByType(file, "BasicFileAttributes", [LinkOption.NOFOLLOW_LINKS]);
+            attrs = Files.readAttributesByName(file, "basic", [LinkOption.NOFOLLOW_LINKS]);
         }
         return attrs;
     }

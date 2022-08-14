@@ -4,7 +4,7 @@ import {CopyOption} from "../CopyOption";
 import {AccessMode} from "../AccessMode";
 import {IllegalArgumentException, UnsupportedOperationException} from "../../exception";
 import {OpenOption} from "../OpenOption";
-import {BasicFileAttributes, FileAttribute, FileAttributeView} from "../attribute";
+import {AttributeViewName, BasicFileAttributes, FileAttribute, FileAttributeView} from "../attribute";
 import {FileStore} from "../FileStore";
 import {LinkOption} from "../LinkOption";
 import {StandardOpenOption} from "../StandardOpenOption";
@@ -163,11 +163,11 @@ export abstract class FileSystemProvider {
 
     public abstract checkAccess(obj: Path, modes?: AccessMode[]): void;
 
-    public abstract readAttributesByType(path: Path, type?: string, options?: LinkOption[]): BasicFileAttributes;
+    public abstract readAttributesByName(path: Path, name?: AttributeViewName, options?: LinkOption[]): BasicFileAttributes;
 
     public abstract readAttributes(path: Path, attributes: string, options?: LinkOption[]): Map<string, any>;
 
-    public abstract getFileAttributeView(path: Path, type?: string, options?: LinkOption[]): FileAttributeView;
+    public abstract getFileAttributeViewByName(path: Path, name?: AttributeViewName, options?: LinkOption[]): FileAttributeView;
 
     public abstract setAttribute(path: Path, attribute: string, value: any, options?: LinkOption[]): void;
 

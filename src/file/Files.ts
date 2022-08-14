@@ -2,6 +2,7 @@ import {Path} from "./Path";
 import {FileSystemProvider, FileTypeDetectors} from "./spi";
 import {OpenOption} from "./OpenOption";
 import {
+    AttributeViewName,
     BasicFileAttributes,
     BasicFileAttributeView,
     FileAttribute,
@@ -387,12 +388,12 @@ export class Files {
     /**
      * It reads the attributes of a file.
      * @param {Path} path - Path
-     * @param type
-     * @param {LinkOption} [options] - LinkOption
+     * @param name?
+     * @param {LinkOption} [options?] - LinkOption
      * @returns BasicFileAttributes
      */
-    public static readAttributesByType(path: Path, type?: string, options?: LinkOption[]): BasicFileAttributes {
-        return this.provider(path).readAttributesByType(path, type, options);
+    public static readAttributesByName(path: Path, name?: AttributeViewName, options?: LinkOption[]): BasicFileAttributes {
+        return this.provider(path).readAttributesByName(path, name, options);
     }
 
     /**
@@ -409,12 +410,12 @@ export class Files {
     /**
      * `getFileAttributeView` returns a `FileAttributeView` object that provides access to the attributes of a file
      * @param {Path} path - The path to the file
-     * @param {string} [type] - The type of the attribute view.
+     * @param {string} [name] - The name of the attribute view.
      * @param {LinkOption[]} [options] - An array of LinkOption objects.
      * @returns A FileAttributeView object.
      */
-    public static getFileAttributeView(path: Path, type?: string, options?: LinkOption[]): FileAttributeView {
-        return this.provider(path).getFileAttributeView(path, type, options);
+    public static getFileAttributeViewByName(path: Path, name?: AttributeViewName, options?: LinkOption[]): FileAttributeView {
+        return this.provider(path).getFileAttributeViewByName(path, name, options);
     }
 
     /**
@@ -461,7 +462,7 @@ export class Files {
      * @returns A Set of PosixFilePermission
      */
     public static getPosixFilePermissions(path: Path, options?: LinkOption[]): Set<PosixFilePermission> {
-        return (this.readAttributesByType(path, "PosixFileAttributes", options) as PosixFileAttributes).permissions();
+        return (this.readAttributesByName(path, "posix", options) as PosixFileAttributes).permissions();
     }
 
     /**
@@ -471,7 +472,7 @@ export class Files {
      * @returns A Path object.
      */
     public static setPosixFilePermissions(path: Path, perms: Set<PosixFilePermission>): Path {
-        const view = this.getFileAttributeView(path, "PosixFileAttributeView") as PosixFileAttributeView;
+        const view = this.getFileAttributeViewByName(path, "posix") as PosixFileAttributeView;
         if (!view) {
             throw new UnsupportedOperationException();
         }
@@ -486,7 +487,7 @@ export class Files {
      * @returns A UserPrincipal object.
      */
     public static getOwner(path: Path, options?: LinkOption[]): UserPrincipal {
-        const view = this.getFileAttributeView(path, "FileOwnerAttributeView", options) as FileOwnerAttributeView;
+        const view = this.getFileAttributeViewByName(path, "owner", options) as FileOwnerAttributeView;
         if (!view) {
             throw new UnsupportedOperationException();
         }
@@ -500,7 +501,7 @@ export class Files {
      * @returns A Path object.
      */
     public static setOwner(path: Path, owner: UserPrincipal): Path {
-        const view = this.getFileAttributeView(path, "FileOwnerAttributeView") as FileOwnerAttributeView;
+        const view = this.getFileAttributeViewByName(path, "owner") as FileOwnerAttributeView;
         if (!view) {
             throw new UnsupportedOperationException();
         }
@@ -515,7 +516,7 @@ export class Files {
      */
     public static isSymbolicLink(path: Path): boolean {
         try {
-            return this.readAttributesByType(path, undefined, [LinkOption.NOFOLLOW_LINKS]).isSymbolicLink();
+            return this.readAttributesByName(path, undefined, [LinkOption.NOFOLLOW_LINKS]).isSymbolicLink();
         } catch (ioe) {
             return false;
         }
@@ -529,7 +530,7 @@ export class Files {
      */
     public static isDirectory(path: Path, options?: LinkOption[]): boolean {
         try {
-            return this.readAttributesByType(path, undefined, options).isDirectory();
+            return this.readAttributesByName(path, undefined, options).isDirectory();
         } catch (ioe) {
             return false;
         }
@@ -543,7 +544,7 @@ export class Files {
      */
     public static isRegularFile(path: Path, options?: LinkOption[]): boolean {
         try {
-            return this.readAttributesByType(path, undefined, options).isRegularFile();
+            return this.readAttributesByName(path, undefined, options).isRegularFile();
         } catch (ioe) {
             return false;
         }
@@ -556,7 +557,7 @@ export class Files {
      * @returns The last modified time of the file.
      */
     public static getLastModifiedTime(path: Path, options?: LinkOption[]): FileTime {
-        return this.readAttributesByType(path, undefined, options).lastModifiedTime();
+        return this.readAttributesByName(path, undefined, options).lastModifiedTime();
     }
 
     /**
@@ -567,7 +568,7 @@ export class Files {
      * @returns A Path object.
      */
     public static setLastModifiedTime(path: Path, time: FileTime): Path {
-        (this.getFileAttributeView(path, "BasicFileAttributeView") as BasicFileAttributeView)
+        (this.getFileAttributeViewByName(path, "basic") as BasicFileAttributeView)
             .setTimes(time, undefined, undefined);
         return path;
     }
@@ -578,7 +579,7 @@ export class Files {
      * @returns The size of the file.
      */
     public static size(path: Path): bigint {
-        return this.readAttributesByType(path).size();
+        return this.readAttributesByName(path).size();
     }
 
     // -- Accessibility --
@@ -612,7 +613,7 @@ export class Files {
                 this.provider(path).checkAccess(path);
             } else {
                 // attempt to read attributes without following links
-                this.readAttributesByType(path, "BasicFileAttributes", [LinkOption.NOFOLLOW_LINKS]);
+                this.readAttributesByName(path, "basic", [LinkOption.NOFOLLOW_LINKS]);
             }
             // file exists
             return true;
@@ -637,7 +638,7 @@ export class Files {
                 this.provider(path).checkAccess(path);
             } else {
                 // attempt to read attributes without following links
-                this.readAttributesByType(path, "BasicFileAttributes", [LinkOption.NOFOLLOW_LINKS]);
+                this.readAttributesByName(path, "basic", [LinkOption.NOFOLLOW_LINKS]);
             }
             // file exists
             return false;

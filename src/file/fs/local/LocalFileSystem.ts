@@ -2,7 +2,7 @@ import {FileSystem} from "../../FileSystem";
 import {FileStore} from "../../FileStore";
 import {PathMatcher} from "../../PathMatcher";
 import {Path} from "../../Path";
-import {UserPrincipalLookupService} from "../../attribute";
+import {AttributeViewName, UserPrincipalLookupService} from "../../attribute";
 import {FileSystemProvider} from "../../spi";
 import {LocalFileSystemProvider} from "./LocalFileSystemProvider";
 import {UnsupportedOperationException} from "../../../exception";
@@ -80,9 +80,9 @@ export class LocalFileSystem extends FileSystem {
         return this.fileSystem;
     }
 
-    private static readonly supportedFileAttributeViews: Set<string> = new Set<string>(["basic", "dos", "acl", "owner", "user"]);
+    private static readonly supportedFileAttributeViews: Set<AttributeViewName> = new Set<AttributeViewName>(["basic", "posix", "owner"]);
 
-    public supportedFileAttributeViews(): Set<string> {
+    public supportedFileAttributeViews(): Set<AttributeViewName> {
         return LocalFileSystem.supportedFileAttributeViews;
     }
 

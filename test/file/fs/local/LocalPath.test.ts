@@ -46,133 +46,135 @@ test("LocalPathCurrentGetRoot", () => {
 });
 
 test("LocalPathNewImputStream", async () => {
-    const path = Paths.of("D:\\JAAJ.txt");
+    let path: Path;
     if (os.platform() == "win32") {
-        const readableStream: ReadableStream<Uint8Array> = Files.newInputStream(path);
-        const textDecoderStream = new TextDecoderStream();
+        path = Paths.of("D:\\inputstream.txt");
 
-        readableStream.pipeTo(textDecoderStream.writable);
-
-        const reader: ReadableStreamDefaultReader<string> = textDecoderStream.readable.getReader();
-        let done = false;
-        let output: string = "";
-        while (!done) {
-            const v: ReadableStreamDefaultReadValueResult<string> | ReadableStreamDefaultReadDoneResult = await reader.read();
-            done = v.done;
-            if (!done) {
-                output += v.value;
-            }
-        }
-        expect(output).toBe("aaaaBaFFfffGGGtgrZTff");
     } else {
-        // TODO
+        path = Paths.of("/tmp/inputstream.txt");
     }
+    Files.deleteIfExists(path);
+    await Files.writeString(path, "aaaaBaFFfffGGGtgrZTff");
+    const readableStream: ReadableStream<Uint8Array> = Files.newInputStream(path);
+    const textDecoderStream = new TextDecoderStream();
+
+    readableStream.pipeTo(textDecoderStream.writable);
+
+    const reader: ReadableStreamDefaultReader<string> = textDecoderStream.readable.getReader();
+    let done = false;
+    let output: string = "";
+    while (!done) {
+        const v: ReadableStreamDefaultReadValueResult<string> | ReadableStreamDefaultReadDoneResult = await reader.read();
+        done = v.done;
+        if (!done) {
+            output += v.value;
+        }
+    }
+    expect(output).toBe("aaaaBaFFfffGGGtgrZTff");
 });
 
 test("LocalPathNewBufferedReader", async () => {
-    const path = Paths.of("D:\\JAAJ.txt");
+    let path: Path;
     if (os.platform() == "win32") {
-        const readableStream: ReadableStream<string> = Files.newBufferedReader(path);
-        const reader: ReadableStreamDefaultReader<string> = readableStream.getReader();
-        let done = false;
-        let output: string = "";
-        while (!done) {
-            const v: ReadableStreamDefaultReadValueResult<string> | ReadableStreamDefaultReadDoneResult = await reader.read();
-            done = v.done;
-            if (!done) {
-                output += v.value;
-            }
-        }
-        expect(output).toBe("aaaaBaFFfffGGGtgrZTff");
+        path = Paths.of("D:\\bufferedRead.txt");
     } else {
-        // TODO
+        path = Paths.of("/tmp/bufferedRead.txt");
     }
-});
-
-test("LocalPathNewBufferedReader", async () => {
-    const path = Paths.of("D:\\JAAJ.txt");
-    if (os.platform() == "win32") {
-        const readableStream: ReadableStream<string> = Files.newBufferedReader(path);
-        const reader: ReadableStreamDefaultReader<string> = readableStream.getReader();
-        let done = false;
-        let output: string = "";
-        while (!done) {
-            const v: ReadableStreamDefaultReadValueResult<string> | ReadableStreamDefaultReadDoneResult = await reader.read();
-            done = v.done;
-            if (!done) {
-                output += v.value;
-            }
+    Files.deleteIfExists(path);
+    await Files.writeString(path, "aaaaBaFFfffGGGtgrZTff");
+    const readableStream: ReadableStream<string> = Files.newBufferedReader(path);
+    const reader: ReadableStreamDefaultReader<string> = readableStream.getReader();
+    let done = false;
+    let output: string = "";
+    while (!done) {
+        const v: ReadableStreamDefaultReadValueResult<string> | ReadableStreamDefaultReadDoneResult = await reader.read();
+        done = v.done;
+        if (!done) {
+            output += v.value;
         }
-        expect(output).toBe("aaaaBaFFfffGGGtgrZTff");
-    } else {
-        // TODO
     }
+    expect(output).toBe("aaaaBaFFfffGGGtgrZTff");
+    Files.deleteIfExists(path);
 });
 
 test("LocalPathReadAllBytes", async () => {
-    const path = Paths.of("D:\\JAAJ.txt");
+    let path: Path;
     if (os.platform() == "win32") {
-        expect((await Files.readAllBytes(path)).toString()).toEqual("97,97,97,97,66,97,70,70,102,102,102,71,71,71,116,103,114,90,84,102,102");
+        path = Paths.of("D:\\bytes.txt");
     } else {
-        // TODO
+        path = Paths.of("/tmp/bytes.txt");
     }
+    Files.deleteIfExists(path);
+    await Files.writeString(path, "aaaaBaFFfffGGGtgrZTff");
+    expect((await Files.readAllBytes(path)).toString()).toEqual("97,97,97,97,66,97,70,70,102,102,102,71,71,71,116,103,114,90,84,102,102");
+    Files.deleteIfExists(path);
 });
 
 test("LocalPathReadString", async () => {
-    const path = Paths.of("D:\\JAAJ.txt");
+    let path: Path;
     if (os.platform() == "win32") {
-        expect((await Files.readString(path))).toEqual("aaaaBaFFfffGGGtgrZTff");
+        path = Paths.of("D:\\JAAJ.txt");
     } else {
-        //TODO
+        path = Paths.of("/tmp/JAAJ.txt");
     }
+    Files.deleteIfExists(path);
+    await Files.writeString(path, "aaaaBaFFfffGGGtgrZTff");
+    expect((await Files.readString(path))).toEqual("aaaaBaFFfffGGGtgrZTff");
 });
 
 test("LocalPathReadAllString", async () => {
-    const path = Paths.of("D:\\JAAJ2.txt");
+    let path: Path;
     if (os.platform() == "win32") {
-        const lines: string[] = await Files.readAllLines(path);
-        expect(lines.length).toEqual(2);
-        expect(lines[0]).toEqual("aaaaBaFFfffGGGtgrZTff");
-        expect(lines[1]).toEqual("test");
+        path = Paths.of("D:\\JAAJ2.txt");
     } else {
-        //TODO
+        path = Paths.of("/tmp/JAAJ2.txt");
     }
+    Files.deleteIfExists(path);
+    await Files.writeString(path, "aaaaBaFFfffGGGtgrZTff\ntest");
+    const lines: string[] = await Files.readAllLines(path);
+    expect(lines.length).toEqual(2);
+    expect(lines[0]).toEqual("aaaaBaFFfffGGGtgrZTff");
+    expect(lines[1]).toEqual("test");
+    Files.deleteIfExists(path);
 });
 
 test("LocalPathNewBufferedWriter", async () => {
+    let path: Path;
     if (os.platform() == "win32") {
-        const path = Paths.of("D:\\JAAJ3.txt");
-        const writableStream: WritableStream<string> = Files.newBufferedWriter(path);
-        const writer: WritableStreamDefaultWriter<string> = writableStream.getWriter();
-        await writer.write("test");
-        await writer.releaseLock();
-        await writableStream.close();
-        expect(await Files.readString(path)).toEqual("test");
-        Files.deleteIfExists(path);
+        path = Paths.of("D:\\JAAJ3.txt");
     } else {
-        //TODO
+        path = Paths.of("/tmp/JAAJ3.txt");
     }
+    const writableStream: WritableStream<string> = Files.newBufferedWriter(path);
+    const writer: WritableStreamDefaultWriter<string> = writableStream.getWriter();
+    await writer.write("test");
+    await writer.releaseLock();
+    await writableStream.close();
+    expect(await Files.readString(path)).toEqual("test");
+    Files.deleteIfExists(path);
 });
 
 test("LocalPathWriteString", async () => {
+    let path: Path;
     if (os.platform() == "win32") {
-        const path = Paths.of("D:\\JAAJ4.txt");
-        await Files.writeString(path, "test");
-        expect(await Files.readString(path)).toEqual("test");
-        Files.deleteIfExists(path);
+        path = Paths.of("D:\\JAAJ4.txt");
     } else {
-        //TODO
+        path = Paths.of("/tmp/JAAJ4.txt");
     }
+    await Files.writeString(path, "test");
+    expect(await Files.readString(path)).toEqual("test");
+    Files.deleteIfExists(path);
 });
 
 test("LocalPathWriteBytes", async () => {
+    let path: Path;
     if (os.platform() == "win32") {
-        const path = Paths.of("D:\\JAAJ4.txt");
-        await Files.writeBytes(path, Uint8Array.of(1, 2, 3, 4));
-        expect((await Files.readAllBytes(path)).toString()).toEqual("1,2,3,4");
-        Files.deleteIfExists(path);
+        path = Paths.of("D:\\JAAJ5.txt");
     } else {
-        //TODO
+        path = Paths.of("/tmp/JAAJ5.txt");
     }
+    await Files.writeBytes(path, Uint8Array.of(1, 2, 3, 4));
+    expect((await Files.readAllBytes(path)).toString()).toEqual("1,2,3,4");
+    Files.deleteIfExists(path);
 });
 

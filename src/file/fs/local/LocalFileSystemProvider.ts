@@ -8,7 +8,7 @@ import {AccessMode} from "../../AccessMode";
 import {CopyOption} from "../../CopyOption";
 import {AccessDeniedException} from "../../exception";
 import {OpenOption} from "../../OpenOption";
-import {BasicFileAttributes, FileAttribute, FileAttributeView} from "../../attribute";
+import {AttributeViewName, BasicFileAttributes, FileAttribute, FileAttributeView} from "../../attribute";
 import {FileStore} from "../../FileStore";
 import {LinkOption} from "../../LinkOption";
 import {DirectoryStream} from "../../DirectoryStream";
@@ -218,11 +218,11 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         fs.rmSync(path.toString());
     }
 
-    public readAttributesByType(path: Path, type?: string, options?: LinkOption[]): BasicFileAttributes {
+    public readAttributesByName(path: Path, name?: AttributeViewName, options?: LinkOption[]): BasicFileAttributes {
         throw new Error("Method not implemented.");
     }
 
-    public getFileAttributeView(path: Path, type?: string, options?: LinkOption[]): FileAttributeView {
+    public getFileAttributeViewByName(path: Path, name?: AttributeViewName, options?: LinkOption[]): FileAttributeView {
         throw new Error("Method not implemented.");
     }
 

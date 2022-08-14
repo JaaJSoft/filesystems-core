@@ -10,5 +10,6 @@ export interface FileOwnerAttributeView extends BasicFileAttributeView {
 
     getOwner(): UserPrincipal;
 
+    /* Setting the owner of the file. */
     setOwner(owner: UserPrincipal): void;
 }
