@@ -5,6 +5,8 @@ import {FileSystemProvider, FileSystemProviders} from "./spi";
 
 export class FileSystems {
 
+    private static readonly ROOT_URL: URL = new URL("file://");
+
     /**
      * Get the default file system.
      * @returns The default file system.
@@ -12,7 +14,7 @@ export class FileSystems {
     public static getDefault(): FileSystem {
         const defaultProvider: FileSystemProvider | undefined = FileSystemProviders.getProvider("file");
         if (defaultProvider) {
-            return defaultProvider.getFileSystem(new URL("file://"));
+            return defaultProvider.getFileSystem(FileSystems.ROOT_URL);
         }
         throw new ProviderNotFoundException("no 'file://' provider installed");
     }
