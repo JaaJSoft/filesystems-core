@@ -292,7 +292,6 @@ export class FileTreeWalkerEvent {
         this._ioeException = ioe;
     }
 
-
     public type(): FileTreeWalkerEventType {
         return this._type;
     }
