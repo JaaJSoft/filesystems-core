@@ -90,6 +90,10 @@ export class LocalPath extends Path {
         return this.offsets.length;
     }
 
+    /**
+     * It returns the parent path of the current path.
+     * @returns The parent of the path.
+     */
     public getParent(): Path | null {
         // represents root component only
         if (this.root.length == this.path.length)
@@ -98,10 +102,12 @@ export class LocalPath extends Path {
         if (off < this.root.length)
             return this.getRoot();
         else
-            return new LocalPath(this.getFileSystem(),
+            return new LocalPath(
+                this.getFileSystem(),
                 this.type,
                 this.root,
-                this.path.substring(0, off));
+                this.path.substring(0, off),
+            );
     }
 
     public getRoot(): Path | null {
@@ -294,7 +300,7 @@ export class LocalPath extends Path {
     }
 
     private static pathFromJsPath(path: pathFs.ParsedPath, fileSystem: FileSystem, pathType: LocalPathType) {// TODO check separator
-        const newPath = path.dir.length !== 0 && path.base.length !== 0 ? path.dir + fileSystem.getSeparator() + path.base : path.dir + path.base;
+        const newPath = path.dir.length > 1 && path.base.length !== 0 ? path.dir + fileSystem.getSeparator() + path.base : path.dir + path.base;
         return new LocalPath(fileSystem, pathType, path.root, newPath); // TODO set type
     }
 

@@ -1,9 +1,11 @@
 import {FileSystem} from "./FileSystem";
 import {LinkOption} from "./LinkOption";
 import {IllegalArgumentException} from "../exception";
+import {Watchable} from "./Watchable";
+import {Comparable} from "../Comparable";
 
 /* `Path` is a class that represents a path in a file system. */
-export abstract class Path implements Iterable<Path> {
+export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path> {
 
     protected constructor() {
         // TODO document why this constructor is empty

@@ -83,10 +83,11 @@ export class Files {
     /**
      * Returns a new directory stream for the given directory.
      * @param {Path} dir - Path
+     * @param acceptFilter
      * @returns A DirectoryStream<Path>
      */
-    public static newDirectoryStream(dir: Path): DirectoryStream<Path> {
-        return this.provider(dir).newDirectoryStream(dir, _ => true);
+    public static newDirectoryStream(dir: Path, acceptFilter: (path?: Path) => boolean = _ => true): DirectoryStream<Path> {
+        return this.provider(dir).newDirectoryStream(dir, acceptFilter);
     }
 
     /**
@@ -102,11 +103,7 @@ export class Files {
         }
         const fs: FileSystem = dir.getFileSystem();
         const matcher: PathMatcher = fs.getPathMatcher("glob:" + glob);
-        return this.provider(dir).newDirectoryStream(dir, path => matcher.matches(path.getFileName()));
-    }
-
-    public static newDirectoryStreamFiltered(dir: Path, filter: (path: Path) => boolean): DirectoryStream<Path> {
-        return this.provider(dir).newDirectoryStream(dir, filter);
+        return this.provider(dir).newDirectoryStream(dir, path => path ? matcher.matches(path.getFileName()) : false);
     }
 
     // -- Creation and deletion --

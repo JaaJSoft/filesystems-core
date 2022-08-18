@@ -178,3 +178,14 @@ test("LocalPathWriteBytes", async () => {
     Files.deleteIfExists(path);
 });
 
+test("LocalPathDirectoryStream", async () => {
+    let path: Path;
+    if (os.platform() == "win32") {
+        path = Paths.of("D:\\");
+        const files = [...Files.newDirectoryStream(path)];
+        expect(files.length).toEqual(16);
+    } else {
+        path = Paths.of("/tmp/");
+        // TODO make a better test
+    }
+});
