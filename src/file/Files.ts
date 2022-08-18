@@ -713,7 +713,7 @@ export class Files {
         let walker: FileTreeWalker | undefined = undefined;
         try {
             walker = new FileTreeWalker(options, maxDepth);
-            let ev: FileTreeWalkerEvent | undefined = walker.walk(start);
+            let ev: FileTreeWalkerEvent | null = walker.walk(start);
             do {
                 let result: FileVisitResult;
                 switch (ev?.type()) {
