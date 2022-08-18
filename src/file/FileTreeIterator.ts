@@ -7,9 +7,9 @@ import {BasicFileAttributes} from "./attribute";
 import {IllegalStateException} from "../exception";
 
 
-export class FileTreeIterator implements Iterator<FileTreeWalkerEvent | undefined>, Closeable {
+export class FileTreeIterator implements Iterator<FileTreeWalkerEvent | null>, Closeable {
     private readonly walker: FileTreeWalker;
-    private nextEvent: FileTreeWalkerEvent | undefined;
+    private nextEvent: FileTreeWalkerEvent | null = null;
 
 
     constructor(start: Path, maxDepth: number, options?: FileVisitOption[]) {
@@ -49,14 +49,14 @@ export class FileTreeIterator implements Iterator<FileTreeWalkerEvent | undefine
         return Objects.nonNullUndefined(this.nextEvent);
     }
 
-    public next(...args: [] | [undefined]): IteratorResult<FileTreeWalkerEvent | undefined, any> {
+    public next(...args: [] | [undefined]): IteratorResult<FileTreeWalkerEvent | null, any> {
         if (!this.walker.isOpen()) {
             throw new IllegalStateException();
         }
         this.fetchNextIfNeeded();
         const result = this.nextEvent;
         const done: boolean = !this.hasNext();
-        this.nextEvent = undefined;
+        this.nextEvent = null;
         return {
             value: result,
             done: done,
@@ -77,39 +77,39 @@ export class FileTreeIterator implements Iterator<FileTreeWalkerEvent | undefine
      * @param filter - (path: Path | undefined) => boolean = _ => true
      * @returns An iterable object that can be used to iterate over the paths in the tree.
      */
-    public toIterablePath(filter: (path: Path, attrs: BasicFileAttributes | undefined) => boolean = () => true): Iterable<Path> {
+    public toIterablePath(filter: (path: Path, attrs?: BasicFileAttributes) => boolean = () => true): Iterable<Path> {
         return new PathIterable(this, filter) as Iterable<Path>;
     }
 
 }
 
-class PathIterable implements Iterable<Path | undefined> {
+class PathIterable implements Iterable<Path | null> {
     private readonly fileTreeIterator: FileTreeIterator;
     private readonly filter: (path: Path, attrs: BasicFileAttributes | undefined) => boolean;
 
 
-    constructor(fileTreeIterator: FileTreeIterator, filter: (path: Path, attrs: BasicFileAttributes | undefined) => boolean) {
+    constructor(fileTreeIterator: FileTreeIterator, filter: (path: Path, attrs?: BasicFileAttributes) => boolean) {
         this.fileTreeIterator = fileTreeIterator;
         this.filter = filter;
     }
 
-    public [Symbol.iterator](): Iterator<Path | undefined> {
+    public [Symbol.iterator](): Iterator<Path | null> {
         const fileTreeIterator = this.fileTreeIterator;
         const filter = this.filter;
-        return new class implements Iterator<Path | undefined> {
-            public next(...args: [] | [undefined]): IteratorResult<Path | undefined, any> {
+        return new class implements Iterator<Path | null> {
+            public next(...args: [] | [undefined]): IteratorResult<Path | null, any> {
                 try {
                     let path: Path | undefined;
                     let attrs: BasicFileAttributes | undefined;
                     let done: boolean | undefined = false;
                     do {
-                        const next: IteratorResult<FileTreeWalkerEvent | undefined, any> = fileTreeIterator.next(...args);
+                        const next: IteratorResult<FileTreeWalkerEvent | null, any> = fileTreeIterator.next(...args);
                         path = next.value.file();
                         attrs = next.value.attributes();
                         done = next.done;
                     } while (!done && !filter(path as Path, attrs));
                     return {
-                        value: path,
+                        value: path ? path : null,
                         done: done,
                     };
                 } catch (e) {
