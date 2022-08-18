@@ -71,10 +71,7 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
 
     public endWithStr(other: string): boolean {
         const path = this.getFileSystem().getPath(other);
-        if (path) {
-            return this.endWith(path);
-        }
-        return false;
+        return this.endWith(path);
     }
 
     public abstract normalize(): Path;

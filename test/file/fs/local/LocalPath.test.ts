@@ -70,6 +70,7 @@ test("LocalPathNewImputStream", async () => {
             output += v.value;
         }
     }
+    Files.deleteIfExists(path);
     expect(output).toBe("aaaaBaFFfffGGGtgrZTff");
 });
 
@@ -93,8 +94,8 @@ test("LocalPathNewBufferedReader", async () => {
             output += v.value;
         }
     }
-    expect(output).toBe("aaaaBaFFfffGGGtgrZTff");
     Files.deleteIfExists(path);
+    expect(output).toBe("aaaaBaFFfffGGGtgrZTff");
 });
 
 test("LocalPathReadAllBytes", async () => {
@@ -120,6 +121,7 @@ test("LocalPathReadString", async () => {
     Files.deleteIfExists(path);
     await Files.writeString(path, "aaaaBaFFfffGGGtgrZTff");
     expect((await Files.readString(path))).toEqual("aaaaBaFFfffGGGtgrZTff");
+    Files.deleteIfExists(path);
 });
 
 test("LocalPathReadAllString", async () => {
@@ -181,9 +183,9 @@ test("LocalPathWriteBytes", async () => {
 test("LocalPathDirectoryStream", async () => {
     let path: Path;
     if (os.platform() == "win32") {
-        path = Paths.of("D:\\");
-        const files = [...Files.newDirectoryStream(path)];
-        expect(files.length).toEqual(16);
+        path = Paths.of("C:\\Users");
+        const files = [...Files.newDirectoryStream(path, p => p ? p.toString().endsWith(".ini") : false)];
+        expect(files.length).toEqual(5);
     } else {
         path = Paths.of("/tmp/");
         // TODO make a better test
