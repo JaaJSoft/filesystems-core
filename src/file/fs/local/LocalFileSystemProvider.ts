@@ -16,6 +16,7 @@ import {ReadableStream, TextDecoderStream, TextEncoderStream, WritableStream} fr
 import {StandardOpenOption} from "../../StandardOpenOption";
 import jsurl from "url";
 import {IllegalArgumentException} from "../../../exception";
+import {LocalDirectoryStream} from "./LocalDirectoryStream";
 
 /* It's a FileSystemProvider that provides a LocalFileSystem */
 export class LocalFileSystemProvider extends FileSystemProvider {
@@ -54,7 +55,7 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         if (path !== "/")
             throw new IllegalArgumentException("Path component should be '/'");
     }
-    
+
     public newFileSystemFromUrl(url: URL, env: Map<string, any>): FileSystem {
         this.checkURL(url);
         throw new FileSystemAlreadyExistsException();
@@ -168,8 +169,9 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         throw new Error("Method not implemented.");
     }
 
-    public newDirectoryStream(dir: Path, acceptFilter: (path: Path) => boolean): DirectoryStream<Path> {
-        throw new Error("Method not implemented.");
+    public newDirectoryStream(dir: Path, acceptFilter: (path?: Path) => boolean = () => true): DirectoryStream<Path> {
+        this.checkAccess(dir, [AccessMode.READ]);
+        return new LocalDirectoryStream(dir, acceptFilter);
     }
 
 

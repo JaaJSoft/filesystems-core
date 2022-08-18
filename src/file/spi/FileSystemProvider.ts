@@ -75,7 +75,7 @@ export abstract class FileSystemProvider {
 
     protected abstract newOutputStreamImpl(path: Path, options?: OpenOption[]): WritableStream<Uint8Array>; // TODO replace this by channels if possible
 
-    public abstract newDirectoryStream(dir: Path, acceptFilter: (path: Path) => boolean): DirectoryStream<Path>;
+    public abstract newDirectoryStream(dir: Path, acceptFilter: (path?: Path) => boolean): DirectoryStream<Path>;
 
     public abstract createFile(dir: Path, attrs?: FileAttribute<any>[]): void;
 

@@ -7,8 +7,7 @@ import {IllegalArgumentException, IOException, SecurityException} from "../excep
 import {FileVisitOption} from "./FileVisitOption";
 import {Objects} from "../utils";
 import {Files} from "./Files";
-import {FileSystemLoopException} from "./exception";
-import {DirectoryIteratorException} from "./exception/DirectoryIteratorException";
+import {DirectoryIteratorException, FileSystemLoopException} from "./exception";
 
 export class FileTreeWalker implements Closeable {
     private readonly followLinks: boolean;
@@ -291,7 +290,6 @@ export class FileTreeWalkerEvent {
         this._attributes = attrs;
         this._ioeException = ioe;
     }
-
 
     public type(): FileTreeWalkerEventType {
         return this._type;

@@ -99,7 +99,7 @@ class PathIterable implements Iterable<Path | null> {
         return new class implements Iterator<Path | null> {
             public next(...args: [] | [undefined]): IteratorResult<Path | null, any> {
                 try {
-                    let path: Path | undefined;
+                    let path: Path | null = null;
                     let attrs: BasicFileAttributes | undefined;
                     let done: boolean | undefined = false;
                     do {
@@ -107,7 +107,7 @@ class PathIterable implements Iterable<Path | null> {
                         path = next.value.file();
                         attrs = next.value.attributes();
                         done = next.done;
-                    } while (!done && !filter(path as Path, attrs));
+                    } while (!done && path && !filter(path, attrs));
                     return {
                         value: path ? path : null,
                         done: done,
