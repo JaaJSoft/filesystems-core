@@ -16,11 +16,11 @@ export abstract class FileSystemProvider {
 
     public abstract newFileSystemFromUrl(uri: URL, env: Map<string, any>): FileSystem;
 
-    public newFileSystemFromPath(path: Path, env: Map<string, any>): FileSystem {
+    public newFileSystemFromPath(_path: Path, _env: Map<string, any>): FileSystem {
         throw new UnsupportedOperationException();
     }
 
-    public abstract getFileSystem(url: URL): FileSystem | null;
+    public abstract getFileSystem(url: URL): FileSystem ;
 
     public abstract getPath(url: URL): Path ;
 
@@ -74,6 +74,7 @@ export abstract class FileSystemProvider {
     }
 
     protected abstract newOutputStreamImpl(path: Path, options?: OpenOption[]): WritableStream<Uint8Array>; // TODO replace this by channels if possible
+
     public abstract newDirectoryStream(dir: Path, acceptFilter: (path: Path) => boolean): DirectoryStream<Path>;
 
     public abstract createFile(dir: Path, attrs?: FileAttribute<any>[]): void;
@@ -131,6 +132,10 @@ export abstract class FileSystemProvider {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * Reads the symbolic link at the given path.
+     * @param {Path} link - The symbolic link to read.
+     */
     public readSymbolicLink(link: Path): Path {
         throw new UnsupportedOperationException();
     }

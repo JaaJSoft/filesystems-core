@@ -1,18 +1,22 @@
 import {FileSystem} from "./FileSystem";
-import {IllegalArgumentException, UnsupportedOperationException} from "../exception";
+import {IllegalArgumentException} from "../exception";
 import {ProviderNotFoundException} from "./exception";
-import {FileSystemProviders} from "./spi";
-import {LocalFileSystemProvider} from "./fs/local";
+import {FileSystemProvider, FileSystemProviders} from "./spi";
 
 export class FileSystems {
-    private static readonly defaultFileSystemProvider: LocalFileSystemProvider = new LocalFileSystemProvider();
+
+    private static readonly ROOT_URL: URL = new URL("file://");
 
     /**
      * Get the default file system.
      * @returns The default file system.
      */
     public static getDefault(): FileSystem {
-        return FileSystems.defaultFileSystemProvider.getTheFileSystem();
+        const defaultProvider: FileSystemProvider | undefined = FileSystemProviders.getProvider("file");
+        if (defaultProvider) {
+            return defaultProvider.getFileSystem(FileSystems.ROOT_URL);
+        }
+        throw new ProviderNotFoundException("no 'file://' provider installed");
     }
 
     /**
@@ -22,13 +26,12 @@ export class FileSystems {
      */
     public static getFileSystem(url: URL): FileSystem | null {
         const scheme = url.protocol.toLowerCase();
-        if (scheme === null) {
+        if (!scheme) {
             throw new IllegalArgumentException("Missing scheme");
         }
-        for (const provider of FileSystemProviders.getInstalledProviders()) {
-            if (provider.getScheme() === scheme) {
-                return provider.getFileSystem(url);
-            }
+        const provider: FileSystemProvider | undefined = FileSystemProviders.getProvider(scheme);
+        if (provider) {
+            return provider.getFileSystem(url);
         }
         throw new ProviderNotFoundException(`Provider "${scheme}" not found`);
     }
@@ -44,21 +47,13 @@ export class FileSystems {
      * @returns A FileSystem object
      */
     public newFileSystem(uri: URL, env: Map<string, any>): FileSystem {
-        const scheme: string = uri.protocol.toLowerCase();
+        const scheme: string = uri.protocol;
 
         // check installed providers
-        for (const provider of FileSystemProviders.getInstalledProviders()) {
-            if (scheme === provider.getScheme()) {
-                try {
-                    return provider.newFileSystemFromUrl(uri, env);
-                } catch (exception) {
-                    if (exception instanceof UnsupportedOperationException) {
-                        // ignored
-                    } else {
-                        throw exception;
-                    }
-                }
-            }
+        FileSystemProviders.getProvider(scheme);
+        const provider: FileSystemProvider | undefined = FileSystemProviders.getProvider(scheme);
+        if (provider) {
+            return provider.newFileSystemFromUrl(uri, env);
         }
         throw new ProviderNotFoundException("Provider \"" + scheme + "\" not found");
     }

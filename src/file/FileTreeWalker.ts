@@ -87,7 +87,7 @@ export class FileTreeWalker implements Closeable {
         return false;
     }
 
-    private visit(entry: Path, ignoreSecurityException: boolean, canUseCached: boolean): FileTreeWalkerEvent | undefined {
+    private visit(entry: Path, ignoreSecurityException: boolean, canUseCached: boolean): FileTreeWalkerEvent | null {
         let attrs: BasicFileAttributes;
         try {
             attrs = this.getAttributes(entry, canUseCached);
@@ -97,7 +97,7 @@ export class FileTreeWalker implements Closeable {
             }
             if (e instanceof SecurityException) {
                 if (ignoreSecurityException) {
-                    return undefined;
+                    return null;
                 }
             }
             throw e;
@@ -123,7 +123,7 @@ export class FileTreeWalker implements Closeable {
             }
             if (e instanceof SecurityException) {
                 if (ignoreSecurityException) {
-                    return undefined;
+                    return null;
                 }
             }
             throw e;
@@ -141,14 +141,14 @@ export class FileTreeWalker implements Closeable {
         return ev as FileTreeWalkerEvent;
     }
 
-    public next(): FileTreeWalkerEvent | undefined {
+    public next(): FileTreeWalkerEvent | null {
         let top: DirectoryNode | undefined = this.peek();
         if (Objects.isNullUndefined(top)) {
-            return undefined;
+            return null;
         }
         top = top as DirectoryNode;
 
-        let ev: FileTreeWalkerEvent | undefined;
+        let ev: FileTreeWalkerEvent | null = null;
         do {
             let entry: Path | undefined;
             let ioe: IOException | undefined;

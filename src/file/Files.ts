@@ -217,7 +217,7 @@ export class Files {
      * characters long
      * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
      */
-    public static createTempFileIn(path?: Path, prefix?: string, suffix?: string | null, attrs?: FileAttribute<any>[]): Path {
+    public static createTempFileIn(path?: Path, prefix?: string, suffix?: string, attrs?: FileAttribute<any>[]): Path {
         throw new Error("Method not implemented.");
     }
 
@@ -713,7 +713,7 @@ export class Files {
         let walker: FileTreeWalker | undefined = undefined;
         try {
             walker = new FileTreeWalker(options, maxDepth);
-            let ev: FileTreeWalkerEvent | undefined = walker.walk(start);
+            let ev: FileTreeWalkerEvent | null = walker.walk(start);
             do {
                 let result: FileVisitResult;
                 switch (ev?.type()) {
@@ -819,7 +819,7 @@ export class Files {
                 }
             }
         }
-        let se: SecurityException | null = null;
+        let se: SecurityException | undefined;
         if (replaceExisting) {
             try {
                 this.deleteIfExists(target);
@@ -831,7 +831,7 @@ export class Files {
                 }
             }
         }
-        let outputStream: WritableStream | null = null;
+        let outputStream: WritableStream | undefined;
         try {
             outputStream = this.newOutputStream(target, [StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE]);
             await inputStream.pipeTo(outputStream);
@@ -858,7 +858,7 @@ export class Files {
     public static async copyToStream(source: Path, outputStream: WritableStream): Promise<void> {
         Objects.requireNonNullUndefined(outputStream);
 
-        let inputStream: ReadableStream | null = null;
+        let inputStream: ReadableStream | undefined;
         try {
             inputStream = this.newInputStream(source);
             await inputStream.pipeTo(outputStream);

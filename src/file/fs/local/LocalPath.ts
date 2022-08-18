@@ -135,7 +135,7 @@ export class LocalPath extends Path {
     }
 
     public startsWith(obj: Path): boolean {
-        let other: LocalPath | null = null;
+        let other: LocalPath | undefined;
         try {
             other = LocalPath.toLocalPath(obj);
         } catch (e) {
@@ -174,7 +174,7 @@ export class LocalPath extends Path {
     }
 
     public endWith(obj: Path): boolean {
-        let other: LocalPath | null = null;
+        let other: LocalPath | undefined;
         try {
             other = LocalPath.toLocalPath(obj);
         } catch (e) {

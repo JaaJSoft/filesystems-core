@@ -1,6 +1,6 @@
 import {FileSystems} from "./FileSystems";
 import {IllegalArgumentException} from "../exception";
-import {FileSystemProviders} from "./spi";
+import {FileSystemProvider, FileSystemProviders} from "./spi";
 import {FileSystemNotFoundException} from "./exception";
 import {Path} from "./Path";
 
@@ -17,7 +17,6 @@ export class Paths {
      * @returns A Path object
      */
     public static of(first: string, more?: string[]): Path {
-
         return FileSystems.getDefault().getPath(first, more);
     }
 
@@ -28,14 +27,13 @@ export class Paths {
      * @returns A Path object
      */
     public static ofURL(url: URL): Path {
-        const scheme = url.protocol.toLowerCase().replace(":", "");
+        const scheme = FileSystemProviders.cleanScheme(url.protocol);
         if (!scheme) {
             throw new IllegalArgumentException("Missing scheme");
         }
-        for (const provider of FileSystemProviders.getInstalledProviders()) {
-            if (provider.getScheme() === scheme) {
-                return provider.getPath(url);
-            }
+        const provider: FileSystemProvider | undefined = FileSystemProviders.getProvider(scheme);
+        if (provider) {
+            return provider.getPath(url);
         }
         throw new FileSystemNotFoundException(`Provider "${scheme}" not installed`);
     }

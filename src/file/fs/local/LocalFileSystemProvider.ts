@@ -1,4 +1,4 @@
-import {FileSystemProvider} from "../../spi";
+import {FileSystemProvider, FileSystemProviders} from "../../spi";
 import {FileSystem} from "../../FileSystem";
 import {Path} from "../../Path";
 import {LocalFileSystem} from "./LocalFileSystem";
@@ -6,7 +6,7 @@ import * as os from "os";
 import * as fs from "fs";
 import {AccessMode} from "../../AccessMode";
 import {CopyOption} from "../../CopyOption";
-import {AccessDeniedException} from "../../exception";
+import {AccessDeniedException, FileSystemAlreadyExistsException} from "../../exception";
 import {OpenOption} from "../../OpenOption";
 import {AttributeViewName, BasicFileAttributes, FileAttribute, FileAttributeView} from "../../attribute";
 import {FileStore} from "../../FileStore";
@@ -15,6 +15,7 @@ import {DirectoryStream} from "../../DirectoryStream";
 import {ReadableStream, TextDecoderStream, TextEncoderStream, WritableStream} from "node:stream/web";
 import {StandardOpenOption} from "../../StandardOpenOption";
 import jsurl from "url";
+import {IllegalArgumentException} from "../../../exception";
 
 /* It's a FileSystemProvider that provides a LocalFileSystem */
 export class LocalFileSystemProvider extends FileSystemProvider {
@@ -30,11 +31,9 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         return this.theFileSystem;
     }
 
-    public getFileSystem(url: URL): FileSystem | null {
-        const path = this.theFileSystem.getPath(url.pathname);
-        if (path)
-            return path.getFileSystem();
-        return null;
+    public getFileSystem(url: URL): FileSystem {
+        this.checkURL(url);
+        return this.theFileSystem;
     }
 
     public getPath(url: URL): Path {
@@ -45,12 +44,20 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         return "file";
     }
 
-    public newFileSystemFromPath(path: Path, env: Map<string, any>): FileSystem {
-        return super.newFileSystemFromPath(path, env);
+    private checkURL(url: URL): void {
+        const scheme = FileSystemProviders.cleanScheme(url.protocol);
+        if (scheme !== this.getScheme().toUpperCase())
+            throw new IllegalArgumentException("URI does not match this provider");
+        const path = url.pathname;
+        if (path == null)
+            throw new IllegalArgumentException("Path component is undefined");
+        if (path !== "/")
+            throw new IllegalArgumentException("Path component should be '/'");
     }
-
+    
     public newFileSystemFromUrl(url: URL, env: Map<string, any>): FileSystem {
-        throw new Error("Method not implemented.");
+        this.checkURL(url);
+        throw new FileSystemAlreadyExistsException();
     }
 
     private static readonly BUFFER_SIZE: number = 8192;
