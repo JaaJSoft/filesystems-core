@@ -12,3 +12,4 @@ export * from "./PosixFilePermission";
 export * from "./UserPrincipal";
 export * from "./UserPrincipalLookupService";
 export * from "./BasicFileAttributesHolder";
+export * from "./UserPrincipalNotFoundException";

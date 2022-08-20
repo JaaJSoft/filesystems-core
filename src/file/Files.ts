@@ -114,7 +114,7 @@ export class Files {
      * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
      * @returns The path
      */
-    public static createFile(path: Path, attrs?: FileAttribute<any>[]): Path { // TODO use stream ?
+    public static createFile(path: Path, attrs?: FileAttribute<any>[]): Path { // TODO use  writeableStream ?
         this.provider(path).createFile(path, attrs);
         return path;
     }
