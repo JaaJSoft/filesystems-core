@@ -2,6 +2,6 @@
 import {StandardOpenOption} from "./StandardOpenOption";
 import {LinkOption} from "./LinkOption";
 
-export type OpenOption = StandardOpenOption | LinkOption
+export type OpenOption = StandardOpenOption | LinkOption | string
    
 
