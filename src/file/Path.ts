@@ -8,7 +8,7 @@ import {Comparable} from "../Comparable";
 export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path> {
 
     protected constructor() {
-        // TODO document why this constructor is empty
+        // empty
     }
 
     public abstract getFileSystem(): FileSystem;

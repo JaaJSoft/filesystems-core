@@ -6,7 +6,8 @@ import * as pathFs from "path";
 import * as jsurl from "url";
 import fs from "fs";
 import {ProviderMismatchException} from "../../exception";
-import {IllegalArgumentException, NullPointerException} from "../../../exception";
+import {IllegalArgumentException} from "../../../exception";
+import {Objects} from "../../../utils";
 
 /* `LocalPath` is a class that represents a path on the local file system. */
 export class LocalPath extends Path {
@@ -40,8 +41,7 @@ export class LocalPath extends Path {
     }
 
     public static toLocalPath(path: Path): LocalPath {
-        if (path == null)
-            throw new NullPointerException(); // TODO find a better way
+        Objects.requireNonNullUndefined(path);
         if (!(path instanceof LocalPath)) {
             throw new ProviderMismatchException();
         }
