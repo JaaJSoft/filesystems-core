@@ -1,6 +1,6 @@
 {
   "name": "@filesystems/core",
-  "version": "0.0.7",
+  "version": "0.0.14",
   "description": "A js implementation of the Java FileSystem Library",
   "main": "index.js",
   "type": "commonjs",
@@ -8,9 +8,10 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "prepub": "copy package.json dist",
+    "prepub": "copy package.json dist & copy README.md dist",
     "pub": "cd dist & npm publish --access public",
-    "postpub": "cd dist & del package.json"
+    "postpub": "cd dist & del package.json",
+    "publish-npm": "npm run build & npm run prepub & npm run pub & npm run postpub"
   },
   "repository": {
     "type": "git",

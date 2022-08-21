@@ -1,5 +1,4 @@
 import {Path} from "./Path";
-import {FileSystemProvider, FileTypeDetectors} from "./spi";
 import {OpenOption} from "./OpenOption";
 import {
     AttributeViewName,
@@ -39,6 +38,7 @@ import {FileVisitor} from "./FileVisitor";
 import {FileTreeWalker, FileTreeWalkerEvent, FileTreeWalkerEventType} from "./FileTreeWalker";
 import {FileVisitResult} from "./FileVisitResult";
 import {FileTreeIterator} from "./FileTreeIterator";
+import {FileSystemProvider, FileTypeDetectors} from "./spi";
 
 /* It provides a set of static methods for working with files and directories */
 export class Files {

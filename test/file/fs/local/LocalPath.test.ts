@@ -185,7 +185,7 @@ test("LocalPathDirectoryStream", async () => {
     if (os.platform() == "win32") {
         path = Paths.of("C:\\Users");
         const files = [...Files.newDirectoryStream(path, p => p ? p.toString().endsWith(".ini") : false)];
-        expect(files.length).toEqual(5);
+        expect(files.length).toEqual(1);
     } else {
         path = Paths.of("/tmp/");
         // TODO make a better test
