@@ -18,3 +18,7 @@ export * from "./StandardCopyOption";
 export * from "./StandardOpenOption";
 export * from "./FileVisitResult";
 export * from "./FileVisitor";
+export * from "./WatchService";
+export * from "./WatchKey";
+export * from "./WatchEvent";
+export * from "./StandardWatchEventKinds";

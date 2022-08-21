@@ -8,3 +8,4 @@ export * from "./ProviderNotFoundException";
 export * from "./FileSystemException";
 export * from "./FileSystemLoopException";
 export * from "./DirectoryIteratorException";
+export * from "./ClosedWatchServiceException";
