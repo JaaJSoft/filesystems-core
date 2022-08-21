@@ -37,7 +37,7 @@ export class FileTreeWalker implements Closeable {
 
     /**
      * Returns the attributes of the given file, taking into account whether
-     * the walk is following sym links is not. The {@code canUseCached}
+     * the walk is following symlinks is not. The {@code canUseCached}
      * argument determines whether this method can use cached attributes.
      */
     private getAttributes(file: Path, canUseCached: boolean): BasicFileAttributes {
