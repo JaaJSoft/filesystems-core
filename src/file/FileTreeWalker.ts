@@ -9,6 +9,7 @@ import {Objects} from "../utils";
 import {Files} from "./Files";
 import {DirectoryIteratorException, FileSystemLoopException} from "./exception";
 
+/* It walks a file tree, and returns events for each file it encounters */
 export class FileTreeWalker implements Closeable {
     private readonly followLinks: boolean;
     private readonly linkOptions: LinkOption[];
