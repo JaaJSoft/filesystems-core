@@ -172,7 +172,7 @@ export abstract class FileSystemProvider {
 
     public abstract readAttributes(path: Path, attributes: string, options?: LinkOption[]): Map<string, any>;
 
-    public abstract getFileAttributeViewByName(path: Path, name?: AttributeViewName, options?: LinkOption[]): FileAttributeView;
+    public abstract getFileAttributeView(path: Path, name?: AttributeViewName, options?: LinkOption[]): FileAttributeView;
 
     public abstract setAttribute(path: Path, attribute: string, value: any, options?: LinkOption[]): void;
 

@@ -22,3 +22,4 @@ export * from "./WatchService";
 export * from "./WatchKey";
 export * from "./WatchEvent";
 export * from "./StandardWatchEventKinds";
+export * from "./FileUtils";

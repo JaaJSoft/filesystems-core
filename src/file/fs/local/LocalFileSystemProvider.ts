@@ -8,15 +8,24 @@ import {AccessMode} from "../../AccessMode";
 import {CopyOption} from "../../CopyOption";
 import {AccessDeniedException, FileSystemAlreadyExistsException} from "../../exception";
 import {OpenOption} from "../../OpenOption";
-import {AttributeViewName, BasicFileAttributes, FileAttribute, FileAttributeView} from "../../attribute";
+import {
+    AttributeViewName,
+    BasicFileAttributes,
+    BasicFileAttributeView,
+    FileAttribute,
+    FileAttributeView,
+} from "../../attribute";
 import {FileStore} from "../../FileStore";
 import {LinkOption} from "../../LinkOption";
 import {DirectoryStream} from "../../DirectoryStream";
 import {ReadableStream, TextDecoderStream, TextEncoderStream, WritableStream} from "node:stream/web";
 import {StandardOpenOption} from "../../StandardOpenOption";
 import jsurl from "url";
-import {IllegalArgumentException} from "../../../exception";
+import {IllegalArgumentException, UnsupportedOperationException} from "../../../exception";
 import {LocalDirectoryStream} from "./LocalDirectoryStream";
+import {followLinks} from "../../FileUtils";
+import {LocalBasicFileAttributesView} from "./LocalAttributesViews";
+import {LocalPath} from "./LocalPath";
 
 /* It's a FileSystemProvider that provides a LocalFileSystem */
 export class LocalFileSystemProvider extends FileSystemProvider {
@@ -158,7 +167,6 @@ export class LocalFileSystemProvider extends FileSystemProvider {
                 // TODO search if there is another thing to do
             },
         });
-        // throw new Error("Method not implemented.");
     }
 
     public createFile(dir: Path, attrs?: FileAttribute<any>[]): void {
@@ -173,7 +181,6 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         this.checkAccess(dir, [AccessMode.READ]);
         return new LocalDirectoryStream(dir, acceptFilter);
     }
-
 
     public getFileStore(path: Path): FileStore {
         throw new Error("Method not implemented.");
@@ -228,11 +235,37 @@ export class LocalFileSystemProvider extends FileSystemProvider {
     }
 
     public readAttributesByName(path: Path, name?: AttributeViewName, options?: LinkOption[]): BasicFileAttributes {
-        throw new Error("Method not implemented.");
+        switch (name) {
+            case "basic":
+            case "posix":
+                return (this.getFileAttributeView(path, name, options) as BasicFileAttributeView).readAttributes();
+            default:
+                throw new UnsupportedOperationException();
+        }
     }
 
-    public getFileAttributeViewByName(path: Path, name?: AttributeViewName, options?: LinkOption[]): FileAttributeView {
-        throw new Error("Method not implemented.");
+    public getFileAttributeView(path: Path, name?: AttributeViewName, options?: LinkOption[]): FileAttributeView {
+        // @ts-ignore
+        const follow: boolean = followLinks(options);
+
+        switch (name) {
+            case "basic":
+                return new LocalBasicFileAttributesView(path as LocalPath, follow);
+            case "owner":
+                return {
+                    name(): AttributeViewName {
+                        return "owner";
+                    },
+                };
+            case "posix":
+                return {
+                    name(): AttributeViewName {
+                        return "posix";
+                    },
+                };
+            default:
+                throw new UnsupportedOperationException();
+        }
     }
 
     public readAttributes(path: Path, attributes: string, options?: LinkOption[]): Map<string, any> {

@@ -2,6 +2,7 @@ import {Files, Path, Paths} from "../../../../src/file";
 import os from "os";
 import {Objects} from "../../../../src/utils";
 import {TextDecoderStream} from "node:stream/web";
+import {BasicFileAttributes, BasicFileAttributeView, FileTime} from "../../../../src/file/attribute";
 
 const rootPath: Path = Paths.of("/");
 const currentPath: Path = Paths.of(".");
@@ -147,6 +148,7 @@ test("LocalPathNewBufferedWriter", async () => {
     } else {
         path = Paths.of("/tmp/JAAJ3.txt");
     }
+    Files.deleteIfExists(path);
     const writableStream: WritableStream<string> = Files.newBufferedWriter(path);
     const writer: WritableStreamDefaultWriter<string> = writableStream.getWriter();
     await writer.write("test");
@@ -163,6 +165,7 @@ test("LocalPathWriteString", async () => {
     } else {
         path = Paths.of("/tmp/JAAJ4.txt");
     }
+    Files.deleteIfExists(path);
     await Files.writeString(path, "test");
     expect(await Files.readString(path)).toEqual("test");
     Files.deleteIfExists(path);
@@ -175,6 +178,7 @@ test("LocalPathWriteBytes", async () => {
     } else {
         path = Paths.of("/tmp/JAAJ5.txt");
     }
+    Files.deleteIfExists(path);
     await Files.writeBytes(path, Uint8Array.of(1, 2, 3, 4));
     expect((await Files.readAllBytes(path)).toString()).toEqual("1,2,3,4");
     Files.deleteIfExists(path);
@@ -190,4 +194,21 @@ test("LocalPathDirectoryStream", async () => {
         path = Paths.of("/tmp/");
         // TODO make a better test
     }
+});
+test("fsStat", async () => {
+    let path: Path;
+    if (os.platform() == "win32") {
+        path = Paths.of("D:\\JAAJ5.txt");
+    } else {
+        path = Paths.of("/tmp/JAAJ5.txt");
+    }
+    Files.deleteIfExists(path);
+    await Files.writeBytes(path, Uint8Array.of(1, 2, 3, 4));
+    expect((await Files.readAllBytes(path)).toString()).toEqual("1,2,3,4");
+    const basicFileAttributeView: BasicFileAttributeView = Files.getFileAttributeView(path, "basic") as BasicFileAttributeView;
+    const basicFileAttributes: BasicFileAttributes = basicFileAttributeView.readAttributes();
+    expect(basicFileAttributes.size()).toEqual(4n);
+    basicFileAttributeView.setTimes(FileTime.fromMillis(0), FileTime.fromMillis(0), FileTime.fromMillis(0));
+    expect(basicFileAttributeView.readAttributes().lastModifiedTime().toMillis()).toBe(0);
+    Files.deleteIfExists(path);
 });

@@ -1,7 +1,7 @@
-import {BasicFileAttributeView} from "./BasicFileAttributeView";
 import {UserPrincipal} from "./UserPrincipal";
+import {FileAttributeView} from "./FileAttributeView";
 
-export interface FileOwnerAttributeView extends BasicFileAttributeView {
+export interface FileOwnerAttributeView extends FileAttributeView {
     /**
      * Returns the name of the attribute view. Attribute views of this type
      * have the name {@code "owner"}.

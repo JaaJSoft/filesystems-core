@@ -39,6 +39,7 @@ import {FileTreeWalker, FileTreeWalkerEvent, FileTreeWalkerEventType} from "./Fi
 import {FileVisitResult} from "./FileVisitResult";
 import {FileTreeIterator} from "./FileTreeIterator";
 import {FileSystemProvider, FileTypeDetectors} from "./spi";
+import {followLinks} from "./FileUtils";
 
 /* It provides a set of static methods for working with files and directories */
 export class Files {
@@ -411,8 +412,8 @@ export class Files {
      * @param {LinkOption[]} [options] - An array of LinkOption objects.
      * @returns A FileAttributeView object.
      */
-    public static getFileAttributeViewByName(path: Path, name?: AttributeViewName, options?: LinkOption[]): FileAttributeView {
-        return this.provider(path).getFileAttributeViewByName(path, name, options);
+    public static getFileAttributeView(path: Path, name?: AttributeViewName, options?: LinkOption[]): FileAttributeView {
+        return this.provider(path).getFileAttributeView(path, name, options);
     }
 
     /**
@@ -469,7 +470,7 @@ export class Files {
      * @returns A Path object.
      */
     public static setPosixFilePermissions(path: Path, perms: Set<PosixFilePermission>): Path {
-        const view = this.getFileAttributeViewByName(path, "posix") as PosixFileAttributeView;
+        const view = this.getFileAttributeView(path, "posix") as PosixFileAttributeView;
         if (!view) {
             throw new UnsupportedOperationException();
         }
@@ -484,7 +485,7 @@ export class Files {
      * @returns A UserPrincipal object.
      */
     public static getOwner(path: Path, options?: LinkOption[]): UserPrincipal {
-        const view = this.getFileAttributeViewByName(path, "owner", options) as FileOwnerAttributeView;
+        const view = this.getFileAttributeView(path, "owner", options) as FileOwnerAttributeView;
         if (!view) {
             throw new UnsupportedOperationException();
         }
@@ -498,7 +499,7 @@ export class Files {
      * @returns A Path object.
      */
     public static setOwner(path: Path, owner: UserPrincipal): Path {
-        const view = this.getFileAttributeViewByName(path, "owner") as FileOwnerAttributeView;
+        const view = this.getFileAttributeView(path, "owner") as FileOwnerAttributeView;
         if (!view) {
             throw new UnsupportedOperationException();
         }
@@ -565,7 +566,7 @@ export class Files {
      * @returns A Path object.
      */
     public static setLastModifiedTime(path: Path, time: FileTime): Path {
-        (this.getFileAttributeViewByName(path, "basic") as BasicFileAttributeView)
+        (this.getFileAttributeView(path, "basic") as BasicFileAttributeView)
             .setTimes(time, undefined, undefined);
         return path;
     }
@@ -582,20 +583,7 @@ export class Files {
     // -- Accessibility --
 
     private static followLinks(options?: LinkOption[]): boolean {
-        let followLinks = true;
-        if (options) {
-            for (let opt of options) {
-                if (opt === LinkOption.NOFOLLOW_LINKS) {
-                    followLinks = false;
-                    continue;
-                }
-                if (!opt) {
-                    throw new NullPointerException();
-                }
-                throw Error("Should not get here");
-            }
-        }
-        return followLinks;
+        return followLinks(options);
     }
 
     /**
