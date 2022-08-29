@@ -17,8 +17,8 @@ export class LocalGroupPrincipal implements GroupPrincipal {
         return this.getGid() === other.getGid();
     }
 
-    public getName(): string | null {
-        return this.groupName;
+    public getName(): string {
+        return this.groupName ? this.groupName : this.gid.toString();
     }
 
 

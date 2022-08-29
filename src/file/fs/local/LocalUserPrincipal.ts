@@ -17,8 +17,8 @@ export class LocalUserPrincipal implements UserPrincipal {
         return this.getUid() === other.getUid();
     }
 
-    public getName(): string | null {
-        return this.accountName;
+    public getName(): string {
+        return this.accountName ? this.accountName : this.uid.toString();
     }
 
 

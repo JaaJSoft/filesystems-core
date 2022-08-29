@@ -3,6 +3,6 @@ export interface Principal {
 
     toString(): string;
 
-    getName(): string | null;
+    getName(): string;
 
 }
