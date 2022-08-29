@@ -1,9 +1,9 @@
-import {AttributeViewName, FileOwnerAttributeView, UserPrincipal} from "../../attribute";
-import {LocalPath} from "./LocalPath";
+import {AttributeViewName, FileOwnerAttributeView, UserPrincipal} from "../../../attribute";
+import {LocalPath} from "../LocalPath";
 import fs from "fs";
-import {LocalUserPrincipal} from "./LocalUserPrincipal";
-import {UnsupportedOperationException} from "../../../exception";
-import {getPathStats} from "./Helper";
+import {LocalUserPrincipal} from "../LocalUserPrincipal";
+import {UnsupportedOperationException} from "../../../../exception";
+import {getPathStats} from "../Helper";
 
 export class LocalFileOwnerAttributeView implements FileOwnerAttributeView {
     private readonly path: LocalPath;
@@ -20,7 +20,12 @@ export class LocalFileOwnerAttributeView implements FileOwnerAttributeView {
 
     public getOwner(): UserPrincipal {
         const stats = getPathStats(this.path, this.followsLinks);
+        return this.buildOwnerUserPrincipal(stats);
+    }
+
+    public buildOwnerUserPrincipal(stats: fs.Stats): UserPrincipal {
         return new LocalUserPrincipal(stats.uid, null);
+
     }
 
     public setOwner(owner: UserPrincipal): void {

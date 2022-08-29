@@ -24,8 +24,9 @@ import jsurl from "url";
 import {IllegalArgumentException, UnsupportedOperationException} from "../../../exception";
 import {LocalDirectoryStream} from "./LocalDirectoryStream";
 import {followLinks} from "../../FileUtils";
-import {LocalBasicFileAttributesView} from "./LocalBasicFileAttributesView";
+import {LocalBasicFileAttributesView} from "./view/LocalBasicFileAttributesView";
 import {LocalPath} from "./LocalPath";
+import {LocalFileOwnerAttributeView} from "./view";
 
 /* It's a FileSystemProvider that provides a LocalFileSystem */
 export class LocalFileSystemProvider extends FileSystemProvider {
@@ -252,11 +253,7 @@ export class LocalFileSystemProvider extends FileSystemProvider {
             case "basic":
                 return new LocalBasicFileAttributesView(path as LocalPath, follow);
             case "owner":
-                return {
-                    name(): AttributeViewName {
-                        return "owner";
-                    },
-                };
+                return new LocalFileOwnerAttributeView(path as LocalPath, follow);
             case "posix":
                 return {
                     name(): AttributeViewName {

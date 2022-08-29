@@ -5,8 +5,8 @@ export class LocalGroupPrincipal implements GroupPrincipal {
     private readonly groupName: string | null;
     private readonly gid: number;
 
-    constructor(uid: number, accountName: string | null) {
-        this.groupName = accountName;
+    constructor(uid: number, groupName: string | null) {
+        this.groupName = groupName;
         this.gid = uid;
     }
 
