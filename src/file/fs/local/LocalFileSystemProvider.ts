@@ -24,7 +24,7 @@ import jsurl from "url";
 import {IllegalArgumentException, UnsupportedOperationException} from "../../../exception";
 import {LocalDirectoryStream} from "./LocalDirectoryStream";
 import {followLinks} from "../../FileUtils";
-import {LocalBasicFileAttributesView} from "./LocalAttributesViews";
+import {LocalBasicFileAttributesView} from "./LocalBasicFileAttributesView";
 import {LocalPath} from "./LocalPath";
 
 /* It's a FileSystemProvider that provides a LocalFileSystem */

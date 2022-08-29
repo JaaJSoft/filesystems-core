@@ -1,6 +1,7 @@
 import {AttributeViewName, BasicFileAttributes, BasicFileAttributeView, FileTime} from "../../attribute";
 import {LocalPath} from "./LocalPath";
 import fs from "fs";
+import {getPathStats} from "./Helper";
 
 export class LocalBasicFileAttributesView implements BasicFileAttributeView {
     private readonly path: LocalPath;
@@ -16,9 +17,7 @@ export class LocalBasicFileAttributesView implements BasicFileAttributeView {
     }
 
     public readAttributes(): BasicFileAttributes {
-        const options: { bigint: boolean } = {bigint: true};
-        const p: string = this.path.toString();
-        const stats = (this.followsLinks ? fs.statSync(p, options) : fs.lstatSync(p, options)) as fs.BigIntStats;
+        const stats = getPathStats(this.path, this.followsLinks);
         return new class implements BasicFileAttributes {
             public creationTime(): FileTime {
                 return FileTime.fromMillis(Number(stats.birthtimeMs));
@@ -53,7 +52,7 @@ export class LocalBasicFileAttributesView implements BasicFileAttributeView {
             }
 
             public size(): bigint {
-                return stats.size;
+                return BigInt(stats.size);
             }
         };
     }
