@@ -1,14 +1,14 @@
 import {IOException} from "../../exception";
 
 export class DirectoryIteratorException extends Error {
-    private readonly cause: IOException;
+    private readonly ioCause: IOException;
 
-    constructor(cause: IOException) {
+    constructor(ioCause: IOException) {
         super();
-        this.cause = cause;
+        this.ioCause = ioCause;
     }
 
     public getCause(): IOException {
-        return this.cause;
+        return this.ioCause;
     }
 }
