@@ -134,6 +134,31 @@ export class LocalPosixFileAttributeView implements PosixFileAttributeView {
     }
 
     public setPermissions(perms: Set<PosixFilePermission>): void {
+        let owner = 0;
+        let group = 0;
+        let others = 0;
+        for (let perm of perms) {
+            if (perm === PosixFilePermission.OWNER_READ) {
+                owner += 4;
+            } else if (perm === PosixFilePermission.OWNER_WRITE) {
+                owner += 2;
+            } else if (perm === PosixFilePermission.OWNER_EXECUTE) {
+                owner += 1;
+            } else if (perm === PosixFilePermission.GROUP_READ) {
+                group += 4;
+            } else if (perm === PosixFilePermission.GROUP_WRITE) {
+                group += 2;
+            } else if (perm === PosixFilePermission.GROUP_EXECUTE) {
+                group += 1;
+            } else if (perm === PosixFilePermission.OTHERS_READ) {
+                others += 4;
+            } else if (perm === PosixFilePermission.OTHERS_WRITE) {
+                others += 2;
+            } else if (perm === PosixFilePermission.OTHERS_EXECUTE) {
+                others += 1;
+            }
+        }
+        fs.chmodSync(this.path.toString(), owner.toString() + group.toString() + others.toString());
     }
 
     public setTimes(lastModifiedTime?: FileTime, lastAccessTime?: FileTime, createTime?: FileTime): void {

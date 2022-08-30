@@ -195,16 +195,15 @@ test("LocalPathDirectoryStream", async () => {
         // TODO make a better test
     }
 });
-test("fsStat", async () => {
+test("LocalPathReadAttributes", async () => {
     let path: Path;
     if (os.platform() == "win32") {
-        path = Paths.of("D:\\JAAJ5.txt");
+        path = Paths.of("D:\\JAAJ6.txt");
     } else {
-        path = Paths.of("/tmp/JAAJ5.txt");
+        path = Paths.of("/tmp/JAAJ6.txt");
     }
     Files.deleteIfExists(path);
     await Files.writeBytes(path, Uint8Array.of(1, 2, 3, 4));
-    expect((await Files.readAllBytes(path)).toString()).toEqual("1,2,3,4");
     const basicFileAttributeView: BasicFileAttributeView = Files.getFileAttributeView(path, "basic") as BasicFileAttributeView;
     const basicFileAttributes: BasicFileAttributes = basicFileAttributeView.readAttributes();
     expect(basicFileAttributes.size()).toEqual(4n);
