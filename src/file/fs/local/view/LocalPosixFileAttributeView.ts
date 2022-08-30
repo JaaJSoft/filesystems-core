@@ -15,7 +15,6 @@ import {UnsupportedOperationException} from "../../../../exception";
 import {getPathStats} from "../Helper";
 import fs from "fs";
 import {LocalGroupPrincipal} from "../LocalGroupPrincipal";
-import {convert} from "unix-permissions";
 
 export class LocalPosixFileAttributeView implements PosixFileAttributeView {
     private fileOwnerView: LocalFileOwnerAttributeView;
@@ -87,22 +86,16 @@ export class LocalPosixFileAttributeView implements PosixFileAttributeView {
 
             public permissions(): Set<PosixFilePermission> {
                 const posixFilePermissions: Set<PosixFilePermission> = new Set<PosixFilePermission>();
-                const permission = convert.object(stats.mode);
-                if (permission.user) {
-                    if (permission.user.read) posixFilePermissions.add(PosixFilePermission.OWNER_READ);
-                    if (permission.user.write) posixFilePermissions.add(PosixFilePermission.OWNER_WRITE);
-                    if (permission.user.execute) posixFilePermissions.add(PosixFilePermission.OWNER_EXECUTE);
-                }
-                if (permission.group) {
-                    if (permission.group.read) posixFilePermissions.add(PosixFilePermission.GROUP_READ);
-                    if (permission.group.write) posixFilePermissions.add(PosixFilePermission.GROUP_WRITE);
-                    if (permission.group.execute) posixFilePermissions.add(PosixFilePermission.GROUP_EXECUTE);
-                }
-                if (permission.others) {
-                    if (permission.others.read) posixFilePermissions.add(PosixFilePermission.OTHERS_READ);
-                    if (permission.others.write) posixFilePermissions.add(PosixFilePermission.OTHERS_WRITE);
-                    if (permission.others.execute) posixFilePermissions.add(PosixFilePermission.OTHERS_EXECUTE);
-                }
+                const m = stats.mode;
+                if (m & fs.constants.S_IRUSR) posixFilePermissions.add(PosixFilePermission.OWNER_READ);
+                if (m & fs.constants.S_IWUSR) posixFilePermissions.add(PosixFilePermission.OWNER_WRITE);
+                if (m & fs.constants.S_IXUSR) posixFilePermissions.add(PosixFilePermission.OWNER_EXECUTE);
+                if (m & fs.constants.S_IRGRP) posixFilePermissions.add(PosixFilePermission.GROUP_READ);
+                if (m & fs.constants.S_IWGRP) posixFilePermissions.add(PosixFilePermission.GROUP_WRITE);
+                if (m & fs.constants.S_IXGRP) posixFilePermissions.add(PosixFilePermission.GROUP_EXECUTE);
+                if (m & fs.constants.S_IROTH) posixFilePermissions.add(PosixFilePermission.OTHERS_READ);
+                if (m & fs.constants.S_IWOTH) posixFilePermissions.add(PosixFilePermission.OTHERS_WRITE);
+                if (m & fs.constants.S_IXOTH) posixFilePermissions.add(PosixFilePermission.OTHERS_EXECUTE);
                 return posixFilePermissions;
             }
 
@@ -134,6 +127,7 @@ export class LocalPosixFileAttributeView implements PosixFileAttributeView {
     }
 
     public setPermissions(perms: Set<PosixFilePermission>): void {
+        // TODO check right
         let owner = 0;
         let group = 0;
         let others = 0;

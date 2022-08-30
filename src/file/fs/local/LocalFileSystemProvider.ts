@@ -27,6 +27,7 @@ import {followLinks} from "../../FileUtils";
 import {LocalBasicFileAttributesView} from "./view/LocalBasicFileAttributesView";
 import {LocalPath} from "./LocalPath";
 import {LocalFileOwnerAttributeView} from "./view";
+import {LocalPosixFileAttributeView} from "./view/LocalPosixFileAttributeView";
 
 /* It's a FileSystemProvider that provides a LocalFileSystem */
 export class LocalFileSystemProvider extends FileSystemProvider {
@@ -255,11 +256,7 @@ export class LocalFileSystemProvider extends FileSystemProvider {
             case "owner":
                 return new LocalFileOwnerAttributeView(path as LocalPath, follow);
             case "posix":
-                return {
-                    name(): AttributeViewName {
-                        return "posix";
-                    },
-                };
+                return new LocalPosixFileAttributeView(path as LocalPath, follow);
             default:
                 throw new UnsupportedOperationException();
         }
