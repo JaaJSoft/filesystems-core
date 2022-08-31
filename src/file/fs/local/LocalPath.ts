@@ -343,11 +343,11 @@ export class LocalPath extends Path {
     }
 
     public [Symbol.iterator](): Iterator<Path> {
-        throw new Error("Method not implemented.");
+        return this.fileSystem.provider().newDirectoryStream(this, () => true)[Symbol.iterator]();
     }
 
 
     public valueOf(): Object { // TODO
-        return super.valueOf();
+        return this.path.valueOf();
     }
 }

@@ -99,6 +99,7 @@ export class LocalPosixFileAttributeView implements PosixFileAttributeView {
     }
 
     public setOwner(owner: UserPrincipal): void {
+        this.path.getFileSystem().provider().checkAccess(this.path);
         this.fileOwnerView.setOwner(owner);
     }
 
@@ -116,7 +117,7 @@ export class LocalPosixFileAttributeView implements PosixFileAttributeView {
     }
 
     public setPermissions(perms: Set<PosixFilePermission>): void {
-        // TODO check right
+        this.path.getFileSystem().provider().checkAccess(this.path);
         fs.chmodSync(this.path.toString(), convertPermissionsToPosix(perms));
     }
 

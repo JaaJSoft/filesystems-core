@@ -2,6 +2,7 @@ import {AttributeViewName, BasicFileAttributes, BasicFileAttributeView, FileTime
 import {LocalPath} from "../LocalPath";
 import fs from "fs";
 import {getPathStats} from "../Helper";
+import {AccessMode} from "../../../AccessMode";
 
 export class LocalBasicFileAttributesView implements BasicFileAttributeView {
     private readonly path: LocalPath;
@@ -62,6 +63,7 @@ export class LocalBasicFileAttributesView implements BasicFileAttributeView {
     }
 
     public setTimes(lastModifiedTime?: FileTime, lastAccessTime?: FileTime, createTime?: FileTime): void {
+        this.path.getFileSystem().provider().checkAccess(this.path, [AccessMode.WRITE]);
         if (createTime) {
             console.warn("Node provider : not possible to update creationTime");
         }
