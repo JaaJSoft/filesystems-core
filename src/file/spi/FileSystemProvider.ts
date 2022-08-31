@@ -77,7 +77,7 @@ export abstract class FileSystemProvider {
 
     public abstract newDirectoryStream(dir: Path, acceptFilter: (path?: Path) => boolean): DirectoryStream<Path>;
 
-    public abstract createFile(dir: Path, attrs?: FileAttribute<any>[]): void;
+    public abstract createFile(path: Path, attrs?: FileAttribute<any>[]): void;
 
     public abstract createDirectory(dir: Path, attrs?: FileAttribute<any>[]): void;
 

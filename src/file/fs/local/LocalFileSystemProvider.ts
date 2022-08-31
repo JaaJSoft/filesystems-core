@@ -14,6 +14,7 @@ import {
     BasicFileAttributeView,
     FileAttribute,
     FileAttributeView,
+    PosixFilePermission,
 } from "../../attribute";
 import {FileStore} from "../../FileStore";
 import {LinkOption} from "../../LinkOption";
@@ -28,6 +29,7 @@ import {LocalBasicFileAttributesView} from "./view/LocalBasicFileAttributesView"
 import {LocalPath} from "./LocalPath";
 import {LocalFileOwnerAttributeView} from "./view";
 import {LocalPosixFileAttributeView} from "./view/LocalPosixFileAttributeView";
+import {convertPermissionsToPosix} from "./Helper";
 
 /* It's a FileSystemProvider that provides a LocalFileSystem */
 export class LocalFileSystemProvider extends FileSystemProvider {
@@ -171,12 +173,34 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         });
     }
 
-    public createFile(dir: Path, attrs?: FileAttribute<any>[]): void {
-        throw new Error("Method not implemented.");
+    public createFile(path: Path, attrs?: FileAttribute<any>[]): void {
+        let posixPerms: number | undefined;
+        if (attrs) {
+            const posixFileAttribute: FileAttribute<Set<PosixFilePermission>> | undefined = attrs.find(value => value.name() === "posix:permissions");
+            if (posixFileAttribute) {
+                posixPerms = convertPermissionsToPosix(posixFileAttribute.value());
+            }
+        }
+        if (posixPerms) {
+            fs.writeFileSync(path.toString(), "", {mode: posixPerms});
+        } else {
+            fs.writeFileSync(path.toString(), "");
+        }
     }
 
     public createDirectory(dir: Path, attrs?: FileAttribute<any>[]): void {
-        throw new Error("Method not implemented.");
+        let posixPerms: number | undefined;
+        if (attrs) {
+            const posixFileAttribute: FileAttribute<Set<PosixFilePermission>> | undefined = attrs.find(value => value.name() === "posix:permissions");
+            if (posixFileAttribute) {
+                posixPerms = convertPermissionsToPosix(posixFileAttribute.value());
+            }
+        }
+        if (posixPerms) {
+            fs.mkdirSync(dir.toString(), {mode: posixPerms});
+        } else {
+            fs.mkdirSync(dir.toString());
+        }
     }
 
     public newDirectoryStream(dir: Path, acceptFilter: (path?: Path) => boolean = () => true): DirectoryStream<Path> {
@@ -247,9 +271,7 @@ export class LocalFileSystemProvider extends FileSystemProvider {
     }
 
     public getFileAttributeView(path: Path, name?: AttributeViewName, options?: LinkOption[]): FileAttributeView {
-        // @ts-ignore
         const follow: boolean = followLinks(options);
-
         switch (name) {
             case "basic":
                 return new LocalBasicFileAttributesView(path as LocalPath, follow);

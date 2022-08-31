@@ -129,15 +129,15 @@ export class LocalPath extends Path {
     }
 
     public normalize(): Path {
-        throw new Error("Method not implemented.");
+        return LocalPath.parse(this.fileSystem, pathFs.normalize(this.toString()));
     }
 
     public relativize(other: Path): Path {
-        throw new Error("Method not implemented.");
+        return LocalPath.parse(this.fileSystem, pathFs.relative(this.toString(), other.toString()));
     }
 
     public resolve(other: Path): Path {
-        throw new Error("Method not implemented.");
+        return LocalPath.parse(this.fileSystem, pathFs.resolve(this.toString(), other.toString()));
     }
 
     public startsWith(obj: Path): boolean {
@@ -258,6 +258,9 @@ export class LocalPath extends Path {
 
     public toRealPath(options?: LinkOption[]): Path {
         // TODO handle options
+        if (options) {
+            console.warn("LinkOptions are ignored");
+        }
         const realpath = fs.realpathSync(this.path);
         const realPathParsed = pathFs.parse(realpath);
         return LocalPath.pathFromJsPath(realPathParsed, this.getFileSystem(), LocalPathType.ABSOLUTE);
