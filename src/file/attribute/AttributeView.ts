@@ -17,6 +17,6 @@ export interface AttributeView {
 
 export type AttributeViewName = string
     | "basic" // BasicFileAttributeView
-    | "posix" // LocalPosixFileAttributeView
+    | "posix" // PosixFileAttributeView
     | "owner" // FileOwnerAttributeView
 
