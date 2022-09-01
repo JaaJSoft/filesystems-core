@@ -1,4 +1,4 @@
-import {FileSystemProvider, FileSystemProviders} from "../../spi";
+import {FileSystemProviders} from "../../spi";
 import {FileSystem} from "../../FileSystem";
 import {Path} from "../../Path";
 import {LocalFileSystem} from "./LocalFileSystem";
@@ -14,7 +14,6 @@ import {
     BasicFileAttributeView,
     FileAttribute,
     FileAttributeView,
-    PosixFilePermission,
 } from "../../attribute";
 import {FileStore} from "../../FileStore";
 import {LinkOption} from "../../LinkOption";
@@ -22,17 +21,16 @@ import {DirectoryStream} from "../../DirectoryStream";
 import {ReadableStream, TextDecoderStream, TextEncoderStream, WritableStream} from "node:stream/web";
 import {StandardOpenOption} from "../../StandardOpenOption";
 import jsurl from "url";
-import {IllegalArgumentException, UnsupportedOperationException} from "../../../exception";
+import {IllegalArgumentException, IOException, UnsupportedOperationException} from "../../../exception";
 import {LocalDirectoryStream} from "./LocalDirectoryStream";
 import {followLinks} from "../../FileUtils";
-import {LocalBasicFileAttributesView} from "./view/LocalBasicFileAttributesView";
+import {LocalBasicFileAttributesView, LocalFileOwnerAttributeView} from "./view";
 import {LocalPath} from "./LocalPath";
-import {LocalFileOwnerAttributeView} from "./view";
 import {LocalPosixFileAttributeView} from "./view/LocalPosixFileAttributeView";
-import {convertPermissionsToPosix} from "./Helper";
+import {AbstractFileSystemProvider} from "../abstract";
 
 /* It's a FileSystemProvider that provides a LocalFileSystem */
-export class LocalFileSystemProvider extends FileSystemProvider {
+export class LocalFileSystemProvider extends AbstractFileSystemProvider {
 
     private readonly theFileSystem: LocalFileSystem;
 
@@ -174,32 +172,16 @@ export class LocalFileSystemProvider extends FileSystemProvider {
     }
 
     public createFile(path: Path, attrs?: FileAttribute<any>[]): void {
-        let posixPerms: number | undefined;
+        fs.writeFileSync(path.toString(), "");
         if (attrs) {
-            const posixFileAttribute: FileAttribute<Set<PosixFilePermission>> | undefined = attrs.find(value => value.name() === "posix:permissions");
-            if (posixFileAttribute) {
-                posixPerms = convertPermissionsToPosix(posixFileAttribute.value());
-            }
-        }
-        if (posixPerms) {
-            fs.writeFileSync(path.toString(), "", {mode: posixPerms});
-        } else {
-            fs.writeFileSync(path.toString(), "");
+            attrs.forEach(value => this.setAttribute(path, value.name(), value.value()));
         }
     }
 
     public createDirectory(dir: Path, attrs?: FileAttribute<any>[]): void {
-        let posixPerms: number | undefined;
+        fs.mkdirSync(dir.toString());
         if (attrs) {
-            const posixFileAttribute: FileAttribute<Set<PosixFilePermission>> | undefined = attrs.find(value => value.name() === "posix:permissions");
-            if (posixFileAttribute) {
-                posixPerms = convertPermissionsToPosix(posixFileAttribute.value());
-            }
-        }
-        if (posixPerms) {
-            fs.mkdirSync(dir.toString(), {mode: posixPerms});
-        } else {
-            fs.mkdirSync(dir.toString());
+            attrs.forEach(value => this.setAttribute(dir, value.name(), value.value()));
         }
     }
 
@@ -256,8 +238,17 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         throw new Error("Method not implemented.");
     }
 
-    public delete(path: Path): void {
-        fs.rmSync(path.toString());
+    public implDelete(path: Path, failIfNotExists: boolean): boolean {
+        this.checkAccess(path, [AccessMode.WRITE]);
+        try {
+            fs.rmSync(path.toString(), {});
+            return true;
+        } catch (e) {
+            if (failIfNotExists) {
+                throw new IOException(path.toString());
+            }
+            return false;
+        }
     }
 
     public readAttributesByName(path: Path, name?: AttributeViewName, options?: LinkOption[]): BasicFileAttributes {
@@ -282,14 +273,6 @@ export class LocalFileSystemProvider extends FileSystemProvider {
             default:
                 throw new UnsupportedOperationException();
         }
-    }
-
-    public readAttributes(path: Path, attributes: string, options?: LinkOption[]): Map<string, any> {
-        throw new Error("Method not implemented.");
-    }
-
-    public setAttribute(path: Path, attribute: string, value: any, options?: LinkOption[]): void {
-        throw new Error("Method not implemented.");
     }
 
 }

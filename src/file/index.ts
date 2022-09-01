@@ -1,6 +1,6 @@
 export * as attribute from "./attribute";
 export * as spi from "./spi";
-export * as local from "./fs/local";
+export * as fs from "./fs";
 export * from "./AccessMode";
 export * from "./CopyOption";
 export * from "./DirectoryStream";

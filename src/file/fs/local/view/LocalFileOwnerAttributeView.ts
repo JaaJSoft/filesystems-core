@@ -2,10 +2,13 @@ import {AttributeViewName, FileOwnerAttributeView, UserPrincipal} from "../../..
 import {LocalPath} from "../LocalPath";
 import fs from "fs";
 import {LocalUserPrincipal} from "../LocalUserPrincipal";
-import {UnsupportedOperationException} from "../../../../exception";
+import {IllegalArgumentException, UnsupportedOperationException} from "../../../../exception";
 import {getPathStats} from "../Helper";
 
 export class LocalFileOwnerAttributeView implements FileOwnerAttributeView {
+
+    private static readonly OWNER_NAME: string = "owner";
+
     private readonly path: LocalPath;
     private readonly followsLinks: boolean;
 
@@ -38,6 +41,26 @@ export class LocalFileOwnerAttributeView implements FileOwnerAttributeView {
             fs.chownSync(pathLike, owner.getUid(), stats.gid);
         } else {
             fs.lchownSync(pathLike, owner.getUid(), stats.gid);
+        }
+    }
+
+    public readAttributesByName(attributes: string[]): Map<string, Object> {
+        const result = new Map<string, Object>();
+        for (let attribute of attributes) {
+            if (attribute === "*" || attribute === LocalFileOwnerAttributeView.OWNER_NAME) {
+                result.set(LocalFileOwnerAttributeView.OWNER_NAME, this.getOwner());
+            } else {
+                throw new IllegalArgumentException("'" + this.name() + ":" + attribute + "' not recognized");
+            }
+        }
+        return result;
+    }
+
+    public setAttributeByName(attribute: string, value: Object): void {
+        if (attribute === LocalFileOwnerAttributeView.OWNER_NAME) {
+            this.setOwner(value as UserPrincipal);
+        } else {
+            throw new IllegalArgumentException("'" + this.name() + ":" + attribute + "' not recognized");
         }
     }
 

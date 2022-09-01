@@ -174,6 +174,6 @@ export abstract class FileSystemProvider {
 
     public abstract getFileAttributeView(path: Path, name?: AttributeViewName, options?: LinkOption[]): FileAttributeView;
 
-    public abstract setAttribute(path: Path, attribute: string, value: any, options?: LinkOption[]): void;
+    public abstract setAttribute(path: Path, attribute: string, value: Object, options?: LinkOption[]): void;
 
 }

@@ -3,12 +3,14 @@ import {LocalPath} from "../LocalPath";
 import fs from "fs";
 import {getPathStats} from "../Helper";
 import {AccessMode} from "../../../AccessMode";
+import {AbstractBasicFileAttributeView} from "../../abstract";
 
-export class LocalBasicFileAttributesView implements BasicFileAttributeView {
+export class LocalBasicFileAttributesView extends AbstractBasicFileAttributeView implements BasicFileAttributeView {
     private readonly path: LocalPath;
     private readonly followsLinks: boolean;
 
     constructor(path: LocalPath, followsLinks: boolean) {
+        super();
         this.path = path;
         this.followsLinks = followsLinks;
     }

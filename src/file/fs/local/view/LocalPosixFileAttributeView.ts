@@ -15,8 +15,19 @@ import {UnsupportedOperationException} from "../../../../exception";
 import {convertPermissionsToPosix, convertPosixPermissions, getPathStats} from "../Helper";
 import fs from "fs";
 import {LocalGroupPrincipal} from "../LocalGroupPrincipal";
+import {AbstractBasicFileAttributeView, AttributesBuilder} from "../../abstract";
 
-export class LocalPosixFileAttributeView implements PosixFileAttributeView {
+export class LocalPosixFileAttributeView extends AbstractBasicFileAttributeView implements PosixFileAttributeView {
+    private static readonly PERMISSIONS_NAME: string = "permissions";
+    private static readonly OWNER_NAME: string = "owner";
+    private static readonly GROUP_NAME: string = "group";
+    private static readonly posixAttributeNames: Set<string> = new Set<string>([
+        LocalPosixFileAttributeView.PERMISSIONS_NAME,
+        LocalPosixFileAttributeView.OWNER_NAME,
+        LocalPosixFileAttributeView.GROUP_NAME,
+        ...this.basicAttributeNames,
+    ]);
+
     private fileOwnerView: LocalFileOwnerAttributeView;
     private basicAttributesView: LocalBasicFileAttributesView;
 
@@ -24,6 +35,7 @@ export class LocalPosixFileAttributeView implements PosixFileAttributeView {
     private readonly followsLinks: boolean;
 
     constructor(path: LocalPath, followsLinks: boolean) {
+        super();
         this.path = path;
         this.followsLinks = followsLinks;
         this.fileOwnerView = new LocalFileOwnerAttributeView(path, followsLinks);
@@ -125,4 +137,21 @@ export class LocalPosixFileAttributeView implements PosixFileAttributeView {
         this.basicAttributesView.setTimes(lastModifiedTime, lastAccessTime, createTime);
     }
 
+
+    public readAttributesByName(attributes: string[]): Map<string, Object> {
+        const builder = AttributesBuilder.create(LocalPosixFileAttributeView.posixAttributeNames, attributes);
+        const posixFileAttributes: PosixFileAttributes = this.readAttributes();
+        this.addRequestedBasicAttributes(posixFileAttributes, builder);
+        if (builder.match(LocalPosixFileAttributeView.PERMISSIONS_NAME))
+            builder.add(LocalPosixFileAttributeView.PERMISSIONS_NAME, posixFileAttributes.permissions());
+        if (builder.match(LocalPosixFileAttributeView.OWNER_NAME))
+            builder.add(LocalPosixFileAttributeView.OWNER_NAME, posixFileAttributes.owner());
+        if (builder.match(LocalPosixFileAttributeView.GROUP_NAME))
+            builder.add(LocalPosixFileAttributeView.GROUP_NAME, posixFileAttributes.group());
+        return builder.build();
+    }
+
+    public setAttributeByName(attribute: string, value: Object): void {
+        super.setAttributeByName(attribute, value);
+    }
 }

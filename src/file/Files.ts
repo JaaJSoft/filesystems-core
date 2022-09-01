@@ -401,7 +401,7 @@ export class Files {
      * @param {LinkOption[]} [options] - LinkOption[]
      * @returns A Map of the attributes of the file at the given path.
      */
-    public static readAttributes(path: Path, attributes: string, options?: LinkOption[]): Map<string, any> {
+    public static readAttributes(path: Path, attributes: string, options?: LinkOption[]): Map<string, Object> {
         return this.provider(path).readAttributes(path, attributes, options);
     }
 
@@ -424,7 +424,7 @@ export class Files {
      * @param {LinkOption[]} [options] - An array of LinkOption objects.
      * @returns The path that was passed in.
      */
-    public static setAttribute(path: Path, attribute: string, value: any, options?: LinkOption[]): Path {
+    public static setAttribute(path: Path, attribute: string, value: Object, options?: LinkOption[]): Path {
         this.provider(path).setAttribute(path, attribute, value, options);
         return path;
     }
