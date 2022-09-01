@@ -13,6 +13,13 @@ export abstract class AbstractFileSystemProvider extends FileSystemProvider {
         super();
     }
 
+    /**
+     * It splits a string into two parts, the first part is the type of the attribute, and the second part is the name of
+     * the attribute
+     * @param {string} attribute - The attribute to be parsed.
+     * @returns The return value is an array of two strings. The first string is the type of the attribute and the second
+     * string is the name of the attribute.
+     */
     private static split(attribute: string): string[] {
         const s: string[] = [];
         let pos = attribute.indexOf(":");

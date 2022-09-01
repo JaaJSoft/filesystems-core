@@ -34,6 +34,11 @@ export abstract class AbstractBasicFileAttributeView implements BasicFileAttribu
         return "basic";
     }
 
+    /**
+     * It adds the requested attributes to the builder
+     * @param {BasicFileAttributes} attrs - BasicFileAttributes
+     * @param {AttributesBuilder} builder - AttributesBuilder
+     */
     protected addRequestedBasicAttributes(attrs: BasicFileAttributes, builder: AttributesBuilder) {
         if (builder.match(AbstractBasicFileAttributeView.SIZE_NAME))
             builder.add(AbstractBasicFileAttributeView.SIZE_NAME, attrs.size());

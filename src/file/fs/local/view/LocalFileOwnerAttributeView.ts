@@ -5,6 +5,7 @@ import {LocalUserPrincipal} from "../LocalUserPrincipal";
 import {IllegalArgumentException, UnsupportedOperationException} from "../../../../exception";
 import {getPathStats} from "../Helper";
 
+/* It implements the FileOwnerAttributeView interface and provides a way to get and set the owner of a file */
 export class LocalFileOwnerAttributeView implements FileOwnerAttributeView {
 
     private static readonly OWNER_NAME: string = "owner";

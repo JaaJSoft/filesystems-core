@@ -1,5 +1,6 @@
 import {IllegalArgumentException} from "../../../exception";
 
+/* It builds a map of attributes from a list of requested attributes */
 export class AttributesBuilder {
     private names = new Set<string>();
     private map: Map<string, Object> = new Map<string, Object>();
