@@ -21,7 +21,7 @@ import {DirectoryStream} from "../../DirectoryStream";
 import {ReadableStream, TextDecoderStream, TextEncoderStream, WritableStream} from "node:stream/web";
 import {StandardOpenOption} from "../../StandardOpenOption";
 import jsurl from "url";
-import {IllegalArgumentException, IOException, UnsupportedOperationException} from "../../../exception";
+import {IllegalArgumentException, UnsupportedOperationException} from "../../../exception";
 import {LocalDirectoryStream} from "./LocalDirectoryStream";
 import {followLinks} from "../../FileUtils";
 import {LocalBasicFileAttributesView, LocalFileOwnerAttributeView} from "./view";
@@ -238,17 +238,10 @@ export class LocalFileSystemProvider extends AbstractFileSystemProvider {
         throw new Error("Method not implemented.");
     }
 
-    public implDelete(path: Path, failIfNotExists: boolean): boolean {
+    public delete(path: Path): boolean {
         this.checkAccess(path, [AccessMode.WRITE]);
-        try {
-            fs.rmSync(path.toString(), {});
-            return true;
-        } catch (e) {
-            if (failIfNotExists) {
-                throw new IOException(path.toString());
-            }
-            return false;
-        }
+        fs.rmSync(path.toString(), {});
+        return true;
     }
 
     public readAttributesByName(path: Path, name?: AttributeViewName, options?: LinkOption[]): BasicFileAttributes {

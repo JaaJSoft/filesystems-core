@@ -46,18 +46,4 @@ export abstract class AbstractFileSystemProvider extends FileSystemProvider {
         return view.readAttributesByName(s[1].split(","));
     }
 
-    abstract implDelete(file: Path, failIfNotExists: boolean): boolean;
-
-    public delete(path: Path): boolean {
-        return this.implDelete(path, true);
-    }
-
-    /**
-     * If the file exists, delete it and return true. Otherwise, return false
-     * @param {Path} path - The path to the file or directory to delete.
-     * @returns A boolean value.
-     */
-    public deleteIfExists(path: Path): boolean {
-        return this.implDelete(path, false);
-    }
 }
