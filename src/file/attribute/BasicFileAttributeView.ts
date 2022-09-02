@@ -1,6 +1,6 @@
-import {FileAttributeView} from "./FileAttributeView";
 import {BasicFileAttributes} from "./BasicFileAttributes";
 import {FileTime} from "./FileTime";
+import {FileAttributeView} from "./FileAttributeView";
 
 /* A view of basic file attributes. */
 export interface BasicFileAttributeView extends FileAttributeView {
@@ -21,6 +21,6 @@ export interface BasicFileAttributeView extends FileAttributeView {
      */
     readAttributes(): BasicFileAttributes;
 
-    setTimes(lastModifiedTime?: FileTime, lasAccessTime?: FileTime, createTime?: FileTime): void;
+    setTimes(lastModifiedTime?: FileTime, lastAccessTime?: FileTime, createTime?: FileTime): void;
 
 }

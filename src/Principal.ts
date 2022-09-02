@@ -1,5 +1,5 @@
 export interface Principal {
-    equals(other: Principal): boolean
+    equals(other: Principal): boolean;
 
     toString(): string;
 

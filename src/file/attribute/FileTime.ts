@@ -1,5 +1,6 @@
 import {Comparable} from "../../Comparable";
 import {Instant} from "@js-joda/core";
+import {floatToInt} from "../../utils";
 
 /* The FileTime class represents a time in the file system */
 export class FileTime implements Comparable<FileTime> {
@@ -16,7 +17,7 @@ export class FileTime implements Comparable<FileTime> {
      * @returns A new instance of FileTime
      */
     public static fromMillis(value: number): FileTime {
-        return new FileTime(Instant.ofEpochMilli(value));
+        return new FileTime(Instant.ofEpochMilli(floatToInt(value)));
     }
 
     /**
@@ -25,7 +26,7 @@ export class FileTime implements Comparable<FileTime> {
      * @returns A new instance of FileTime.
      */
     public static fromSeconds(value: number): FileTime {
-        return new FileTime(Instant.ofEpochSecond(value));
+        return new FileTime(Instant.ofEpochSecond(floatToInt(value)));
     }
 
     public static from(instant: Instant): FileTime {
@@ -38,6 +39,14 @@ export class FileTime implements Comparable<FileTime> {
      */
     public toMillis() {
         return this.instant.toEpochMilli();
+    }
+
+    /**
+     * This function returns the instant truncated to seconds
+     * @returns The instant is being truncated to seconds.
+     */
+    public toSeconds() {
+        return this.instant.epochSecond();
     }
 
     /**

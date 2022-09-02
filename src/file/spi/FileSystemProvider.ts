@@ -77,7 +77,7 @@ export abstract class FileSystemProvider {
 
     public abstract newDirectoryStream(dir: Path, acceptFilter: (path?: Path) => boolean): DirectoryStream<Path>;
 
-    public abstract createFile(dir: Path, attrs?: FileAttribute<any>[]): void;
+    public abstract createFile(path: Path, attrs?: FileAttribute<any>[]): void;
 
     public abstract createDirectory(dir: Path, attrs?: FileAttribute<any>[]): void;
 
@@ -172,8 +172,8 @@ export abstract class FileSystemProvider {
 
     public abstract readAttributes(path: Path, attributes: string, options?: LinkOption[]): Map<string, any>;
 
-    public abstract getFileAttributeViewByName(path: Path, name?: AttributeViewName, options?: LinkOption[]): FileAttributeView;
+    public abstract getFileAttributeView(path: Path, name?: AttributeViewName, options?: LinkOption[]): FileAttributeView;
 
-    public abstract setAttribute(path: Path, attribute: string, value: any, options?: LinkOption[]): void;
+    public abstract setAttribute(path: Path, attribute: string, value: Object, options?: LinkOption[]): void;
 
 }

@@ -2,6 +2,14 @@ import {Files, Path, Paths} from "../../../../src/file";
 import os from "os";
 import {Objects} from "../../../../src/utils";
 import {TextDecoderStream} from "node:stream/web";
+import {
+    BasicFileAttributes,
+    BasicFileAttributeView,
+    FileTime,
+    PosixFileAttributes,
+    PosixFileAttributeView,
+    PosixFilePermission,
+} from "../../../../src/file/attribute";
 
 const rootPath: Path = Paths.of("/");
 const currentPath: Path = Paths.of(".");
@@ -147,6 +155,7 @@ test("LocalPathNewBufferedWriter", async () => {
     } else {
         path = Paths.of("/tmp/JAAJ3.txt");
     }
+    Files.deleteIfExists(path);
     const writableStream: WritableStream<string> = Files.newBufferedWriter(path);
     const writer: WritableStreamDefaultWriter<string> = writableStream.getWriter();
     await writer.write("test");
@@ -163,6 +172,7 @@ test("LocalPathWriteString", async () => {
     } else {
         path = Paths.of("/tmp/JAAJ4.txt");
     }
+    Files.deleteIfExists(path);
     await Files.writeString(path, "test");
     expect(await Files.readString(path)).toEqual("test");
     Files.deleteIfExists(path);
@@ -175,6 +185,7 @@ test("LocalPathWriteBytes", async () => {
     } else {
         path = Paths.of("/tmp/JAAJ5.txt");
     }
+    Files.deleteIfExists(path);
     await Files.writeBytes(path, Uint8Array.of(1, 2, 3, 4));
     expect((await Files.readAllBytes(path)).toString()).toEqual("1,2,3,4");
     Files.deleteIfExists(path);
@@ -190,4 +201,63 @@ test("LocalPathDirectoryStream", async () => {
         path = Paths.of("/tmp/");
         // TODO make a better test
     }
+});
+
+test("LocalPathReadBasicAttributes", async () => {
+    let path: Path;
+    if (os.platform() == "win32") {
+        path = Paths.of("D:\\JAAJ6.txt");
+    } else {
+        path = Paths.of("/tmp/JAAJ6.txt");
+    }
+    Files.deleteIfExists(path);
+    await Files.writeBytes(path, Uint8Array.of(1, 2, 3, 4));
+    const basicFileAttributeView: BasicFileAttributeView = Files.getFileAttributeView(path, "basic") as BasicFileAttributeView;
+    const basicFileAttributes: BasicFileAttributes = basicFileAttributeView.readAttributes();
+    expect(basicFileAttributes.size()).toEqual(4n);
+    basicFileAttributeView.setTimes(FileTime.fromMillis(0), FileTime.fromMillis(0), FileTime.fromMillis(0));
+    expect(basicFileAttributeView.readAttributes().lastModifiedTime().toMillis()).toBe(0);
+    Files.deleteIfExists(path);
+});
+
+test("LocalPathSetBasicAttributes", async () => {
+    let path: Path;
+    if (os.platform() == "win32") {
+        path = Paths.of("D:\\JAAJ7.txt");
+    } else {
+        path = Paths.of("/tmp/JAAJ7.txt");
+    }
+    Files.deleteIfExists(path);
+    await Files.writeBytes(path, Uint8Array.of(1, 2, 3, 4));
+    const attributes: Map<string, Object> = Files.readAttributes(path, "size");
+    expect(attributes.get("size")).toEqual(4n);
+    const basicAttributes: Map<string, Object> = Files.readAttributes(path, "basic:size");
+    expect(basicAttributes.get("size")).toEqual(4n);
+    const posixAttributes: Map<string, Object> = Files.readAttributes(path, "posix:size");
+    expect(posixAttributes.get("size")).toEqual(4n);
+    Files.setAttribute(path, "posix:lastModifiedTime", FileTime.fromMillis(0));
+    const posixAttributes2: Map<string, Object> = Files.readAttributes(path, "posix:lastModifiedTime");
+    expect((posixAttributes2.get("lastModifiedTime") as FileTime).toMillis()).toEqual(0);
+    Files.deleteIfExists(path);
+});
+
+test("LocalPathReadPosixAttributes", async () => {
+    let path: Path;
+    if (os.platform() == "win32") {
+        path = Paths.of("D:\\JAAJ7txt");
+    } else {
+        path = Paths.of("/tmp/JAAJ7.txt");
+    }
+    Files.deleteIfExists(path);
+    await Files.writeBytes(path, Uint8Array.of(1, 2, 3, 4));
+    const posixFileAttributeView: PosixFileAttributeView = Files.getFileAttributeView(path, "posix") as PosixFileAttributeView;
+    const posixFileAttributes: PosixFileAttributes = posixFileAttributeView.readAttributes();
+    expect(posixFileAttributes.size()).toEqual(4n);
+    posixFileAttributeView.setTimes(FileTime.fromMillis(0), FileTime.fromMillis(0), FileTime.fromMillis(0));
+    expect(posixFileAttributeView.readAttributes().lastModifiedTime().toMillis()).toBe(0);
+    const permissions = posixFileAttributes.permissions();
+    expect(permissions).toContain(PosixFilePermission.OWNER_READ);
+    expect(permissions).toContain(PosixFilePermission.OWNER_WRITE);
+    permissions.add(PosixFilePermission.OWNER_EXECUTE);
+    Files.deleteIfExists(path);
 });

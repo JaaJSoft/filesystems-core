@@ -1,4 +1,4 @@
-import {FileSystemProvider, FileSystemProviders} from "../../spi";
+import {FileSystemProviders} from "../../spi";
 import {FileSystem} from "../../FileSystem";
 import {Path} from "../../Path";
 import {LocalFileSystem} from "./LocalFileSystem";
@@ -8,18 +8,29 @@ import {AccessMode} from "../../AccessMode";
 import {CopyOption} from "../../CopyOption";
 import {AccessDeniedException, FileSystemAlreadyExistsException} from "../../exception";
 import {OpenOption} from "../../OpenOption";
-import {AttributeViewName, BasicFileAttributes, FileAttribute, FileAttributeView} from "../../attribute";
+import {
+    AttributeViewName,
+    BasicFileAttributes,
+    BasicFileAttributeView,
+    FileAttribute,
+    FileAttributeView,
+} from "../../attribute";
 import {FileStore} from "../../FileStore";
 import {LinkOption} from "../../LinkOption";
 import {DirectoryStream} from "../../DirectoryStream";
 import {ReadableStream, TextDecoderStream, TextEncoderStream, WritableStream} from "node:stream/web";
 import {StandardOpenOption} from "../../StandardOpenOption";
 import jsurl from "url";
-import {IllegalArgumentException} from "../../../exception";
+import {IllegalArgumentException, UnsupportedOperationException} from "../../../exception";
 import {LocalDirectoryStream} from "./LocalDirectoryStream";
+import {followLinks} from "../../FileUtils";
+import {LocalBasicFileAttributesView, LocalFileOwnerAttributeView} from "./view";
+import {LocalPath} from "./LocalPath";
+import {LocalPosixFileAttributeView} from "./view/LocalPosixFileAttributeView";
+import {AbstractFileSystemProvider} from "../abstract";
 
 /* It's a FileSystemProvider that provides a LocalFileSystem */
-export class LocalFileSystemProvider extends FileSystemProvider {
+export class LocalFileSystemProvider extends AbstractFileSystemProvider {
 
     private readonly theFileSystem: LocalFileSystem;
 
@@ -158,22 +169,26 @@ export class LocalFileSystemProvider extends FileSystemProvider {
                 // TODO search if there is another thing to do
             },
         });
-        // throw new Error("Method not implemented.");
     }
 
-    public createFile(dir: Path, attrs?: FileAttribute<any>[]): void {
-        throw new Error("Method not implemented.");
+    public createFile(path: Path, attrs?: FileAttribute<any>[]): void {
+        fs.writeFileSync(path.toString(), "");
+        if (attrs) {
+            attrs.forEach(value => this.setAttribute(path, value.name(), value.value()));
+        }
     }
 
     public createDirectory(dir: Path, attrs?: FileAttribute<any>[]): void {
-        throw new Error("Method not implemented.");
+        fs.mkdirSync(dir.toString());
+        if (attrs) {
+            attrs.forEach(value => this.setAttribute(dir, value.name(), value.value()));
+        }
     }
 
     public newDirectoryStream(dir: Path, acceptFilter: (path?: Path) => boolean = () => true): DirectoryStream<Path> {
         this.checkAccess(dir, [AccessMode.READ]);
         return new LocalDirectoryStream(dir, acceptFilter);
     }
-
 
     public getFileStore(path: Path): FileStore {
         throw new Error("Method not implemented.");
@@ -216,31 +231,55 @@ export class LocalFileSystemProvider extends FileSystemProvider {
     }
 
     public isHidden(obj: Path): boolean {
-        throw new Error("Method not implemented.");
+        this.checkAccess(obj);
+        const name = obj.getFileName();
+        if (name == null)
+            return false;
+        return name.startsWithStr(".");
     }
 
     public isSameFile(obj1: Path, obj2: Path): boolean {
-        throw new Error("Method not implemented.");
+        if (obj1.equals(obj2)) {
+            return true;
+        }
+        if (!(obj1 instanceof LocalPath) || !(obj2 instanceof LocalPath)) {
+            return false;
+        }
+        this.checkAccess(obj1);
+        this.checkAccess(obj2);
+        const attrs1 = this.readAttributesByName(obj1);
+        const attrs2 = this.readAttributesByName(obj2);
+        return attrs1.fileKey() === attrs2.fileKey();
     }
 
-    public delete(path: Path): void {
-        fs.rmSync(path.toString());
+    public delete(path: Path): boolean {
+        this.checkAccess(path, [AccessMode.WRITE]);
+        fs.rmSync(path.toString(), {});
+        return true;
     }
 
     public readAttributesByName(path: Path, name?: AttributeViewName, options?: LinkOption[]): BasicFileAttributes {
-        throw new Error("Method not implemented.");
+        switch (name) {
+            case "basic":
+            case "posix":
+                return (this.getFileAttributeView(path, name, options) as BasicFileAttributeView).readAttributes();
+            default:
+                throw new UnsupportedOperationException();
+        }
     }
 
-    public getFileAttributeViewByName(path: Path, name?: AttributeViewName, options?: LinkOption[]): FileAttributeView {
-        throw new Error("Method not implemented.");
-    }
-
-    public readAttributes(path: Path, attributes: string, options?: LinkOption[]): Map<string, any> {
-        throw new Error("Method not implemented.");
-    }
-
-    public setAttribute(path: Path, attribute: string, value: any, options?: LinkOption[]): void {
-        throw new Error("Method not implemented.");
+    public getFileAttributeView(path: Path, name?: AttributeViewName, options?: LinkOption[]): FileAttributeView {
+        const follow: boolean = followLinks(options);
+        switch (name) {
+            case "basic":
+                return new LocalBasicFileAttributesView(path as LocalPath, follow);
+            case "owner":
+                return new LocalFileOwnerAttributeView(path as LocalPath, follow);
+            case "posix":
+                return new LocalPosixFileAttributeView(path as LocalPath, follow);
+            default:
+                throw new UnsupportedOperationException();
+        }
     }
 
 }

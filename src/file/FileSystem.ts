@@ -1,10 +1,9 @@
-import {FileSystemProvider} from "./spi/FileSystemProvider";
+import {FileSystemProvider} from "./spi";
 import {Path} from "./Path";
 import {FileStore} from "./FileStore";
 import {PathMatcher} from "./PathMatcher";
-import {UserPrincipalLookupService} from "./attribute/UserPrincipalLookupService";
+import {AttributeViewName, UserPrincipalLookupService} from "./attribute";
 import {Closeable} from "../Closeable";
-import {AttributeViewName} from "./attribute";
 
 /* A common interface for all file systems. */
 export abstract class FileSystem implements Closeable {

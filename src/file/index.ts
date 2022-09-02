@@ -1,6 +1,6 @@
 export * as attribute from "./attribute";
 export * as spi from "./spi";
-export * as local from "./fs/local";
+export * as fs from "./fs";
 export * from "./AccessMode";
 export * from "./CopyOption";
 export * from "./DirectoryStream";
@@ -22,3 +22,4 @@ export * from "./WatchService";
 export * from "./WatchKey";
 export * from "./WatchEvent";
 export * from "./StandardWatchEventKinds";
+export * from "./FileUtils";

@@ -92,7 +92,7 @@ export async function copyToForeignTarget(source: Path, target: Path, options?: 
 
     // copy basic attributes to target
     if (opts.copyAttributes) {
-        const view = Files.getFileAttributeViewByName(target, "basic") as BasicFileAttributeView;
+        const view = Files.getFileAttributeView(target, "basic") as BasicFileAttributeView;
         try {
             view.setTimes(
                 attrs.lastModifiedTime(),
