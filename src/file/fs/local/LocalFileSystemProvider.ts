@@ -231,11 +231,25 @@ export class LocalFileSystemProvider extends AbstractFileSystemProvider {
     }
 
     public isHidden(obj: Path): boolean {
-        throw new Error("Method not implemented.");
+        this.checkAccess(obj);
+        const name = obj.getFileName();
+        if (name == null)
+            return false;
+        return name.startsWithStr(".");
     }
 
     public isSameFile(obj1: Path, obj2: Path): boolean {
-        throw new Error("Method not implemented.");
+        if (obj1.equals(obj2)) {
+            return true;
+        }
+        if (!(obj1 instanceof LocalPath) || !(obj2 instanceof LocalPath)) {
+            return false;
+        }
+        this.checkAccess(obj1);
+        this.checkAccess(obj2);
+        const attrs1 = this.readAttributesByName(obj1);
+        const attrs2 = this.readAttributesByName(obj2);
+        return attrs1.fileKey() === attrs2.fileKey();
     }
 
     public delete(path: Path): boolean {

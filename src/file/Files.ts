@@ -436,7 +436,7 @@ export class Files {
      * @param {LinkOption[]} [options] - An array of LinkOption objects.
      * @returns The value of the attribute.
      */
-    public static getAttribute(path: Path, attribute: string, options?: LinkOption[]): any {
+    public static getAttribute(path: Path, attribute: string, options?: LinkOption[]): Object | undefined {
         // only one attribute should be read
         if (attribute.indexOf("*") >= 0 || attribute.indexOf(",") >= 0)
             throw new IllegalArgumentException(attribute);

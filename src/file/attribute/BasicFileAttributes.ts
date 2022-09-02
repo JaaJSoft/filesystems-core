@@ -75,9 +75,8 @@ export interface BasicFileAttributes {
     /**
      * Returns the size of the file (in bytes). The size may differ from the
      * actual size on the file system due to compression, support for sparse
-     * files, or other reasons. The size of files that are not {@link
-        * #isRegularFile regular} files is implementation specific and
-     * therefore unspecified.
+     * files, or other reasons. The size of files that are not {@link #isRegularFile regular}
+     * files is implementation specific and therefore unspecified.
      *
      * @return  the file size, in bytes
      */

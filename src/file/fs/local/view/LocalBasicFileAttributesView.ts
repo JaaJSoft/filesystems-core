@@ -4,6 +4,8 @@ import fs from "fs";
 import {getPathStats} from "../Helper";
 import {AccessMode} from "../../../AccessMode";
 import {AbstractBasicFileAttributeView} from "../../abstract";
+import {IOException} from "../../../../exception";
+import {floatToInt} from "../../../../utils";
 
 export class LocalBasicFileAttributesView extends AbstractBasicFileAttributeView implements BasicFileAttributeView {
     private readonly path: LocalPath;
@@ -20,8 +22,12 @@ export class LocalBasicFileAttributesView extends AbstractBasicFileAttributeView
     }
 
     public readAttributes(): BasicFileAttributes {
-        const stats = getPathStats(this.path, this.followsLinks);
-        return this.buildAttributes(stats);
+        try {
+            const stats = getPathStats(this.path, this.followsLinks);
+            return this.buildAttributes(stats);
+        } catch (e) {
+            throw new IOException((e as Error).message);
+        }
     }
 
     public buildAttributes(stats: fs.Stats): BasicFileAttributes {
@@ -72,8 +78,8 @@ export class LocalBasicFileAttributesView extends AbstractBasicFileAttributeView
         const fileAttributes: BasicFileAttributes = this.readAttributes();
         fs.lutimesSync(
             this.path.toString(),
-            lastAccessTime ? lastAccessTime.toMillis() : fileAttributes.lastAccessTime().toMillis(),
-            lastModifiedTime ? lastModifiedTime.toMillis() : fileAttributes.lastModifiedTime().toMillis(),
+            lastAccessTime ? floatToInt(lastAccessTime.toSeconds()) : floatToInt(fileAttributes.lastAccessTime().toSeconds()),
+            lastModifiedTime ? floatToInt(lastModifiedTime.toSeconds()) : floatToInt(fileAttributes.lastModifiedTime().toSeconds()),
         );
     }
 

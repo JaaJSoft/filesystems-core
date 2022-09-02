@@ -43,7 +43,7 @@ export abstract class AbstractFileSystemProvider extends FileSystemProvider {
         view.setAttributeByName(s[1], value);
     }
 
-    public readAttributes(file: Path, attributes: string, options?: LinkOption[]): Map<string, any> {
+    public readAttributes(file: Path, attributes: string, options?: LinkOption[]): Map<string, Object> {
         const s = AbstractFileSystemProvider.split(attributes);
         if (s[0].length == 0)
             throw new IllegalArgumentException(attributes);
