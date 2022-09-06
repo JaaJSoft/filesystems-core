@@ -9,6 +9,7 @@ export * from "./DirectoryStream";
 export * from "./Files";
 export * from "./FileStore";
 export * from "./FileSystems";
+export * from "./FileSystem";
 export * from "./LinkOption";
 export * from "./OpenOption";
 export * from "./Path";
