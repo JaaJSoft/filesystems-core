@@ -13,7 +13,7 @@ export class FileSystemProviders {
      * This function adds a new file system provider to the list of installed providers
      * @param {FileSystemProvider} provider - FileSystemProvider
      */
-    public static addProvider(provider: FileSystemProvider): void {
+    public static register(provider: FileSystemProvider): void {
         this.installedProviders.set(provider.getScheme().toUpperCase(), provider);
     }
 
