@@ -53,7 +53,7 @@ export class FileSystems {
         FileSystemProviders.getProvider(scheme);
         const provider: FileSystemProvider | undefined = FileSystemProviders.getProvider(scheme);
         if (provider) {
-            return await provider.newFileSystemFromUrl(uri, env);
+            return provider.newFileSystemFromUrl(uri, env);
         }
         throw new ProviderNotFoundException("Provider \"" + scheme + "\" not found");
     }

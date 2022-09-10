@@ -5,7 +5,7 @@ import {Watchable} from "./Watchable";
 import {Comparable} from "../Comparable";
 
 /* `Path` is a class that represents a path in a file system. */
-export abstract class Path implements AsyncIterable<Path>, Watchable, Comparable<Path> {
+export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path> {
 
     protected constructor() {
         // empty
@@ -197,5 +197,26 @@ export abstract class Path implements AsyncIterable<Path>, Watchable, Comparable
 
     abstract toString(): string;
 
-    abstract [Symbol.asyncIterator](): AsyncIterator<Path>;
+    [Symbol.iterator](): Iterator<Path> {
+        const p = this;
+        let i = 0;
+
+        return new class implements Iterator<Path> {
+            public next(...args: [] | [undefined]): IteratorResult<Path, any> {
+                if (i < p.getNameCount()) {
+                    const result = p.getName(i);
+                    i++;
+                    return {
+                        value: result,
+                        done: false,
+                    };
+                } else {
+                    return {
+                        value: undefined,
+                        done: true,
+                    };
+                }
+            }
+        };
+    }
 }
