@@ -116,7 +116,7 @@ export class Files {
      * @returns The path
      */
     public static async createFile(path: Path, attrs?: FileAttribute<any>[]): Promise<Path> { // TODO use  writeableStream ?
-        this.provider(path).createFile(path, attrs);
+        await this.provider(path).createFile(path, attrs);
         return path;
     }
 
@@ -127,7 +127,7 @@ export class Files {
      * @returns The path of the directory that was created.
      */
     public static async createDirectory(dir: Path, attrs?: FileAttribute<any>[]): Promise<Path> {
-        this.provider(dir).createDirectory(dir, attrs);
+        await this.provider(dir).createDirectory(dir, attrs);
         return dir;
     }
 
@@ -262,7 +262,7 @@ export class Files {
      * @returns The link
      */
     public static async createSymbolicLink(link: Path, target: Path, attrs?: FileAttribute<any>[]): Promise<Path> {
-        this.provider(link).createSymbolicLink(link, target, attrs);
+        await this.provider(link).createSymbolicLink(link, target, attrs);
         return link;
     }
 
@@ -273,7 +273,7 @@ export class Files {
      * @returns The link
      */
     public static async createLink(link: Path, existing: Path): Promise<Path> {
-        this.provider(link).createLink(link, existing);
+        await this.provider(link).createLink(link, existing);
         return link;
     }
 
@@ -282,7 +282,7 @@ export class Files {
      * @param {Path} path - The path to the file or directory to delete.
      */
     public static async delete(path: Path): Promise<void> {
-        this.provider(path).delete(path);
+        await this.provider(path).delete(path);
     }
 
     /**
@@ -431,7 +431,7 @@ export class Files {
      * @returns The path that was passed in.
      */
     public static async setAttribute(path: Path, attribute: string, value: Object, options?: LinkOption[]): Promise<Path> {
-        this.provider(path).setAttribute(path, attribute, value, options);
+        await this.provider(path).setAttribute(path, attribute, value, options);
         return path;
     }
 
@@ -476,11 +476,11 @@ export class Files {
      * @returns A Path object.
      */
     public static async setPosixFilePermissions(path: Path, perms: Set<PosixFilePermission>): Promise<Path> {
-        const view = await this.getFileAttributeView(path, "posix") as PosixFileAttributeView;
+        const view = this.getFileAttributeView(path, "posix") as PosixFileAttributeView;
         if (!view) {
             throw new UnsupportedOperationException();
         }
-        view.setPermissions(perms);
+        await view.setPermissions(perms);
         return path;
     }
 
@@ -491,7 +491,7 @@ export class Files {
      * @returns A UserPrincipal object.
      */
     public static async getOwner(path: Path, options?: LinkOption[]): Promise<UserPrincipal> {
-        const view = await this.getFileAttributeView(path, "owner", options) as FileOwnerAttributeView;
+        const view = this.getFileAttributeView(path, "owner", options) as FileOwnerAttributeView;
         if (!view) {
             throw new UnsupportedOperationException();
         }
@@ -505,11 +505,11 @@ export class Files {
      * @returns A Path object.
      */
     public static async setOwner(path: Path, owner: UserPrincipal): Promise<Path> {
-        const view = await this.getFileAttributeView(path, "owner") as FileOwnerAttributeView;
+        const view = this.getFileAttributeView(path, "owner") as FileOwnerAttributeView;
         if (!view) {
             throw new UnsupportedOperationException();
         }
-        view.setOwner(owner);
+        await view.setOwner(owner);
         return path;
     }
 
@@ -572,7 +572,7 @@ export class Files {
      * @returns A Path object.
      */
     public static async setLastModifiedTime(path: Path, time: FileTime): Promise<Path> {
-        await (await this.getFileAttributeView(path, "basic") as BasicFileAttributeView)
+        await (this.getFileAttributeView(path, "basic") as BasicFileAttributeView)
             .setTimes(time, undefined, undefined);
         return path;
     }
@@ -601,7 +601,7 @@ export class Files {
     public static async exists(path: Path, options?: LinkOption[]): Promise<boolean> {
         try {
             if (this.followLinks(options)) {
-                await (await this.provider(path)).checkAccess(path);
+                await this.provider(path).checkAccess(path);
             } else {
                 // attempt to read attributes without following links
                 await this.readAttributesByName(path, "basic", [LinkOption.NOFOLLOW_LINKS]);
@@ -626,7 +626,7 @@ export class Files {
     public static async notExists(path: Path, options?: LinkOption[]): Promise<boolean> {
         try {
             if (this.followLinks(options)) {
-                await (await this.provider(path)).checkAccess(path);
+                await this.provider(path).checkAccess(path);
             } else {
                 // attempt to read attributes without following links
                 await this.readAttributesByName(path, "basic", [LinkOption.NOFOLLOW_LINKS]);
@@ -653,7 +653,7 @@ export class Files {
      */
     private static async isAccessible(path: Path, modes?: AccessMode[]): Promise<boolean> {
         try {
-            await (await this.provider(path)).checkAccess(path, modes);
+            await this.provider(path).checkAccess(path, modes);
             return true;
         } catch (x) {
             if (x instanceof IOException) {
@@ -832,7 +832,7 @@ export class Files {
         }
         let outputStream: WritableStream | undefined;
         try {
-            outputStream = await this.newOutputStream(target, [StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE]);
+            outputStream = this.newOutputStream(target, [StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE]);
             await inputStream.pipeTo(outputStream);
         } catch (x) {
             if (x instanceof FileAlreadyExistsException) {
@@ -859,7 +859,7 @@ export class Files {
 
         let inputStream: ReadableStream | undefined;
         try {
-            inputStream = await this.newInputStream(source);
+            inputStream = this.newInputStream(source);
             await inputStream.pipeTo(outputStream);
         } finally {
             await inputStream?.cancel();
@@ -874,7 +874,7 @@ export class Files {
     public static async readAllBytes(path: Path): Promise<Uint8Array> {
         let inputStream: ReadableStream<Uint8Array> | undefined = undefined;
         try {
-            inputStream = await this.newInputStream(path);
+            inputStream = this.newInputStream(path);
             const reader: ReadableStreamDefaultReader<Uint8Array> = inputStream.getReader();
             let done = false;
             const values = [];
@@ -944,7 +944,7 @@ export class Files {
         let writableStream: WritableStream<Uint8Array> | undefined;
         let writer: WritableStreamDefaultWriter<Uint8Array> | undefined;
         try {
-            writableStream = await Files.newOutputStream(path, options);
+            writableStream = Files.newOutputStream(path, options);
             writer = writableStream.getWriter();
             const len = bytes.length;
             let rem = len;
@@ -1022,7 +1022,7 @@ export class Files {
      * @param {FileVisitOption[]} [options] - FileVisitOption[]
      * @returns An iterable of Path objects.
      */
-    public static async awalk(start: Path, maxDepth: number = Number.MAX_VALUE, options?: FileVisitOption[]): Promise<AsyncIterable<Path>> {
+    public static async walk(start: Path, maxDepth: number = Number.MAX_VALUE, options?: FileVisitOption[]): Promise<AsyncIterable<Path>> {
         return (await new FileTreeIterator(maxDepth, options).init(start)).toIterablePath();
     }
 
