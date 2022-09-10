@@ -775,7 +775,7 @@ export class Files {
         ]);
         const textDecoderStream: TextDecoderStream = provider.newTextDecoder(charsets);
 
-        await inputStream.pipeTo(textDecoderStream.writable);
+        inputStream.pipeTo(textDecoderStream.writable);
         return textDecoderStream.readable;
     }
 
@@ -793,7 +793,7 @@ export class Files {
         ]);
 
         const textEncoderStream: TextEncoderStream = provider.newTextEncoder();
-        await textEncoderStream.readable.pipeTo(outputStream);
+        textEncoderStream.readable.pipeTo(outputStream);
         return textEncoderStream.writable;
     }
 
@@ -833,7 +833,7 @@ export class Files {
         let outputStream: WritableStream | undefined;
         try {
             outputStream = this.newOutputStream(target, [StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE]);
-            await inputStream.pipeTo(outputStream);
+            inputStream.pipeTo(outputStream);
         } catch (x) {
             if (x instanceof FileAlreadyExistsException) {
                 if (se) {
@@ -860,7 +860,7 @@ export class Files {
         let inputStream: ReadableStream | undefined;
         try {
             inputStream = this.newInputStream(source);
-            await inputStream.pipeTo(outputStream);
+            inputStream.pipeTo(outputStream);
         } finally {
             await inputStream?.cancel();
         }
