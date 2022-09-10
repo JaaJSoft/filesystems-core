@@ -5,7 +5,7 @@ import {Watchable} from "./Watchable";
 import {Comparable} from "../Comparable";
 
 /* `Path` is a class that represents a path in a file system. */
-export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path> {
+export abstract class Path implements AsyncIterable<Path>, Watchable, Comparable<Path> {
 
     protected constructor() {
         // empty
@@ -59,8 +59,8 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
     public abstract startsWith(other: Path): boolean;
 
     /* Checking if the path starts with the given string. */
-    public startsWithStr(other: string): boolean {
-        const path = this.getFileSystem().getPath(other);
+    public async startsWithStr(other: string): Promise<boolean> {
+        const path = await this.getFileSystem().getPath(other);
         if (path) {
             return this.startsWith(path);
         }
@@ -69,8 +69,8 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
 
     public abstract endWith(other: Path): boolean;
 
-    public endWithStr(other: string): boolean {
-        const path = this.getFileSystem().getPath(other);
+    public async endWithStr(other: string): Promise<boolean> {
+        const path = await this.getFileSystem().getPath(other);
         return this.endWith(path);
     }
 
@@ -85,8 +85,8 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
      * @param {string} other - The path to resolve against this path.
      * @returns A Path object
      */
-    public resolveFromString(other: string): Path | null {
-        const path = this.getFileSystem().getPath(other);
+    public async resolveFromString(other: string): Promise<Path | null> {
+        const path = await this.getFileSystem().getPath(other);
         if (path) {
             return this.resolve(path);
         }
@@ -132,8 +132,8 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
      * @param {string} other - The other path to resolve against this one.
      * @returns A Path object.
      */
-    public resolveSiblingFromString(other: string): Path | null {
-        const path = this.getFileSystem().getPath(other);
+    public async resolveSiblingFromString(other: string): Promise<Path | null> {
+        const path = await this.getFileSystem().getPath(other);
         if (path) {
             return this.resolveSibling(path);
         }
@@ -197,5 +197,5 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
 
     abstract toString(): string;
 
-    abstract [Symbol.iterator](): Iterator<Path>;
+    abstract [Symbol.asyncIterator](): AsyncIterator<Path>;
 }
