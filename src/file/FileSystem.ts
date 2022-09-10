@@ -33,5 +33,5 @@ export abstract class FileSystem implements Closeable {
 
     public abstract getUserPrincipalLookupService(): UserPrincipalLookupService;
 
-    public abstract getPath(first: string, more?: string[]): Path;
+    public abstract getPath(first: string, more?: string[]): Promise<Path>;
 }

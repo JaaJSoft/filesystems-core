@@ -16,8 +16,8 @@ export class Paths {
      * @param {string[]} [more] - string[]
      * @returns A Path object
      */
-    public static of(first: string, more?: string[]): Path {
-        return FileSystems.getDefault().getPath(first, more);
+    public static async of(first: string, more?: string[]): Promise<Path> {
+        return (await FileSystems.getDefault()).getPath(first, more);
     }
 
     /**
@@ -26,7 +26,7 @@ export class Paths {
      * @param {URL} url - URL
      * @returns A Path object
      */
-    public static ofURL(url: URL): Path {
+    public static async ofURL(url: URL): Promise<Path> {
         const scheme = FileSystemProviders.cleanScheme(url.protocol);
         if (!scheme) {
             throw new IllegalArgumentException("Missing scheme");
