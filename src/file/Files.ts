@@ -418,7 +418,7 @@ export class Files {
      * @param {LinkOption[]} [options] - An array of LinkOption objects.
      * @returns A FileAttributeView object.
      */
-    public static async getFileAttributeView(path: Path, name?: AttributeViewName, options?: LinkOption[]): Promise<FileAttributeView> {
+    public static getFileAttributeView(path: Path, name?: AttributeViewName, options?: LinkOption[]): FileAttributeView {
         return this.provider(path).getFileAttributeView(path, name, options);
     }
 
