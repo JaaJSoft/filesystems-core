@@ -87,7 +87,7 @@ export class Files {
      * @param acceptFilter
      * @returns A DirectoryStream<Path>
      */
-    public static newDirectoryStream(dir: Path, acceptFilter: (path?: Path) => boolean = _ => true): DirectoryStream<Path> {
+    public static async newDirectoryStream(dir: Path, acceptFilter: (path?: Path) => boolean = _ => true): Promise<DirectoryStream<Path>> {
         return this.provider(dir).newDirectoryStream(dir, acceptFilter);
     }
 
@@ -98,7 +98,7 @@ export class Files {
      * @param {string} glob - The glob pattern to filter the directory stream.
      * @returns A DirectoryStream<Path>
      */
-    public static newDirectoryStreamFilteredWithGlob(dir: Path, glob: string): DirectoryStream<Path> {
+    public static async newDirectoryStreamFilteredWithGlob(dir: Path, glob: string): Promise<DirectoryStream<Path>> {
         if (glob === "*") {
             return this.newDirectoryStream(dir);
         }
@@ -185,7 +185,7 @@ export class Files {
         }
         // create directories
         let child = parent;
-        for (let name of parent.relativize(dir)) {
+        for await (let name of parent.relativize(dir)) {
             child = child.resolve(name);
             await this.createAndCheckIsDirectory(child, attrs);
         }
@@ -996,7 +996,7 @@ export class Files {
      * @returns An array of Path objects.
      */
     public static async list(dir: Path): Promise<Path[]> {
-        const ds: DirectoryStream<Path> = Files.newDirectoryStream(dir);
+        const ds: DirectoryStream<Path> = await Files.newDirectoryStream(dir);
         let files: Path[] = [];
         try {
             for await (let path of ds) {

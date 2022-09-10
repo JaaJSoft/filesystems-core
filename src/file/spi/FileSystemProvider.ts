@@ -75,7 +75,7 @@ export abstract class FileSystemProvider {
 
     protected abstract newOutputStreamImpl(path: Path, options?: OpenOption[]): WritableStream<Uint8Array>; // TODO replace this by channels if possible
 
-    public abstract newDirectoryStream(dir: Path, acceptFilter: (path?: Path) => boolean): DirectoryStream<Path>;
+    public abstract newDirectoryStream(dir: Path, acceptFilter: (path?: Path) => boolean): Promise<DirectoryStream<Path>>;
 
     public abstract createFile(path: Path, attrs?: FileAttribute<any>[]): Promise<void>;
 
@@ -172,7 +172,7 @@ export abstract class FileSystemProvider {
 
     public abstract readAttributes(path: Path, attributes: string, options?: LinkOption[]): Promise<Map<string, any>>;
 
-    public abstract getFileAttributeView(path: Path, name?: AttributeViewName, options?: LinkOption[]): Promise<FileAttributeView>;
+    public abstract getFileAttributeView(path: Path, name?: AttributeViewName, options?: LinkOption[]): FileAttributeView;
 
     public abstract setAttribute(path: Path, attribute: string, value: Object, options?: LinkOption[]): Promise<void>;
 
