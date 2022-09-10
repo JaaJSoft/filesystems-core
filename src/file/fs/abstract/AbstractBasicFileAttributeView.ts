@@ -28,6 +28,7 @@ export abstract class AbstractBasicFileAttributeView implements BasicFileAttribu
     ]);
 
     protected constructor() {
+        // empty
     }
 
     public name(): string {
@@ -60,23 +61,23 @@ export abstract class AbstractBasicFileAttributeView implements BasicFileAttribu
             builder.add(AbstractBasicFileAttributeView.IS_OTHER_NAME, attrs.isOther());
     }
 
-    public readAttributesByName(attributes: string[]): Map<string, Object> {
+    public async readAttributesByName(attributes: string[]): Promise<Map<string, Object>> {
         const builder = AttributesBuilder.create(AbstractBasicFileAttributeView.basicAttributeNames, attributes);
-        this.addRequestedBasicAttributes(this.readAttributes(), builder);
+        this.addRequestedBasicAttributes(await this.readAttributes(), builder);
         return builder.build();
     }
 
-    public setAttributeByName(attribute: string, value: Object): void {
+    public async setAttributeByName(attribute: string, value: Object): Promise<void> {
         if (attribute === (AbstractBasicFileAttributeView.LAST_MODIFIED_TIME_NAME)) {
-            this.setTimes(value as FileTime, undefined, undefined);
+            await this.setTimes(value as FileTime, undefined, undefined);
             return;
         }
         if (attribute === (AbstractBasicFileAttributeView.LAST_ACCESS_TIME_NAME)) {
-            this.setTimes(undefined, value as FileTime, undefined);
+            await this.setTimes(undefined, value as FileTime, undefined);
             return;
         }
         if (attribute === (AbstractBasicFileAttributeView.CREATION_TIME_NAME)) {
-            this.setTimes(undefined, undefined, value as FileTime);
+            await this.setTimes(undefined, undefined, value as FileTime);
             return;
         }
         throw new IllegalArgumentException("'" + this.name() + ":" +
@@ -91,7 +92,7 @@ export abstract class AbstractBasicFileAttributeView implements BasicFileAttribu
      *
      * @return  the file attributes
      */
-    public abstract readAttributes(): BasicFileAttributes;
+    public abstract readAttributes(): Promise<BasicFileAttributes>;
 
-    public abstract setTimes(lastModifiedTime?: FileTime, lastAccessTime?: FileTime, createTime?: FileTime): void;
+    public abstract setTimes(lastModifiedTime?: FileTime, lastAccessTime?: FileTime, createTime?: FileTime): Promise<void>;
 }

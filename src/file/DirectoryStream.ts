@@ -1,5 +1,5 @@
 import {Closeable} from "../Closeable";
 
-export interface DirectoryStream<T> extends Iterable<T>, Closeable {
+export interface DirectoryStream<T> extends AsyncIterable<T>, Closeable {
 
 }

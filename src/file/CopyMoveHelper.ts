@@ -66,18 +66,18 @@ export async function copyToForeignTarget(source: Path, target: Path, options?: 
     const opts: CopyOptions = CopyOptions.parse(options);
     const linkOptions: LinkOption[] = opts.followLinks ? [] : [LinkOption.NOFOLLOW_LINKS];
 
-    const attrs = Files.readAttributesByName(source, "basic", linkOptions);
+    const attrs = await Files.readAttributesByName(source, "basic", linkOptions);
     if (attrs.isSymbolicLink()) {
         throw new IOException("Copying of symbolic links not supported");
     }
     if (opts.replaceExisting) {
-        Files.deleteIfExists(target);
-    } else if (Files.exists(target)) {
+        await Files.deleteIfExists(target);
+    } else if (await Files.exists(target)) {
         throw new FileAlreadyExistsException(target.toString());
     }
 
     if (attrs.isDirectory()) {
-        Files.createDirectory(target);
+        await Files.createDirectory(target);
     } else {
         let inputStream: ReadableStream | null = null;
         try {
@@ -92,16 +92,16 @@ export async function copyToForeignTarget(source: Path, target: Path, options?: 
 
     // copy basic attributes to target
     if (opts.copyAttributes) {
-        const view = Files.getFileAttributeView(target, "basic") as BasicFileAttributeView;
+        const view = await Files.getFileAttributeView(target, "basic") as BasicFileAttributeView;
         try {
-            view.setTimes(
+            await view.setTimes(
                 attrs.lastModifiedTime(),
                 attrs.lastAccessTime(),
                 attrs.creationTime(),
             );
         } catch (x) {
             // rollback
-            Files.delete(target);
+            await Files.delete(target);
             throw x;
         }
     }
@@ -114,5 +114,5 @@ export async function copyToForeignTarget(source: Path, target: Path, options?: 
  */
 export async function moveToForeignTarget(source: Path, target: Path, options?: CopyOption[]) {
     await copyToForeignTarget(source, target, convertMoveToCopyOptions(options));
-    Files.delete(source);
+    await Files.delete(source);
 }

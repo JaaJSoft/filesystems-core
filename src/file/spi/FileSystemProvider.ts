@@ -14,15 +14,15 @@ import {DirectoryStream} from "../DirectoryStream";
 export abstract class FileSystemProvider {
     public abstract getScheme(): string;
 
-    public abstract newFileSystemFromUrl(uri: URL, env: Map<string, any>): FileSystem;
+    public abstract newFileSystemFromUrl(uri: URL, env: Map<string, any>): Promise<FileSystem>;
 
-    public newFileSystemFromPath(_path: Path, _env: Map<string, any>): FileSystem {
+    public newFileSystemFromPath(_path: Path, _env: Map<string, any>): Promise<FileSystem> {
         throw new UnsupportedOperationException();
     }
 
-    public abstract getFileSystem(url: URL): FileSystem ;
+    public abstract getFileSystem(url: URL): Promise<FileSystem> ;
 
-    public abstract getPath(url: URL): Path ;
+    public abstract getPath(url: URL): Promise<Path> ;
 
     public newInputStream(path: Path, options?: OpenOption[]): ReadableStream<Uint8Array> {
         if (options && options.length > 0) {
@@ -77,9 +77,9 @@ export abstract class FileSystemProvider {
 
     public abstract newDirectoryStream(dir: Path, acceptFilter: (path?: Path) => boolean): DirectoryStream<Path>;
 
-    public abstract createFile(path: Path, attrs?: FileAttribute<any>[]): void;
+    public abstract createFile(path: Path, attrs?: FileAttribute<any>[]): Promise<void>;
 
-    public abstract createDirectory(dir: Path, attrs?: FileAttribute<any>[]): void;
+    public abstract createDirectory(dir: Path, attrs?: FileAttribute<any>[]): Promise<void>;
 
     /**
      * Creates a symbolic link to a target. This method works in exactly the
@@ -104,7 +104,7 @@ export abstract class FileSystemProvider {
      *          if a file with the name already exists <i>(optional specific
      *          exception)</i>
      */
-    public createSymbolicLink(link: Path, target: Path, attrs?: FileAttribute<any>[]): void {
+    public createSymbolicLink(link: Path, target: Path, attrs?: FileAttribute<any>[]): Promise<void> {
         throw new UnsupportedOperationException();
     }
 
@@ -128,7 +128,7 @@ export abstract class FileSystemProvider {
      *          if the entry could not otherwise be created because a file of
      *          that name already exists <i>(optional specific exception)</i>
      */
-    public createLink(link: Path, existing: Path): void {
+    public createLink(link: Path, existing: Path): Promise<void> {
         throw new UnsupportedOperationException();
     }
 
@@ -136,20 +136,20 @@ export abstract class FileSystemProvider {
      * Reads the symbolic link at the given path.
      * @param {Path} link - The symbolic link to read.
      */
-    public readSymbolicLink(link: Path): Path {
+    public readSymbolicLink(link: Path): Promise<Path> {
         throw new UnsupportedOperationException();
     }
 
-    public abstract delete(path: Path): void;
+    public abstract delete(path: Path): Promise<void>;
 
     /**
      * If the file exists, delete it and return true. Otherwise, return false
      * @param {Path} path - The path to the file or directory to delete.
      * @returns A boolean value.
      */
-    public deleteIfExists(path: Path): boolean {
+    public async deleteIfExists(path: Path): Promise<boolean> {
         try {
-            this.delete(path);
+            await this.delete(path);
             return true;
         } catch (e) {
             return false;
@@ -160,20 +160,20 @@ export abstract class FileSystemProvider {
 
     public abstract move(source: Path, target: Path, options?: CopyOption[]): Promise<void>;
 
-    public abstract isSameFile(obj1: Path, obj2: Path): boolean;
+    public abstract isSameFile(obj1: Path, obj2: Path): Promise<boolean>;
 
-    public abstract isHidden(obj: Path): boolean;
+    public abstract isHidden(obj: Path): Promise<boolean>;
 
-    public abstract getFileStore(path: Path): FileStore;
+    public abstract getFileStore(path: Path): Promise<FileStore>;
 
-    public abstract checkAccess(obj: Path, modes?: AccessMode[]): void;
+    public abstract checkAccess(obj: Path, modes?: AccessMode[]): Promise<void>;
 
-    public abstract readAttributesByName(path: Path, name?: AttributeViewName, options?: LinkOption[]): BasicFileAttributes;
+    public abstract readAttributesByName(path: Path, name?: AttributeViewName, options?: LinkOption[]): Promise<BasicFileAttributes>;
 
-    public abstract readAttributes(path: Path, attributes: string, options?: LinkOption[]): Map<string, any>;
+    public abstract readAttributes(path: Path, attributes: string, options?: LinkOption[]): Promise<Map<string, any>>;
 
-    public abstract getFileAttributeView(path: Path, name?: AttributeViewName, options?: LinkOption[]): FileAttributeView;
+    public abstract getFileAttributeView(path: Path, name?: AttributeViewName, options?: LinkOption[]): Promise<FileAttributeView>;
 
-    public abstract setAttribute(path: Path, attribute: string, value: Object, options?: LinkOption[]): void;
+    public abstract setAttribute(path: Path, attribute: string, value: Object, options?: LinkOption[]): Promise<void>;
 
 }
