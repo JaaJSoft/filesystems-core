@@ -3,10 +3,10 @@ import {Path} from "./Path";
 import {FileStore} from "./FileStore";
 import {PathMatcher} from "./PathMatcher";
 import {AttributeViewName, UserPrincipalLookupService} from "./attribute";
-import {Closeable} from "../Closeable";
+import {AsyncCloseable} from "../Closeable";
 
 /* A common interface for all file systems. */
-export abstract class FileSystem implements Closeable {
+export abstract class FileSystem implements AsyncCloseable {
 
     protected constructor() {
         //
@@ -14,7 +14,7 @@ export abstract class FileSystem implements Closeable {
 
     public abstract provider(): FileSystemProvider;
 
-    public abstract close(): void
+    public abstract close(): Promise<void>
 
     public abstract isOpen(): boolean;
 
@@ -33,5 +33,5 @@ export abstract class FileSystem implements Closeable {
 
     public abstract getUserPrincipalLookupService(): UserPrincipalLookupService;
 
-    public abstract getPath(first: string, more?: string[]): Promise<Path>;
+    public abstract getPath(first: string, more?: string[]): Path;
 }
