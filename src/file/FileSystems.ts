@@ -11,7 +11,7 @@ export class FileSystems {
      * Get the default file system.
      * @returns The default file system.
      */
-    public static getDefault(): FileSystem {
+    public static async getDefault(): Promise<FileSystem> {
         const defaultProvider: FileSystemProvider | undefined = FileSystemProviders.getProvider("file");
         if (defaultProvider) {
             return defaultProvider.getFileSystem(FileSystems.ROOT_URL);
@@ -24,14 +24,14 @@ export class FileSystems {
      * @param {URL} url - URL
      * @returns A FileSystem object
      */
-    public static getFileSystem(url: URL): FileSystem | null {
-        const scheme = url.protocol.toLowerCase();
+    public static async getFileSystem(url: URL): Promise<FileSystem> {
+        const scheme = FileSystemProviders.cleanScheme(url.protocol);
         if (!scheme) {
             throw new IllegalArgumentException("Missing scheme");
         }
         const provider: FileSystemProvider | undefined = FileSystemProviders.getProvider(scheme);
         if (provider) {
-            return provider.getFileSystem(url);
+            return await provider.getFileSystem(url);
         }
         throw new ProviderNotFoundException(`Provider "${scheme}" not found`);
     }
@@ -46,7 +46,7 @@ export class FileSystems {
      * @param env - A map of environment variables to be used by the file system provider.
      * @returns A FileSystem object
      */
-    public newFileSystem(uri: URL, env: Map<string, any>): FileSystem {
+    public async newFileSystem(uri: URL, env: Map<string, any>): Promise<FileSystem> {
         const scheme: string = uri.protocol;
 
         // check installed providers

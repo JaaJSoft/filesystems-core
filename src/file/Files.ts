@@ -87,7 +87,7 @@ export class Files {
      * @param acceptFilter
      * @returns A DirectoryStream<Path>
      */
-    public static newDirectoryStream(dir: Path, acceptFilter: (path?: Path) => boolean = _ => true): DirectoryStream<Path> {
+    public static async newDirectoryStream(dir: Path, acceptFilter: (path?: Path) => boolean = _ => true): Promise<DirectoryStream<Path>> {
         return this.provider(dir).newDirectoryStream(dir, acceptFilter);
     }
 
@@ -98,7 +98,7 @@ export class Files {
      * @param {string} glob - The glob pattern to filter the directory stream.
      * @returns A DirectoryStream<Path>
      */
-    public static newDirectoryStreamFilteredWithGlob(dir: Path, glob: string): DirectoryStream<Path> {
+    public static async newDirectoryStreamFilteredWithGlob(dir: Path, glob: string): Promise<DirectoryStream<Path>> {
         if (glob === "*") {
             return this.newDirectoryStream(dir);
         }
@@ -115,8 +115,8 @@ export class Files {
      * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
      * @returns The path
      */
-    public static createFile(path: Path, attrs?: FileAttribute<any>[]): Path { // TODO use  writeableStream ?
-        this.provider(path).createFile(path, attrs);
+    public static async createFile(path: Path, attrs?: FileAttribute<any>[]): Promise<Path> { // TODO use  writeableStream ?
+        await this.provider(path).createFile(path, attrs);
         return path;
     }
 
@@ -126,8 +126,8 @@ export class Files {
      * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
      * @returns The path of the directory that was created.
      */
-    public static createDirectory(dir: Path, attrs?: FileAttribute<any>[]): Path {
-        this.provider(dir).createDirectory(dir, attrs);
+    public static async createDirectory(dir: Path, attrs?: FileAttribute<any>[]): Promise<Path> {
+        await this.provider(dir).createDirectory(dir, attrs);
         return dir;
     }
 
@@ -137,9 +137,9 @@ export class Files {
      * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
      * @returns The path of the directory that was created.
      */
-    public static createDirectories(dir: Path, attrs?: FileAttribute<any>[]): Path {
+    public static async createDirectories(dir: Path, attrs?: FileAttribute<any>[]): Promise<Path> {
         try {
-            this.createAndCheckIsDirectory(dir, attrs);
+            await this.createAndCheckIsDirectory(dir, attrs);
             return dir;
         } catch (x) {
             if (x instanceof FileAlreadyExistsException) {
@@ -161,7 +161,7 @@ export class Files {
         let parent: Path | null = dir.getParent();
         while (parent != null) {
             try {
-                this.provider(parent).checkAccess(parent);
+                await this.provider(parent).checkAccess(parent);
                 break;
             } catch (x) {
                 if (x instanceof NoSuchFileException) {
@@ -185,19 +185,19 @@ export class Files {
         }
         // create directories
         let child = parent;
-        for (let name of parent.relativize(dir)) {
+        for await (let name of parent.relativize(dir)) {
             child = child.resolve(name);
-            this.createAndCheckIsDirectory(child, attrs);
+            await this.createAndCheckIsDirectory(child, attrs);
         }
         return dir;
     }
 
-    private static createAndCheckIsDirectory(dir: Path, attrs?: FileAttribute<any>[]) {
+    private static async createAndCheckIsDirectory(dir: Path, attrs?: FileAttribute<any>[]): Promise<void> {
         try {
-            this.createDirectory(dir, attrs);
+            await this.createDirectory(dir, attrs);
         } catch (x) {
             if (x instanceof FileAlreadyExistsException) {
-                if (!this.isDirectory(dir, [LinkOption.NOFOLLOW_LINKS])) {
+                if (!await this.isDirectory(dir, [LinkOption.NOFOLLOW_LINKS])) {
                     throw x;
                 }
             } else {
@@ -215,7 +215,7 @@ export class Files {
      * characters long
      * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
      */
-    public static createTempFileIn(path?: Path, prefix?: string, suffix?: string, attrs?: FileAttribute<any>[]): Path {
+    public static async createTempFileIn(path?: Path, prefix?: string, suffix?: string, attrs?: FileAttribute<any>[]): Promise<Path> {
         throw new Error("Method not implemented.");
     }
 
@@ -229,7 +229,7 @@ export class Files {
      * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
      * @returns A Path object
      */
-    public static createTempFile(prefix: string, suffix: string, attrs?: FileAttribute<any>[]): Path {
+    public static async createTempFile(prefix: string, suffix: string, attrs?: FileAttribute<any>[]): Promise<Path> {
         return this.createTempFileIn(undefined, prefix, suffix, attrs);
     }
 
@@ -239,7 +239,7 @@ export class Files {
      * @param {string} prefix - The prefix of the temporary directory's name.
      * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
      */
-    public static createTempDirectoryIn(path?: Path, prefix?: string, attrs?: FileAttribute<any>[]): Path {
+    public static async createTempDirectoryIn(path?: Path, prefix?: string, attrs?: FileAttribute<any>[]): Promise<Path> {
         throw new Error("Method not implemented.");
     }
 
@@ -250,7 +250,7 @@ export class Files {
      * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
      * @returns A Path object
      */
-    public static createTempDirectory(prefix: string, attrs?: FileAttribute<any>[]): Path {
+    public static async createTempDirectory(prefix: string, attrs?: FileAttribute<any>[]): Promise<Path> {
         return this.createTempDirectoryIn(undefined, prefix, attrs);
     }
 
@@ -261,8 +261,8 @@ export class Files {
      * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
      * @returns The link
      */
-    public static createSymbolicLink(link: Path, target: Path, attrs?: FileAttribute<any>[]): Path {
-        this.provider(link).createSymbolicLink(link, target, attrs);
+    public static async createSymbolicLink(link: Path, target: Path, attrs?: FileAttribute<any>[]): Promise<Path> {
+        await this.provider(link).createSymbolicLink(link, target, attrs);
         return link;
     }
 
@@ -272,8 +272,8 @@ export class Files {
      * @param {Path} existing - The path to the file that you want to link to.
      * @returns The link
      */
-    public static createLink(link: Path, existing: Path): Path {
-        this.provider(link).createLink(link, existing);
+    public static async createLink(link: Path, existing: Path): Promise<Path> {
+        await this.provider(link).createLink(link, existing);
         return link;
     }
 
@@ -281,8 +281,8 @@ export class Files {
      * It deletes the file at the given path.
      * @param {Path} path - The path to the file or directory to delete.
      */
-    public static delete(path: Path): void {
-        this.provider(path).delete(path);
+    public static async delete(path: Path): Promise<void> {
+        await this.provider(path).delete(path);
     }
 
     /**
@@ -290,7 +290,7 @@ export class Files {
      * @param {Path} path - The path to the file or directory to delete.
      * @returns A boolean value.
      */
-    public static deleteIfExists(path: Path): boolean {
+    public static async deleteIfExists(path: Path): Promise<boolean> {
         return this.provider(path).deleteIfExists(path);
     }
 
@@ -304,9 +304,12 @@ export class Files {
      * @returns The target path.
      */
     public static async copy(source: Path, target: Path, options?: CopyOption[]): Promise<Path> {
-        const provider = this.provider(source);
-        if (this.provider(target) === provider) {
-            await provider.copy(source, target, options);
+        const [sourceProvider, targetProvider] = await Promise.all([
+            this.provider(source),
+            this.provider(target),
+        ]);
+        if (targetProvider === sourceProvider) {
+            await sourceProvider.copy(source, target, options);
         } else {
             await copyToForeignTarget(source, target, options);
         }
@@ -321,9 +324,12 @@ export class Files {
      * @returns The target path.
      */
     public static async move(source: Path, target: Path, options?: CopyOption[]): Promise<Path> {
-        const provider = this.provider(source);
-        if (this.provider(target) === provider) {
-            await provider.move(source, target, options);
+        const [sourceProvider, targetProvider] = await Promise.all([
+            this.provider(source),
+            this.provider(target),
+        ]);
+        if (targetProvider === sourceProvider) {
+            await sourceProvider.move(source, target, options);
         } else {
             await moveToForeignTarget(source, target, options);
         }
@@ -337,7 +343,7 @@ export class Files {
      * @param {Path} link - Path
      * @returns A Path object.
      */
-    public static readSymbolicLink(link: Path): Path {
+    public static async readSymbolicLink(link: Path): Promise<Path> {
         return this.provider(link).readSymbolicLink(link);
     }
 
@@ -347,7 +353,7 @@ export class Files {
      * @param {Path} path - The path to the file or directory.
      * @returns A FileStore object
      */
-    public static getFileStore(path: Path): FileStore {
+    public static async getFileStore(path: Path): Promise<FileStore> {
         return this.provider(path).getFileStore(path);
     }
 
@@ -357,11 +363,11 @@ export class Files {
      * @param {Path} path2 - Path - The path to compare to.
      * @returns A boolean value.
      */
-    public static isSameFile(path: Path, path2: Path): boolean {
+    public static async isSameFile(path: Path, path2: Path): Promise<boolean> {
         return this.provider(path).isSameFile(path, path2);
     }
 
-    public static isHidden(path: Path): boolean {
+    public static async isHidden(path: Path): Promise<boolean> {
         return this.provider(path).isHidden(path);
     }
 
@@ -371,7 +377,7 @@ export class Files {
      * @param {Path} path - The path to the file to be probed.
      * @returns The content type of the file.
      */
-    public static probeContentType(path: Path): string {
+    public static async probeContentType(path: Path): Promise<string> {
         for (let detector of FileTypeDetectors.installedDetectors) {
             const result = detector.probeContentType(path);
             if (result) {
@@ -390,7 +396,7 @@ export class Files {
      * @param {LinkOption} [options?] - LinkOption
      * @returns BasicFileAttributes
      */
-    public static readAttributesByName(path: Path, name?: AttributeViewName, options?: LinkOption[]): BasicFileAttributes {
+    public static async readAttributesByName(path: Path, name?: AttributeViewName, options?: LinkOption[]): Promise<BasicFileAttributes> {
         return this.provider(path).readAttributesByName(path, name, options);
     }
 
@@ -401,7 +407,7 @@ export class Files {
      * @param {LinkOption[]} [options] - LinkOption[]
      * @returns A Map of the attributes of the file at the given path.
      */
-    public static readAttributes(path: Path, attributes: string, options?: LinkOption[]): Map<string, Object> {
+    public static async readAttributes(path: Path, attributes: string, options?: LinkOption[]): Promise<Map<string, Object>> {
         return this.provider(path).readAttributes(path, attributes, options);
     }
 
@@ -424,8 +430,8 @@ export class Files {
      * @param {LinkOption[]} [options] - An array of LinkOption objects.
      * @returns The path that was passed in.
      */
-    public static setAttribute(path: Path, attribute: string, value: Object, options?: LinkOption[]): Path {
-        this.provider(path).setAttribute(path, attribute, value, options);
+    public static async setAttribute(path: Path, attribute: string, value: Object, options?: LinkOption[]): Promise<Path> {
+        await this.provider(path).setAttribute(path, attribute, value, options);
         return path;
     }
 
@@ -436,11 +442,11 @@ export class Files {
      * @param {LinkOption[]} [options] - An array of LinkOption objects.
      * @returns The value of the attribute.
      */
-    public static getAttribute(path: Path, attribute: string, options?: LinkOption[]): Object | undefined {
+    public static async getAttribute(path: Path, attribute: string, options?: LinkOption[]): Promise<Object | undefined> {
         // only one attribute should be read
         if (attribute.indexOf("*") >= 0 || attribute.indexOf(",") >= 0)
             throw new IllegalArgumentException(attribute);
-        const map = this.readAttributes(path, attribute, options);
+        const map = await this.readAttributes(path, attribute, options);
         assert.equal(map.size, 1);
         let name;
         let pos = attribute.indexOf(":");
@@ -459,8 +465,8 @@ export class Files {
      * @param {LinkOption[]} [options] - LinkOption[]
      * @returns A Set of PosixFilePermission
      */
-    public static getPosixFilePermissions(path: Path, options?: LinkOption[]): Set<PosixFilePermission> {
-        return (this.readAttributesByName(path, "posix", options) as PosixFileAttributes).permissions();
+    public static async getPosixFilePermissions(path: Path, options?: LinkOption[]): Promise<Set<PosixFilePermission>> {
+        return (await this.readAttributesByName(path, "posix", options) as PosixFileAttributes).permissions();
     }
 
     /**
@@ -469,12 +475,12 @@ export class Files {
      * @param perms - Set<PosixFilePermission>
      * @returns A Path object.
      */
-    public static setPosixFilePermissions(path: Path, perms: Set<PosixFilePermission>): Path {
+    public static async setPosixFilePermissions(path: Path, perms: Set<PosixFilePermission>): Promise<Path> {
         const view = this.getFileAttributeView(path, "posix") as PosixFileAttributeView;
         if (!view) {
             throw new UnsupportedOperationException();
         }
-        view.setPermissions(perms);
+        await view.setPermissions(perms);
         return path;
     }
 
@@ -484,7 +490,7 @@ export class Files {
      * @param {LinkOption[]} [options] - An array of LinkOption objects.
      * @returns A UserPrincipal object.
      */
-    public static getOwner(path: Path, options?: LinkOption[]): UserPrincipal {
+    public static async getOwner(path: Path, options?: LinkOption[]): Promise<UserPrincipal> {
         const view = this.getFileAttributeView(path, "owner", options) as FileOwnerAttributeView;
         if (!view) {
             throw new UnsupportedOperationException();
@@ -498,12 +504,12 @@ export class Files {
      * @param {UserPrincipal} owner - The user principal to set as the owner of the file.
      * @returns A Path object.
      */
-    public static setOwner(path: Path, owner: UserPrincipal): Path {
+    public static async setOwner(path: Path, owner: UserPrincipal): Promise<Path> {
         const view = this.getFileAttributeView(path, "owner") as FileOwnerAttributeView;
         if (!view) {
             throw new UnsupportedOperationException();
         }
-        view.setOwner(owner);
+        await view.setOwner(owner);
         return path;
     }
 
@@ -512,9 +518,9 @@ export class Files {
      * @param {Path} path - Path
      * @returns A boolean value.
      */
-    public static isSymbolicLink(path: Path): boolean {
+    public static async isSymbolicLink(path: Path): Promise<boolean> {
         try {
-            return this.readAttributesByName(path, undefined, [LinkOption.NOFOLLOW_LINKS]).isSymbolicLink();
+            return (await this.readAttributesByName(path, undefined, [LinkOption.NOFOLLOW_LINKS])).isSymbolicLink();
         } catch (ioe) {
             return false;
         }
@@ -526,9 +532,9 @@ export class Files {
      * @param {LinkOption[]} [options] - LinkOption[]
      * @returns A boolean value.
      */
-    public static isDirectory(path: Path, options?: LinkOption[]): boolean {
+    public static async isDirectory(path: Path, options?: LinkOption[]): Promise<boolean> {
         try {
-            return this.readAttributesByName(path, undefined, options).isDirectory();
+            return (await this.readAttributesByName(path, undefined, options)).isDirectory();
         } catch (ioe) {
             return false;
         }
@@ -540,9 +546,9 @@ export class Files {
      * @param {LinkOption[]} [options] - LinkOption[]
      * @returns A boolean value.
      */
-    public static isRegularFile(path: Path, options?: LinkOption[]): boolean {
+    public static async isRegularFile(path: Path, options?: LinkOption[]): Promise<boolean> {
         try {
-            return this.readAttributesByName(path, undefined, options).isRegularFile();
+            return (await this.readAttributesByName(path, undefined, options)).isRegularFile();
         } catch (ioe) {
             return false;
         }
@@ -554,8 +560,8 @@ export class Files {
      * @param {LinkOption[]} [options] - An array of LinkOption objects.
      * @returns The last modified time of the file.
      */
-    public static getLastModifiedTime(path: Path, options?: LinkOption[]): FileTime {
-        return this.readAttributesByName(path, undefined, options).lastModifiedTime();
+    public static async getLastModifiedTime(path: Path, options?: LinkOption[]): Promise<FileTime> {
+        return (await this.readAttributesByName(path, undefined, options)).lastModifiedTime();
     }
 
     /**
@@ -565,8 +571,8 @@ export class Files {
      * @param {FileTime} time - FileTime
      * @returns A Path object.
      */
-    public static setLastModifiedTime(path: Path, time: FileTime): Path {
-        (this.getFileAttributeView(path, "basic") as BasicFileAttributeView)
+    public static async setLastModifiedTime(path: Path, time: FileTime): Promise<Path> {
+        await (this.getFileAttributeView(path, "basic") as BasicFileAttributeView)
             .setTimes(time, undefined, undefined);
         return path;
     }
@@ -576,8 +582,8 @@ export class Files {
      * @param {Path} path - Path - the path to the file
      * @returns The size of the file.
      */
-    public static size(path: Path): bigint {
-        return this.readAttributesByName(path).size();
+    public static async size(path: Path): Promise<bigint> {
+        return (await this.readAttributesByName(path)).size();
     }
 
     // -- Accessibility --
@@ -592,13 +598,13 @@ export class Files {
      * @param {LinkOption[]} [options] - LinkOption[]
      * @returns A boolean value.
      */
-    public static exists(path: Path, options?: LinkOption[]): boolean {
+    public static async exists(path: Path, options?: LinkOption[]): Promise<boolean> {
         try {
             if (this.followLinks(options)) {
-                this.provider(path).checkAccess(path);
+                await this.provider(path).checkAccess(path);
             } else {
                 // attempt to read attributes without following links
-                this.readAttributesByName(path, "basic", [LinkOption.NOFOLLOW_LINKS]);
+                await this.readAttributesByName(path, "basic", [LinkOption.NOFOLLOW_LINKS]);
             }
             // file exists
             return true;
@@ -617,13 +623,13 @@ export class Files {
      * @param {LinkOption[]} [options] - LinkOption[]
      * @returns A boolean value.
      */
-    public static notExists(path: Path, options?: LinkOption[]): boolean {
+    public static async notExists(path: Path, options?: LinkOption[]): Promise<boolean> {
         try {
             if (this.followLinks(options)) {
-                this.provider(path).checkAccess(path);
+                await this.provider(path).checkAccess(path);
             } else {
                 // attempt to read attributes without following links
-                this.readAttributesByName(path, "basic", [LinkOption.NOFOLLOW_LINKS]);
+                await this.readAttributesByName(path, "basic", [LinkOption.NOFOLLOW_LINKS]);
             }
             // file exists
             return false;
@@ -645,9 +651,9 @@ export class Files {
      * @param {AccessMode[]} [modes] - An array of AccessMode objects.
      * @returns A boolean value.
      */
-    private static isAccessible(path: Path, modes?: AccessMode[]): boolean {
+    private static async isAccessible(path: Path, modes?: AccessMode[]): Promise<boolean> {
         try {
-            this.provider(path).checkAccess(path, modes);
+            await this.provider(path).checkAccess(path, modes);
             return true;
         } catch (x) {
             if (x instanceof IOException) {
@@ -662,7 +668,7 @@ export class Files {
      * @param {Path} path - Path
      * @returns A boolean value.
      */
-    public static isReadable(path: Path): boolean {
+    public static async isReadable(path: Path): Promise<boolean> {
         return this.isAccessible(path, [AccessMode.READ]);
     }
 
@@ -671,7 +677,7 @@ export class Files {
      * @param {Path} path - Path
      * @returns A boolean value.
      */
-    public static isWritable(path: Path): boolean {
+    public static async isWritable(path: Path): Promise<boolean> {
         return this.isAccessible(path, [AccessMode.WRITE]);
     }
 
@@ -680,7 +686,7 @@ export class Files {
      * @param {Path} path - The path to the file or directory.
      * @returns A boolean value.
      */
-    public static isExecutable(path: Path): boolean {
+    public static async isExecutable(path: Path): Promise<boolean> {
         return this.isAccessible(path, [AccessMode.EXECUTE]);
     }
 
@@ -694,11 +700,11 @@ export class Files {
      * @param {FileVisitOption[]} options - FileVisitOption[]
      * @returns The start path.
      */
-    public static walkFileTree(start: Path, visitor: FileVisitor<Path>, maxDepth: number = Number.MAX_VALUE, options: FileVisitOption[] = []): Path {
+    public static async walkFileTree(start: Path, visitor: FileVisitor<Path>, maxDepth: number = Number.MAX_VALUE, options: FileVisitOption[] = []): Promise<Path> {
         let walker: FileTreeWalker | undefined = undefined;
         try {
             walker = new FileTreeWalker(options, maxDepth);
-            let ev: FileTreeWalkerEvent | null = walker.walk(start);
+            let ev: FileTreeWalkerEvent | null = await walker.walk(start);
             do {
                 let result: FileVisitResult;
                 switch (ev?.type()) {
@@ -739,7 +745,7 @@ export class Files {
                         walker.skipRemainingSiblings();
                     }
                 }
-                ev = walker.next();
+                ev = await walker.next();
             } while (Objects.nonNullUndefined(ev));
         } finally {
             if (walker) {
@@ -762,9 +768,13 @@ export class Files {
      * @param {OpenOption[]} [options] - An array of options specifying how the file is opened.
      * @returns A ReadableStream<string>
      */
-    public static newBufferedReader(path: Path, charsets: string = "utf-8", options?: OpenOption[]): ReadableStream<string> {
-        const textDecoderStream: TextDecoderStream = this.provider(path).newTextDecoder(charsets);
-        const inputStream: ReadableStream<Uint8Array> = Files.newInputStream(path, options);
+    public static async newBufferedReader(path: Path, charsets: string = "utf-8", options?: OpenOption[]): Promise<ReadableStream<string>> {
+        const [provider, inputStream] = await Promise.all([
+            this.provider(path),
+            Files.newInputStream(path, options),
+        ]);
+        const textDecoderStream: TextDecoderStream = provider.newTextDecoder(charsets);
+
         inputStream.pipeTo(textDecoderStream.writable);
         return textDecoderStream.readable;
     }
@@ -776,9 +786,13 @@ export class Files {
      * @param {OpenOption[]} [options] - OpenOption[]
      * @returns A WritableStream<string>
      */
-    public static newBufferedWriter(path: Path, options?: OpenOption[]): WritableStream<string> { // TODO support charset
-        const textEncoderStream: TextEncoderStream = this.provider(path).newTextEncoder();
-        const outputStream: WritableStream<Uint8Array> = Files.newOutputStream(path, options);
+    public static async newBufferedWriter(path: Path, options?: OpenOption[]): Promise<WritableStream<string>> { // TODO support charset
+        const [provider, outputStream] = await Promise.all([
+            this.provider(path),
+            Files.newOutputStream(path, options),
+        ]);
+
+        const textEncoderStream: TextEncoderStream = provider.newTextEncoder();
         textEncoderStream.readable.pipeTo(outputStream);
         return textEncoderStream.writable;
     }
@@ -807,7 +821,7 @@ export class Files {
         let se: SecurityException | undefined;
         if (replaceExisting) {
             try {
-                this.deleteIfExists(target);
+                await this.deleteIfExists(target);
             } catch (e) {
                 if (e instanceof SecurityException) {
                     se = e;
@@ -819,7 +833,7 @@ export class Files {
         let outputStream: WritableStream | undefined;
         try {
             outputStream = this.newOutputStream(target, [StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE]);
-            await inputStream.pipeTo(outputStream);
+            inputStream.pipeTo(outputStream);
         } catch (x) {
             if (x instanceof FileAlreadyExistsException) {
                 if (se) {
@@ -846,7 +860,7 @@ export class Files {
         let inputStream: ReadableStream | undefined;
         try {
             inputStream = this.newInputStream(source);
-            await inputStream.pipeTo(outputStream);
+            inputStream.pipeTo(outputStream);
         } finally {
             await inputStream?.cancel();
         }
@@ -891,7 +905,7 @@ export class Files {
     public static async readString(path: Path, charset: string = "utf-8"): Promise<string> {
         let inputStream: ReadableStream<string> | undefined = undefined;
         try {
-            inputStream = this.newBufferedReader(path, charset);
+            inputStream = await this.newBufferedReader(path, charset);
             const reader: ReadableStreamDefaultReader<string> = inputStream.getReader();
             let done = false;
             const values = [];
@@ -961,7 +975,7 @@ export class Files {
         let writableStream: WritableStream<string> | undefined;
         let writer: WritableStreamDefaultWriter<string> | undefined;
         try {
-            writableStream = Files.newBufferedWriter(path, options);
+            writableStream = await Files.newBufferedWriter(path, options);
             writer = writableStream.getWriter();
             await writer.write(string);
             writer.releaseLock();
@@ -981,11 +995,13 @@ export class Files {
      * @param {Path} dir - Path - The directory to list
      * @returns An array of Path objects.
      */
-    public static list(dir: Path): Path[] {
-        const ds: DirectoryStream<Path> = Files.newDirectoryStream(dir);
+    public static async list(dir: Path): Promise<Path[]> {
+        const ds: DirectoryStream<Path> = await Files.newDirectoryStream(dir);
         let files: Path[] = [];
         try {
-            files = [...new Set([...ds])];
+            for await (let path of ds) {
+                files.push(path);
+            }
         } catch (e) {
             try {
                 ds.close();
@@ -1006,8 +1022,8 @@ export class Files {
      * @param {FileVisitOption[]} [options] - FileVisitOption[]
      * @returns An iterable of Path objects.
      */
-    public static walk(start: Path, maxDepth: number = Number.MAX_VALUE, options?: FileVisitOption[]): Iterable<Path> {
-        return new FileTreeIterator(start, maxDepth, options).toIterablePath();
+    public static async walk(start: Path, maxDepth: number = Number.MAX_VALUE, options?: FileVisitOption[]): Promise<AsyncIterable<Path>> {
+        return (await new FileTreeIterator(maxDepth, options).init(start)).toIterablePath();
     }
 
     /**
@@ -1019,8 +1035,8 @@ export class Files {
      * @param {FileVisitOption[]} [options] - FileVisitOption[]
      * @returns An array of Paths
      */
-    public static find(start: Path, matcher: (path: Path, attrs: BasicFileAttributes | undefined) => boolean, maxDepth: number = Number.MAX_VALUE, options?: FileVisitOption[]): Iterable<Path> {
-        return new FileTreeIterator(start, maxDepth, options).toIterablePath(matcher);
+    public static async find(start: Path, matcher: (path: Path, attrs: BasicFileAttributes | undefined) => boolean, maxDepth: number = Number.MAX_VALUE, options?: FileVisitOption[]): Promise<AsyncIterable<Path>> {
+        return (await new FileTreeIterator(maxDepth, options).init(start)).toIterablePath(matcher);
     }
 
 

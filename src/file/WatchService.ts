@@ -1,8 +1,8 @@
-import {Closeable} from "../Closeable";
+import {AsyncCloseable} from "../Closeable";
 import {WatchKey} from "./WatchKey";
 import {ChronoUnit} from "@js-joda/core";
 
-export interface WatchService extends Closeable {
+export interface WatchService extends AsyncCloseable {
 
     /**
      * Closes this watch service.
@@ -21,7 +21,7 @@ export interface WatchService extends Closeable {
      * @throws  IOException
      *          if an I/O error occurs
      */
-    close(): void;
+    close(): Promise<void>;
 
     /**
      * Retrieves and removes the next watch key, waiting if necessary up to the
@@ -41,7 +41,7 @@ export interface WatchService extends Closeable {
      * @throws  InterruptedException
      *          if interrupted while waiting
      */
-    poll(timeout?: bigint, unit?: ChronoUnit): WatchKey | null;
+    poll(timeout?: bigint, unit?: ChronoUnit): Promise<WatchKey | null>;
 
     /**
      * Retrieves and removes next watch key, waiting if none are yet present.
@@ -54,6 +54,6 @@ export interface WatchService extends Closeable {
      * @throws  InterruptedException
      *          if interrupted while waiting
      */
-    take(): WatchKey;
+    take(): Promise<WatchKey>;
 
 }

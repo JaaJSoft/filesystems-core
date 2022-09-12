@@ -7,14 +7,18 @@ import {BasicFileAttributes} from "./attribute";
 import {IllegalStateException} from "../exception";
 
 
-export class FileTreeIterator implements Iterator<FileTreeWalkerEvent | null>, Closeable {
+export class FileTreeIterator implements AsyncIterator<FileTreeWalkerEvent | null>, Closeable {
     private readonly walker: FileTreeWalker;
     private nextEvent: FileTreeWalkerEvent | null = null;
 
 
-    constructor(start: Path, maxDepth: number, options?: FileVisitOption[]) {
+    constructor(maxDepth: number, options?: FileVisitOption[]) {
         this.walker = new FileTreeWalker(options ? options : [], maxDepth);
-        this.nextEvent = this.walker.walk(start);
+
+    }
+
+    public async init(start: Path): Promise<FileTreeIterator> {
+        this.nextEvent = await this.walker.walk(start);
         if (!(this.nextEvent.type() === FileTreeWalkerEventType.ENTRY || this.nextEvent.type() === FileTreeWalkerEventType.START_DIRECTORY)) {
             throw new Error("Should not get here");
         }
@@ -22,11 +26,12 @@ export class FileTreeIterator implements Iterator<FileTreeWalkerEvent | null>, C
         if (ioe) {
             throw ioe;
         }
+        return this;
     }
 
-    private fetchNextIfNeeded(): void {
+    private async fetchNextIfNeeded(): Promise<void> {
         if (!this.nextEvent) {
-            let ev = this.walker.next();
+            let ev = await this.walker.next();
             while (ev) {
                 const ioe = ev.ioeException();
                 if (ioe)
@@ -36,26 +41,26 @@ export class FileTreeIterator implements Iterator<FileTreeWalkerEvent | null>, C
                     this.nextEvent = ev;
                     return;
                 }
-                ev = this.walker.next();
+                ev = await this.walker.next();
             }
         }
     }
 
-    public hasNext(): boolean {
+    public async hasNext(): Promise<boolean> {
         if (!this.walker.isOpen()) {
             throw new IllegalStateException();
         }
-        this.fetchNextIfNeeded();
+        await this.fetchNextIfNeeded();
         return Objects.nonNullUndefined(this.nextEvent);
     }
 
-    public next(...args: [] | [undefined]): IteratorResult<FileTreeWalkerEvent | null, any> {
+    public async next(...args: [] | [undefined]): Promise<IteratorResult<FileTreeWalkerEvent | null, any>> {
         if (!this.walker.isOpen()) {
             throw new IllegalStateException();
         }
-        this.fetchNextIfNeeded();
+        await this.fetchNextIfNeeded();
         const result = this.nextEvent;
-        const done: boolean = !this.hasNext();
+        const done: boolean = !await this.hasNext();
         this.nextEvent = null;
         return {
             value: result,
@@ -77,13 +82,13 @@ export class FileTreeIterator implements Iterator<FileTreeWalkerEvent | null>, C
      * @param filter - (path: Path | undefined) => boolean = _ => true
      * @returns An iterable object that can be used to iterate over the paths in the tree.
      */
-    public toIterablePath(filter: (path: Path, attrs?: BasicFileAttributes) => boolean = () => true): Iterable<Path> {
-        return new PathIterable(this, filter) as Iterable<Path>;
+    public toIterablePath(filter: (path: Path, attrs?: BasicFileAttributes) => boolean = () => true): AsyncIterable<Path> {
+        return new PathIterable(this, filter) as AsyncIterable<Path>;
     }
 
 }
 
-class PathIterable implements Iterable<Path | null> {
+class PathIterable implements AsyncIterable<Path | null> {
     private readonly fileTreeIterator: FileTreeIterator;
     private readonly filter: (path: Path, attrs: BasicFileAttributes | undefined) => boolean;
 
@@ -93,17 +98,17 @@ class PathIterable implements Iterable<Path | null> {
         this.filter = filter;
     }
 
-    public [Symbol.iterator](): Iterator<Path | null> {
+    public [Symbol.asyncIterator](): AsyncIterator<Path | null> {
         const fileTreeIterator = this.fileTreeIterator;
         const filter = this.filter;
-        return new class implements Iterator<Path | null> {
-            public next(...args: [] | [undefined]): IteratorResult<Path | null, any> {
+        return new class implements AsyncIterator<Path | null> {
+            public async next(...args: [] | [undefined]): Promise<IteratorResult<Path | null, any>> {
                 try {
                     let path: Path | null = null;
                     let attrs: BasicFileAttributes | undefined;
                     let done: boolean | undefined = false;
                     do {
-                        const next: IteratorResult<FileTreeWalkerEvent | null, any> = fileTreeIterator.next(...args);
+                        const next: IteratorResult<FileTreeWalkerEvent | null, any> = await fileTreeIterator.next(...args);
                         path = next.value.file();
                         attrs = next.value.attributes();
                         done = next.done;
@@ -118,7 +123,7 @@ class PathIterable implements Iterable<Path | null> {
                 }
             }
 
-            public throw(_e?: any): IteratorResult<Path, any> {
+            public async throw(_e?: any): Promise<IteratorResult<Path, any>> {
                 fileTreeIterator.close();
                 return {
                     value: undefined,

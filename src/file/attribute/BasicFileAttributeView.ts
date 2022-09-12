@@ -19,8 +19,8 @@ export interface BasicFileAttributeView extends FileAttributeView {
      *
      * @return  the file attributes
      */
-    readAttributes(): BasicFileAttributes;
+    readAttributes(): Promise<BasicFileAttributes>;
 
-    setTimes(lastModifiedTime?: FileTime, lastAccessTime?: FileTime, createTime?: FileTime): void;
+    setTimes(lastModifiedTime?: FileTime, lastAccessTime?: FileTime, createTime?: FileTime): Promise<void>;
 
 }

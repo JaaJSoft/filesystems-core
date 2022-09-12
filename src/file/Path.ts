@@ -59,8 +59,8 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
     public abstract startsWith(other: Path): boolean;
 
     /* Checking if the path starts with the given string. */
-    public startsWithStr(other: string): boolean {
-        const path = this.getFileSystem().getPath(other);
+    public async startsWithStr(other: string): Promise<boolean> {
+        const path = await this.getFileSystem().getPath(other);
         if (path) {
             return this.startsWith(path);
         }
@@ -69,8 +69,8 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
 
     public abstract endWith(other: Path): boolean;
 
-    public endWithStr(other: string): boolean {
-        const path = this.getFileSystem().getPath(other);
+    public async endWithStr(other: string): Promise<boolean> {
+        const path = await this.getFileSystem().getPath(other);
         return this.endWith(path);
     }
 
@@ -85,8 +85,8 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
      * @param {string} other - The path to resolve against this path.
      * @returns A Path object
      */
-    public resolveFromString(other: string): Path | null {
-        const path = this.getFileSystem().getPath(other);
+    public async resolveFromString(other: string): Promise<Path | null> {
+        const path = await this.getFileSystem().getPath(other);
         if (path) {
             return this.resolve(path);
         }
@@ -132,8 +132,8 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
      * @param {string} other - The other path to resolve against this one.
      * @returns A Path object.
      */
-    public resolveSiblingFromString(other: string): Path | null {
-        const path = this.getFileSystem().getPath(other);
+    public async resolveSiblingFromString(other: string): Promise<Path | null> {
+        const path = await this.getFileSystem().getPath(other);
         if (path) {
             return this.resolveSibling(path);
         }
@@ -197,5 +197,26 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
 
     abstract toString(): string;
 
-    abstract [Symbol.iterator](): Iterator<Path>;
+    [Symbol.iterator](): Iterator<Path> {
+        const p = this;
+        let i = 0;
+
+        return new class implements Iterator<Path> {
+            public next(...args: [] | [undefined]): IteratorResult<Path, any> {
+                if (i < p.getNameCount()) {
+                    const result = p.getName(i);
+                    i++;
+                    return {
+                        value: result,
+                        done: false,
+                    };
+                } else {
+                    return {
+                        value: undefined,
+                        done: true,
+                    };
+                }
+            }
+        };
+    }
 }

@@ -20,7 +20,7 @@ export abstract class UserPrincipalLookupService { // TODO implements for local
      *          if an I/O error occurs
      * @throws  SecurityException
      */
-    public abstract lookupPrincipalByName(name: string): UserPrincipal;
+    public abstract lookupPrincipalByName(name: string): Promise<UserPrincipal>;
 
     /**
      * Lookup a group principal by group name.
@@ -42,6 +42,6 @@ export abstract class UserPrincipalLookupService { // TODO implements for local
      *          if an I/O error occurs
      * @throws  SecurityException
      */
-    public abstract lookupPrincipalByGroupName(group: string): GroupPrincipal;
+    public abstract lookupPrincipalByGroupName(group: string): Promise<GroupPrincipal>;
 
 }

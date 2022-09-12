@@ -8,8 +8,8 @@ export interface FileOwnerAttributeView extends FileAttributeView {
      */
     name(): string;
 
-    getOwner(): UserPrincipal;
+    getOwner(): Promise<UserPrincipal>;
 
     /* Setting the owner of the file. */
-    setOwner(owner: UserPrincipal): void;
+    setOwner(owner: UserPrincipal): Promise<void>;
 }

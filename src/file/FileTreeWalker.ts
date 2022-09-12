@@ -41,7 +41,7 @@ export class FileTreeWalker implements Closeable {
      * the walk is following symlinks is not. The {@code canUseCached}
      * argument determines whether this method can use cached attributes.
      */
-    private getAttributes(file: Path, canUseCached: boolean): BasicFileAttributes {
+    private async getAttributes(file: Path, canUseCached: boolean): Promise<BasicFileAttributes> {
         if (canUseCached && "get" in file && "invalidate" in file) {
             const cached = (file as unknown as BasicFileAttributesHolder).get();
             if (Objects.nonNullUndefined(cached) && (!this.followLinks || !cached?.isSymbolicLink())) {
@@ -52,7 +52,7 @@ export class FileTreeWalker implements Closeable {
         // links then a link target might not exist so get attributes of link
         let attrs: BasicFileAttributes;
         try {
-            attrs = Files.readAttributesByName(file, "basic", this.linkOptions);
+            attrs = await Files.readAttributesByName(file, "basic", this.linkOptions);
         } catch (e) {
             if (!(e instanceof IOException)) {
                 throw e;
@@ -60,12 +60,12 @@ export class FileTreeWalker implements Closeable {
             if (!this.followLinks) {
                 throw e;
             }
-            attrs = Files.readAttributesByName(file, "basic", [LinkOption.NOFOLLOW_LINKS]);
+            attrs = await Files.readAttributesByName(file, "basic", [LinkOption.NOFOLLOW_LINKS]);
         }
         return attrs;
     }
 
-    private wouldLoop(dir: Path, key: any): boolean {
+    private async wouldLoop(dir: Path, key: any): Promise<boolean> {
         for (let ancestor of this.stack) {
             const ancestorKey: any = ancestor.key();
             if (Objects.nonNullUndefined(key) && Objects.nonNullUndefined(ancestorKey)) {
@@ -74,7 +74,7 @@ export class FileTreeWalker implements Closeable {
                 }
             } else {
                 try {
-                    if (Files.isSameFile(dir, ancestor.directory())) {
+                    if (await Files.isSameFile(dir, ancestor.directory())) {
                         return true;
                     }
                 } catch (e) {
@@ -87,10 +87,10 @@ export class FileTreeWalker implements Closeable {
         return false;
     }
 
-    private visit(entry: Path, ignoreSecurityException: boolean, canUseCached: boolean): FileTreeWalkerEvent | null {
+    private async visit(entry: Path, ignoreSecurityException: boolean, canUseCached: boolean): Promise<FileTreeWalkerEvent | null> {
         let attrs: BasicFileAttributes;
         try {
-            attrs = this.getAttributes(entry, canUseCached);
+            attrs = await this.getAttributes(entry, canUseCached);
         } catch (e) {
             if (e instanceof IOException) {
                 return new FileTreeWalkerEvent(FileTreeWalkerEventType.ENTRY, entry, undefined, e);
@@ -109,14 +109,14 @@ export class FileTreeWalker implements Closeable {
         }
 
         // check for cycles when following links
-        if (this.followLinks && this.wouldLoop(entry, attrs.fileKey())) {
+        if (this.followLinks && await this.wouldLoop(entry, attrs.fileKey())) {
             return new FileTreeWalkerEvent(FileTreeWalkerEventType.ENTRY, entry, undefined, new FileSystemLoopException(entry.toString()));
         }
 
         // file is a directory, attempt to open it
         let stream: DirectoryStream<Path>;
         try {
-            stream = Files.newDirectoryStream(entry);
+            stream = await Files.newDirectoryStream(entry);
         } catch (e) {
             if (e instanceof IOException) {
                 return new FileTreeWalkerEvent(FileTreeWalkerEventType.ENTRY, entry, undefined, e);
@@ -132,16 +132,16 @@ export class FileTreeWalker implements Closeable {
         return new FileTreeWalkerEvent(FileTreeWalkerEventType.START_DIRECTORY, entry, attrs);
     }
 
-    public walk(file: Path): FileTreeWalkerEvent {
+    public async walk(file: Path): Promise<FileTreeWalkerEvent> {
         if (this.closed) {
             throw new IllegalArgumentException("Closed");
         }
-        const ev = this.visit(file, false, false);
+        const ev = await this.visit(file, false, false);
         Objects.requireNonNullUndefined(ev);
         return ev as FileTreeWalkerEvent;
     }
 
-    public next(): FileTreeWalkerEvent | null {
+    public async next(): Promise<FileTreeWalkerEvent | null> {
         let top: DirectoryNode | undefined = this.peek();
         if (Objects.isNullUndefined(top)) {
             return null;
@@ -153,9 +153,9 @@ export class FileTreeWalker implements Closeable {
             let entry: Path | undefined;
             let ioe: IOException | undefined;
             if (!top.skipped()) {
-                const iterator: Iterator<Path> = top.iterator();
+                const iterator: AsyncIterator<Path> = top.iterator();
                 try {
-                    const v = iterator.next();
+                    const v = await iterator.next();
                     if (!v.done) {
                         entry = v.value;
                     }
@@ -183,7 +183,7 @@ export class FileTreeWalker implements Closeable {
                 return new FileTreeWalkerEvent(FileTreeWalkerEventType.END_DIRECTORY, top.directory(), undefined, ioe);
             }
 
-            ev = this.visit(entry, true, true);
+            ev = await this.visit(entry, true, true);
         } while (Objects.isNullUndefined(ev));
         return ev;
     }
@@ -233,18 +233,18 @@ export class FileTreeWalker implements Closeable {
 /**
  * The element on the walking stack corresponding to a directory node.
  */
-class DirectoryNode implements Iterable<Path> {
+class DirectoryNode implements AsyncIterable<Path> {
     private readonly _path: Path;
     private readonly _key: Object;
     private readonly _stream: DirectoryStream<Path>;
-    private readonly _iterator: Iterator<Path>;
+    private readonly _iterator: AsyncIterator<Path>;
     private _skipped: boolean = false;
 
     constructor(path: Path, key: any, stream: DirectoryStream<Path>) {
         this._path = path;
         this._key = key;
         this._stream = stream;
-        this._iterator = stream[Symbol.iterator]();
+        this._iterator = stream[Symbol.asyncIterator]();
     }
 
     directory(): Path {
@@ -259,11 +259,11 @@ class DirectoryNode implements Iterable<Path> {
         return this._stream;
     }
 
-    iterator(): Iterator<Path> {
+    iterator(): AsyncIterator<Path> {
         return this._iterator;
     }
 
-    [Symbol.iterator](): Iterator<Path> {
+    [Symbol.asyncIterator](): AsyncIterator<Path> {
         return this._iterator;
     }
 
