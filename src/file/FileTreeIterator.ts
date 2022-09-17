@@ -60,7 +60,7 @@ export class FileTreeIterator implements AsyncIterator<FileTreeWalkerEvent | nul
         }
         await this.fetchNextIfNeeded();
         const result = this.nextEvent;
-        const done: boolean = !await this.hasNext();
+        const done = !await this.hasNext();
         this.nextEvent = null;
         return {
             value: result,

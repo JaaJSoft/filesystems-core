@@ -173,6 +173,6 @@ export abstract class FileStore {
      * @throws  IOException
      *          if an I/O error occurs
      */
-    public abstract getAttribute(attribute: string): Object;
+    public abstract getAttribute(attribute: string): unknown;
 
 }

@@ -61,13 +61,13 @@ export abstract class AbstractBasicFileAttributeView implements BasicFileAttribu
             builder.add(AbstractBasicFileAttributeView.IS_OTHER_NAME, attrs.isOther());
     }
 
-    public async readAttributesByName(attributes: string[]): Promise<Map<string, Object>> {
+    public async readAttributesByName(attributes: string[]): Promise<Map<string, unknown>> {
         const builder = AttributesBuilder.create(AbstractBasicFileAttributeView.basicAttributeNames, attributes);
         this.addRequestedBasicAttributes(await this.readAttributes(), builder);
         return builder.build();
     }
 
-    public async setAttributeByName(attribute: string, value: Object): Promise<void> {
+    public async setAttributeByName(attribute: string, value: unknown): Promise<void> {
         if (attribute === (AbstractBasicFileAttributeView.LAST_MODIFIED_TIME_NAME)) {
             await this.setTimes(value as FileTime, undefined, undefined);
             return;

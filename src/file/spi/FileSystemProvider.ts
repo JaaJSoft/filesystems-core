@@ -26,7 +26,7 @@ export abstract class FileSystemProvider {
 
     public newInputStream(path: Path, options?: OpenOption[]): ReadableStream<Uint8Array> {
         if (options && options.length > 0) {
-            for (let opt of options) {
+            for (const opt of options) {
                 // All OpenOption values except for APPEND and WRITE are allowed
                 if (opt == StandardOpenOption.APPEND ||
                     opt == StandardOpenOption.WRITE) {
@@ -62,7 +62,7 @@ export abstract class FileSystemProvider {
             opts = new Set<OpenOption>(FileSystemProvider.DEFAULT_OPEN_OPTIONS);
         } else {
             opts = new Set<OpenOption>();
-            for (let opt of options) {
+            for (const opt of options) {
                 if (opt === StandardOpenOption.READ) {
                     throw new IllegalArgumentException("READ not allowed");
                 }
@@ -170,10 +170,10 @@ export abstract class FileSystemProvider {
 
     public abstract readAttributesByName(path: Path, name?: AttributeViewName, options?: LinkOption[]): Promise<BasicFileAttributes>;
 
-    public abstract readAttributes(path: Path, attributes: string, options?: LinkOption[]): Promise<Map<string, any>>;
+    public abstract readAttributes(path: Path, attributes: string, options?: LinkOption[]): Promise<Map<string, unknown>>;
 
     public abstract getFileAttributeView(path: Path, name?: AttributeViewName, options?: LinkOption[]): FileAttributeView;
 
-    public abstract setAttribute(path: Path, attribute: string, value: Object, options?: LinkOption[]): Promise<void>;
+    public abstract setAttribute(path: Path, attribute: string, value: unknown, options?: LinkOption[]): Promise<void>;
 
 }

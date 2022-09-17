@@ -60,7 +60,7 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
 
     /* Checking if the path starts with the given string. */
     public async startsWithStr(other: string): Promise<boolean> {
-        const path = await this.getFileSystem().getPath(other);
+        const path = this.getFileSystem().getPath(other);
         if (path) {
             return this.startsWith(path);
         }
@@ -70,7 +70,7 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
     public abstract endWith(other: Path): boolean;
 
     public async endWithStr(other: string): Promise<boolean> {
-        const path = await this.getFileSystem().getPath(other);
+        const path = this.getFileSystem().getPath(other);
         return this.endWith(path);
     }
 
@@ -86,7 +86,7 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
      * @returns A Path object
      */
     public async resolveFromString(other: string): Promise<Path | null> {
-        const path = await this.getFileSystem().getPath(other);
+        const path = this.getFileSystem().getPath(other);
         if (path) {
             return this.resolve(path);
         }
@@ -133,7 +133,7 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
      * @returns A Path object.
      */
     public async resolveSiblingFromString(other: string): Promise<Path | null> {
-        const path = await this.getFileSystem().getPath(other);
+        const path = this.getFileSystem().getPath(other);
         if (path) {
             return this.resolveSibling(path);
         }
@@ -198,6 +198,7 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
     abstract toString(): string;
 
     [Symbol.iterator](): Iterator<Path> {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         const p = this;
         let i = 0;
 

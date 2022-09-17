@@ -5,7 +5,7 @@ export interface WatchKey {
 
     isValid(): boolean;
 
-    pollEvents(): WatchEvent<any>[];
+    pollEvents(): WatchEvent<unknown>[];
 
     reset(): boolean;
 

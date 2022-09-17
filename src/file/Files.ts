@@ -185,7 +185,7 @@ export class Files {
         }
         // create directories
         let child = parent;
-        for await (let name of parent.relativize(dir)) {
+        for await (const name of parent.relativize(dir)) {
             child = child.resolve(name);
             await this.createAndCheckIsDirectory(child, attrs);
         }
@@ -378,7 +378,7 @@ export class Files {
      * @returns The content type of the file.
      */
     public static async probeContentType(path: Path): Promise<string> {
-        for (let detector of FileTypeDetectors.installedDetectors) {
+        for (const detector of FileTypeDetectors.installedDetectors) {
             const result = detector.probeContentType(path);
             if (result) {
                 return result;
@@ -407,7 +407,7 @@ export class Files {
      * @param {LinkOption[]} [options] - LinkOption[]
      * @returns A Map of the attributes of the file at the given path.
      */
-    public static async readAttributes(path: Path, attributes: string, options?: LinkOption[]): Promise<Map<string, Object>> {
+    public static async readAttributes(path: Path, attributes: string, options?: LinkOption[]): Promise<Map<string, unknown>> {
         return this.provider(path).readAttributes(path, attributes, options);
     }
 
@@ -430,7 +430,7 @@ export class Files {
      * @param {LinkOption[]} [options] - An array of LinkOption objects.
      * @returns The path that was passed in.
      */
-    public static async setAttribute(path: Path, attribute: string, value: Object, options?: LinkOption[]): Promise<Path> {
+    public static async setAttribute(path: Path, attribute: string, value: unknown, options?: LinkOption[]): Promise<Path> {
         await this.provider(path).setAttribute(path, attribute, value, options);
         return path;
     }
@@ -442,14 +442,14 @@ export class Files {
      * @param {LinkOption[]} [options] - An array of LinkOption objects.
      * @returns The value of the attribute.
      */
-    public static async getAttribute(path: Path, attribute: string, options?: LinkOption[]): Promise<Object | undefined> {
+    public static async getAttribute(path: Path, attribute: string, options?: LinkOption[]): Promise<unknown | undefined> {
         // only one attribute should be read
         if (attribute.indexOf("*") >= 0 || attribute.indexOf(",") >= 0)
             throw new IllegalArgumentException(attribute);
         const map = await this.readAttributes(path, attribute, options);
         assert.equal(map.size, 1);
         let name;
-        let pos = attribute.indexOf(":");
+        const pos = attribute.indexOf(":");
         if (pos == -1) {
             name = attribute;
         } else {
@@ -708,7 +708,7 @@ export class Files {
             do {
                 let result: FileVisitResult;
                 switch (ev?.type()) {
-                    case FileTreeWalkerEventType.ENTRY:
+                    case FileTreeWalkerEventType.ENTRY: {
                         const ioe = ev.ioeException();
                         if (!ioe) {
                             const attrs = Objects.requireNonNullUndefined(ev.attributes());
@@ -717,7 +717,8 @@ export class Files {
                             result = visitor.visitFileFailed(ev.file(), ioe);
                         }
                         break;
-                    case FileTreeWalkerEventType.START_DIRECTORY:
+                    }
+                    case FileTreeWalkerEventType.START_DIRECTORY: {
                         result = visitor.preVisitDirectory(ev.file(), ev.attributes());
 
                         // if SKIP_SIBLINGS and SKIP_SUBTREE is returned then
@@ -727,13 +728,15 @@ export class Files {
                             result === FileVisitResult.SKIP_SIBLINGS)
                             walker.pop();
                         break;
-                    case FileTreeWalkerEventType.END_DIRECTORY:
+                    }
+                    case FileTreeWalkerEventType.END_DIRECTORY: {
                         result = visitor.postVisitDirectory(ev.file(), ev.ioeException());
 
                         // SKIP_SIBLINGS is a no-op for postVisitDirectory
                         if (result === FileVisitResult.SKIP_SIBLINGS)
                             result = FileVisitResult.CONTINUE;
                         break;
+                    }
                     default:
                         throw new Error("Should not get here");
 
@@ -768,7 +771,7 @@ export class Files {
      * @param {OpenOption[]} [options] - An array of options specifying how the file is opened.
      * @returns A ReadableStream<string>
      */
-    public static async newBufferedReader(path: Path, charsets: string = "utf-8", options?: OpenOption[]): Promise<ReadableStream<string>> {
+    public static async newBufferedReader(path: Path, charsets = "utf-8", options?: OpenOption[]): Promise<ReadableStream<string>> {
         const [provider, inputStream] = await Promise.all([
             this.provider(path),
             Files.newInputStream(path, options),
@@ -806,7 +809,7 @@ export class Files {
     public static async copyFromStream(inputStream: ReadableStream, target: Path, options?: CopyOption[]): Promise<void> {
         let replaceExisting = false;
         if (options) {
-            for (let opt of options) {
+            for (const opt of options) {
                 if (opt === StandardCopyOption.REPLACE_EXISTING) {
                     replaceExisting = true;
                 } else {
@@ -902,7 +905,7 @@ export class Files {
      * @param {string} [charset=utf-8] - The character set to use when reading the file.
      * @returns A string
      */
-    public static async readString(path: Path, charset: string = "utf-8"): Promise<string> {
+    public static async readString(path: Path, charset = "utf-8"): Promise<string> {
         let inputStream: ReadableStream<string> | undefined = undefined;
         try {
             inputStream = await this.newBufferedReader(path, charset);
@@ -930,7 +933,7 @@ export class Files {
      * @param {Path} path - The path to the file to read.
      * @param {string} [charsets=utf-8] - The character set to use.
      */
-    public static async readAllLines(path: Path, charsets: string = "utf-8"): Promise<string[]> {
+    public static async readAllLines(path: Path, charsets = "utf-8"): Promise<string[]> {
         return this.readString(path, charsets).then(string => string.split(/\r?\n/));
     }
 
@@ -949,9 +952,9 @@ export class Files {
             const len = bytes.length;
             let rem = len;
             while (rem > 0) {
-                let n = Math.min(rem, this.BUFFER_SIZE);
-                let start = len - rem;
-                let end = start + n;
+                const n = Math.min(rem, this.BUFFER_SIZE);
+                const start = len - rem;
+                const end = start + n;
                 const chunk = bytes.slice(start, end);
                 await writer.write(chunk);
                 rem -= n;
@@ -997,9 +1000,9 @@ export class Files {
      */
     public static async list(dir: Path): Promise<Path[]> {
         const ds: DirectoryStream<Path> = await Files.newDirectoryStream(dir);
-        let files: Path[] = [];
+        const files: Path[] = [];
         try {
-            for await (let path of ds) {
+            for await (const path of ds) {
                 files.push(path);
             }
         } catch (e) {
@@ -1045,7 +1048,7 @@ export class Files {
      * @param {Path} path - Path
      * @param {string} [charsets=utf-8] - string = "utf-8"
      */
-    public static async lines(path: Path, charsets: string = "utf-8"): Promise<Iterable<string>> {
+    public static async lines(path: Path, charsets = "utf-8"): Promise<Iterable<string>> {
         console.warn("Files.lines is not lazily computed yet"); // TODO lazily
         return Files.readAllLines(path, charsets);
     }

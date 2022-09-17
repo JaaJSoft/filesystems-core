@@ -4,10 +4,10 @@ export interface FileAttributeView extends AttributeView {
     /**
      * Sets/updates the value of an attribute.
      */
-    setAttributeByName(attribute: string, value: Object): Promise<void>;
+    setAttributeByName(attribute: string, value: unknown): Promise<void>;
 
     /**
      * Reads a set of file attributes as a bulk operation.
      */
-    readAttributesByName(attributes: string[]): Promise<Map<string, Object>>;
+    readAttributesByName(attributes: string[]): Promise<Map<string, unknown>>;
 }

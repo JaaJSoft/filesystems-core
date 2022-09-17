@@ -7,7 +7,7 @@ export abstract class FileTypeDetector { // TODO
 
 
     protected constructor() {
-        FileTypeDetector.checkPermission()
+        FileTypeDetector.checkPermission();
     }
 
     /**

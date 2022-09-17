@@ -18,11 +18,11 @@ export class FileTypeDetectors { // TODO
     public static readonly installedDetectors: FileTypeDetector[] = FileTypeDetectors.loadInstalledDetectors();
 
     static createDefaultFileTypeDetector(): FileTypeDetector {
-        return new DefaultFileTypeDetector()
+        return new DefaultFileTypeDetector();
     }
 
     static loadInstalledDetectors(): FileTypeDetector[] { // TODO
-        return []
+        return [];
     }
 }
 

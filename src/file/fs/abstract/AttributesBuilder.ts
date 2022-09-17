@@ -3,11 +3,11 @@ import {IllegalArgumentException} from "../../../exception";
 /* It builds a map of attributes from a list of requested attributes */
 export class AttributesBuilder {
     private names = new Set<string>();
-    private map: Map<string, Object> = new Map<string, Object>();
-    private copyAll: boolean = false;
+    private map: Map<string, unknown> = new Map<string, unknown>();
+    private copyAll = false;
 
     private constructor(allowed: Set<string>, requested: string[]) {
-        for (let name of requested) {
+        for (const name of requested) {
             if (name === "*") {
                 this.copyAll = true;
             } else {
@@ -29,12 +29,12 @@ export class AttributesBuilder {
         return this.copyAll || this.names.has(name);
     }
 
-    public add(name: string, value: Object): void {
+    public add(name: string, value: unknown): void {
         this.map.set(name, value);
     }
 
-    public build(): Map<string, Object> {
-        return new Map<string, Object>(this.map);
+    public build(): Map<string, unknown> {
+        return new Map<string, unknown>(this.map);
     }
 
 }

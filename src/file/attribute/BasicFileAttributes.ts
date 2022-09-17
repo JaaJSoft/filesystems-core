@@ -107,5 +107,5 @@ export interface BasicFileAttributes {
      *
      * @see file.Files#walkFileTree
      */
-    fileKey(): Object;
+    fileKey(): unknown;
 }

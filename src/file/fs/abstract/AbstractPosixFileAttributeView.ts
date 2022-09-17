@@ -40,7 +40,7 @@ export abstract class AbstractPosixFileAttributeView extends AbstractBasicFileAt
             builder.add(AbstractPosixFileAttributeView.GROUP_NAME, attrs.group());
     }
 
-    public async readAttributesByName(attributes: string[]): Promise<Map<string, Object>> {
+    public async readAttributesByName(attributes: string[]): Promise<Map<string, unknown>> {
         const builder = AttributesBuilder.create(AbstractPosixFileAttributeView.posixAttributeNames, attributes);
         const posixFileAttributes: PosixFileAttributes = await this.readAttributes();
         this.addRequestedPosixAttributes(posixFileAttributes, builder);
@@ -48,7 +48,7 @@ export abstract class AbstractPosixFileAttributeView extends AbstractBasicFileAt
     }
 
 
-    public async setAttributeByName(attribute: string, value: Object): Promise<void> {
+    public async setAttributeByName(attribute: string, value: unknown): Promise<void> {
         if (attribute === AbstractPosixFileAttributeView.PERMISSIONS_NAME) {
             await this.setPermissions(value as Set<PosixFilePermission>);
             return;

@@ -15,11 +15,11 @@ export class FileTreeWalker implements Closeable {
     private readonly linkOptions: LinkOption[];
     private readonly maxDepth: number;
     private readonly stack: DirectoryNode[] = [];
-    private closed: boolean = false;
+    private closed = false;
 
     constructor(options: FileVisitOption[], maxDepth: number) {
-        let fl: boolean = false;
-        for (let option of options) {
+        let fl = false;
+        for (const option of options) {
             switch (option) {
                 case FileVisitOption.FOLLOW_LINKS:
                     fl = true;
@@ -66,7 +66,7 @@ export class FileTreeWalker implements Closeable {
     }
 
     private async wouldLoop(dir: Path, key: any): Promise<boolean> {
-        for (let ancestor of this.stack) {
+        for (const ancestor of this.stack) {
             const ancestorKey: any = ancestor.key();
             if (Objects.nonNullUndefined(key) && Objects.nonNullUndefined(ancestorKey)) {
                 if (key.valueOf() === ancestorKey.valueOf()) {// TODO check for better equals
@@ -235,10 +235,10 @@ export class FileTreeWalker implements Closeable {
  */
 class DirectoryNode implements AsyncIterable<Path> {
     private readonly _path: Path;
-    private readonly _key: Object;
+    private readonly _key: unknown;
     private readonly _stream: DirectoryStream<Path>;
     private readonly _iterator: AsyncIterator<Path>;
-    private _skipped: boolean = false;
+    private _skipped = false;
 
     constructor(path: Path, key: any, stream: DirectoryStream<Path>) {
         this._path = path;
@@ -251,7 +251,7 @@ class DirectoryNode implements AsyncIterable<Path> {
         return this._path;
     }
 
-    key(): Object {
+    key(): unknown {
         return this._key;
     }
 

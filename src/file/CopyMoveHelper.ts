@@ -9,18 +9,19 @@ import {FileAlreadyExistsException} from "./exception";
 import {BasicFileAttributeView} from "./attribute";
 
 class CopyOptions {
-    replaceExisting: boolean = false;
-    copyAttributes: boolean = false;
-    followLinks: boolean = true;
+    replaceExisting = false;
+    copyAttributes = false;
+    followLinks = true;
 
 
     private constructor() {
+        // empty
     }
 
     public static parse(options?: CopyOption[]): CopyOptions {
         const result = new CopyOptions();
         if (options) {
-            for (let option of options) {
+            for (const option of options) {
                 if (option === StandardCopyOption.REPLACE_EXISTING) {
                     result.replaceExisting = true;
                     continue;
@@ -46,7 +47,7 @@ class CopyOptions {
 function convertMoveToCopyOptions(options?: CopyOption[]): CopyOption[] {
     const newOptions: CopyOption[] = [];
     if (options) {
-        for (let option of options) {
+        for (const option of options) {
             if (option === StandardCopyOption.ATOMIC_MOVE) {
                 throw new AtomicMoveNotSupportedException(undefined, undefined, "Atomic move between providers is not supported");
             }
