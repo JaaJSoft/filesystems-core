@@ -14,9 +14,9 @@ import {DirectoryStream} from "../DirectoryStream";
 export abstract class FileSystemProvider {
     public abstract getScheme(): string;
 
-    public abstract newFileSystemFromUrl(uri: URL, env: Map<string, any>): Promise<FileSystem>;
+    public abstract newFileSystemFromUrl(uri: URL, env: Map<string, unknown>): Promise<FileSystem>;
 
-    public newFileSystemFromPath(_path: Path, _env: Map<string, any>): Promise<FileSystem> {
+    public newFileSystemFromPath(_path: Path, _env: Map<string, unknown>): Promise<FileSystem> {
         throw new UnsupportedOperationException();
     }
 
@@ -77,9 +77,9 @@ export abstract class FileSystemProvider {
 
     public abstract newDirectoryStream(dir: Path, acceptFilter: (path?: Path) => boolean): Promise<DirectoryStream<Path>>;
 
-    public abstract createFile(path: Path, attrs?: FileAttribute<any>[]): Promise<void>;
+    public abstract createFile(path: Path, attrs?: FileAttribute<unknown>[]): Promise<void>;
 
-    public abstract createDirectory(dir: Path, attrs?: FileAttribute<any>[]): Promise<void>;
+    public abstract createDirectory(dir: Path, attrs?: FileAttribute<unknown>[]): Promise<void>;
 
     /**
      * Creates a symbolic link to a target. This method works in exactly the
@@ -104,7 +104,7 @@ export abstract class FileSystemProvider {
      *          if a file with the name already exists <i>(optional specific
      *          exception)</i>
      */
-    public createSymbolicLink(link: Path, target: Path, attrs?: FileAttribute<any>[]): Promise<void> {
+    public createSymbolicLink(link: Path, target: Path, attrs?: FileAttribute<unknown>[]): Promise<void> {
         throw new UnsupportedOperationException();
     }
 

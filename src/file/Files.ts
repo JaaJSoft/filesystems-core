@@ -87,7 +87,7 @@ export class Files {
      * @param acceptFilter
      * @returns A DirectoryStream<Path>
      */
-    public static async newDirectoryStream(dir: Path, acceptFilter: (path?: Path) => boolean = _ => true): Promise<DirectoryStream<Path>> {
+    public static async newDirectoryStream(dir: Path, acceptFilter: (path?: Path) => boolean = () => true): Promise<DirectoryStream<Path>> {
         return this.provider(dir).newDirectoryStream(dir, acceptFilter);
     }
 
@@ -126,7 +126,7 @@ export class Files {
      * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
      * @returns The path of the directory that was created.
      */
-    public static async createDirectory(dir: Path, attrs?: FileAttribute<any>[]): Promise<Path> {
+    public static async createDirectory(dir: Path, attrs?: FileAttribute<unknown>[]): Promise<Path> {
         await this.provider(dir).createDirectory(dir, attrs);
         return dir;
     }
@@ -137,7 +137,7 @@ export class Files {
      * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
      * @returns The path of the directory that was created.
      */
-    public static async createDirectories(dir: Path, attrs?: FileAttribute<any>[]): Promise<Path> {
+    public static async createDirectories(dir: Path, attrs?: FileAttribute<unknown>[]): Promise<Path> {
         try {
             await this.createAndCheckIsDirectory(dir, attrs);
             return dir;
@@ -192,7 +192,7 @@ export class Files {
         return dir;
     }
 
-    private static async createAndCheckIsDirectory(dir: Path, attrs?: FileAttribute<any>[]): Promise<void> {
+    private static async createAndCheckIsDirectory(dir: Path, attrs?: FileAttribute<unknown>[]): Promise<void> {
         try {
             await this.createDirectory(dir, attrs);
         } catch (x) {
@@ -215,7 +215,7 @@ export class Files {
      * characters long
      * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
      */
-    public static async createTempFileIn(path?: Path, prefix?: string, suffix?: string, attrs?: FileAttribute<any>[]): Promise<Path> {
+    public static async createTempFileIn(path?: Path, prefix?: string, suffix?: string, attrs?: FileAttribute<unknown>[]): Promise<Path> {
         throw new Error("Method not implemented.");
     }
 
@@ -239,7 +239,7 @@ export class Files {
      * @param {string} prefix - The prefix of the temporary directory's name.
      * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
      */
-    public static async createTempDirectoryIn(path?: Path, prefix?: string, attrs?: FileAttribute<any>[]): Promise<Path> {
+    public static async createTempDirectoryIn(path?: Path, prefix?: string, attrs?: FileAttribute<unknown>[]): Promise<Path> {
         throw new Error("Method not implemented.");
     }
 
@@ -250,7 +250,7 @@ export class Files {
      * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
      * @returns A Path object
      */
-    public static async createTempDirectory(prefix: string, attrs?: FileAttribute<any>[]): Promise<Path> {
+    public static async createTempDirectory(prefix: string, attrs?: FileAttribute<unknown>[]): Promise<Path> {
         return this.createTempDirectoryIn(undefined, prefix, attrs);
     }
 
@@ -261,7 +261,7 @@ export class Files {
      * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
      * @returns The link
      */
-    public static async createSymbolicLink(link: Path, target: Path, attrs?: FileAttribute<any>[]): Promise<Path> {
+    public static async createSymbolicLink(link: Path, target: Path, attrs?: FileAttribute<unknown>[]): Promise<Path> {
         await this.provider(link).createSymbolicLink(link, target, attrs);
         return link;
     }

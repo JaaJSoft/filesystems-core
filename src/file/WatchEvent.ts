@@ -5,7 +5,7 @@ export interface WatchEvent<T> {
      *
      * @return  the event kind
      */
-    kind(): WatchEventKind<T>;
+    kind(): WatchEventKind;
 
     /**
      * Returns the event count. If the event count is greater than {@code 1}
@@ -30,7 +30,7 @@ export interface WatchEvent<T> {
     context(): T | null;
 }
 
-export interface WatchEventKind<T> {
+export interface WatchEventKind {
     /**
      * An event kind, for the purposes of identification.
      *
@@ -55,7 +55,7 @@ export interface WatchEventKind<T> {
  *
  * @see Watchable#register
  */
-export interface WatchEventModifier<T> {
+export interface WatchEventModifier {
     /**
      * Returns the name of the modifier.
      *

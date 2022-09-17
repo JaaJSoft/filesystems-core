@@ -65,11 +65,11 @@ export class FileTreeWalker implements Closeable {
         return attrs;
     }
 
-    private async wouldLoop(dir: Path, key: any): Promise<boolean> {
+    private async wouldLoop(dir: Path, key: unknown): Promise<boolean> {
         for (const ancestor of this.stack) {
-            const ancestorKey: any = ancestor.key();
+            const ancestorKey: unknown = ancestor.key();
             if (Objects.nonNullUndefined(key) && Objects.nonNullUndefined(ancestorKey)) {
-                if (key.valueOf() === ancestorKey.valueOf()) {// TODO check for better equals
+                if (key === ancestorKey) {// TODO check for better equals
                     return true;
                 }
             } else {
@@ -240,7 +240,7 @@ class DirectoryNode implements AsyncIterable<Path> {
     private readonly _iterator: AsyncIterator<Path>;
     private _skipped = false;
 
-    constructor(path: Path, key: any, stream: DirectoryStream<Path>) {
+    constructor(path: Path, key: unknown, stream: DirectoryStream<Path>) {
         this._path = path;
         this._key = key;
         this._stream = stream;

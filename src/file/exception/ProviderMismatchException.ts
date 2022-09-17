@@ -1,4 +1,4 @@
-import {IllegalArgumentException} from "../../exception/IllegalArgumentException";
+import {IllegalArgumentException} from "../../exception";
 
 export class ProviderMismatchException extends IllegalArgumentException {
 

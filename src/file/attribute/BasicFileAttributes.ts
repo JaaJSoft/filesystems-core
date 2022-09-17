@@ -100,12 +100,12 @@ export interface BasicFileAttributes {
      *
      * <p> File keys returned by this method can be compared for equality and are
      * suitable for use in collections. If the file system and files remain static,
-     * and two files are the {@link java.nio.file.Files#isSameFile same} with
+     * and two files are the {@link Files#isSameFile same} with
      * non-{@code null} file keys, then their file keys are equal.
      *
      * @return an object that uniquely identifies the given file, or {@code null}
      *
-     * @see file.Files#walkFileTree
+     * @see Files#walkFileTree
      */
     fileKey(): unknown;
 }

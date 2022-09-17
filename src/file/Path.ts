@@ -203,7 +203,7 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
         let i = 0;
 
         return new class implements Iterator<Path> {
-            public next(...args: [] | [undefined]): IteratorResult<Path, any> {
+            public next(...args: [] | [undefined]): IteratorResult<Path> {
                 if (i < p.getNameCount()) {
                     const result = p.getName(i);
                     i++;

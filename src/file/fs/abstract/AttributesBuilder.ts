@@ -4,13 +4,14 @@ import {IllegalArgumentException} from "../../../exception";
 export class AttributesBuilder {
     private names = new Set<string>();
     private map: Map<string, unknown> = new Map<string, unknown>();
-    private copyAll = false;
+    private readonly copyAll;
 
     private constructor(allowed: Set<string>, requested: string[]) {
         for (const name of requested) {
             if (name === "*") {
                 this.copyAll = true;
             } else {
+                this.copyAll = false;
                 if (!allowed.has(name))
                     throw new IllegalArgumentException("'" + name + "' not recognized");
                 this.names.add(name);

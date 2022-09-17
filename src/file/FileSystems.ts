@@ -31,7 +31,7 @@ export class FileSystems {
         }
         const provider: FileSystemProvider | undefined = FileSystemProviders.getProvider(scheme);
         if (provider) {
-            return await provider.getFileSystem(url);
+            return provider.getFileSystem(url);
         }
         throw new ProviderNotFoundException(`Provider "${scheme}" not found`);
     }
@@ -46,7 +46,7 @@ export class FileSystems {
      * @param env - A map of environment variables to be used by the file system provider.
      * @returns A FileSystem object
      */
-    public async newFileSystem(uri: URL, env: Map<string, any>): Promise<FileSystem> {
+    public async newFileSystem(uri: URL, env: Map<string, unknown>): Promise<FileSystem> {
         const scheme: string = uri.protocol;
 
         // check installed providers

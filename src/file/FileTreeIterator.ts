@@ -54,7 +54,7 @@ export class FileTreeIterator implements AsyncIterator<FileTreeWalkerEvent | nul
         return Objects.nonNullUndefined(this.nextEvent);
     }
 
-    public async next(...args: [] | [undefined]): Promise<IteratorResult<FileTreeWalkerEvent | null, any>> {
+    public async next(...args: [] | [undefined]): Promise<IteratorResult<FileTreeWalkerEvent | null>> {
         if (!this.walker.isOpen()) {
             throw new IllegalStateException();
         }
@@ -102,13 +102,13 @@ class PathIterable implements AsyncIterable<Path | null> {
         const fileTreeIterator = this.fileTreeIterator;
         const filter = this.filter;
         return new class implements AsyncIterator<Path | null> {
-            public async next(...args: [] | [undefined]): Promise<IteratorResult<Path | null, any>> {
+            public async next(...args: [] | [undefined]): Promise<IteratorResult<Path | null>> {
                 try {
                     let path: Path | null = null;
                     let attrs: BasicFileAttributes | undefined;
                     let done: boolean | undefined = false;
                     do {
-                        const next: IteratorResult<FileTreeWalkerEvent | null, any> = await fileTreeIterator.next(...args);
+                        const next: IteratorResult<FileTreeWalkerEvent | null> = await fileTreeIterator.next(...args);
                         path = next.value.file();
                         attrs = next.value.attributes();
                         done = next.done;
@@ -123,7 +123,7 @@ class PathIterable implements AsyncIterable<Path | null> {
                 }
             }
 
-            public async throw(_e?: any): Promise<IteratorResult<Path, any>> {
+            public async throw(_e?: any): Promise<IteratorResult<Path>> {
                 fileTreeIterator.close();
                 return {
                     value: undefined,
