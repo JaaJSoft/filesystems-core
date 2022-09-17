@@ -23,9 +23,9 @@ export abstract class FileSystem implements AsyncCloseable {
     /* It returns the separator used by the file system. */
     public abstract getSeparator(): string;
 
-    public abstract getRootDirectories(): Iterable<Path>;
+    public abstract getRootDirectories(): Promise<Iterable<Path>>;
 
-    public abstract getFileStores(): Iterable<FileStore>;
+    public abstract getFileStores(): Promise<Iterable<FileStore>>;
 
     public abstract supportedFileAttributeViews(): Set<AttributeViewName>;
 
