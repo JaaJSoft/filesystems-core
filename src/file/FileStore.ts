@@ -111,24 +111,6 @@ export abstract class FileStore {
      * identified by the given file attribute view.
      *
      * <p> Invoking this method to test if the file store supports {@link
-        * BasicFileAttributeView} will always return {@code true}. In the case of
-     * the default provider, this method cannot guarantee to give the correct
-     * result when the file store is not a local storage device. The reasons for
-     * this are implementation specific and therefore unspecified.
-     *
-     * @param   type
-     *          the file attribute view type
-     *
-     * @return  {@code true} if, and only if, the file attribute view is
-     *          supported
-     */
-    public abstract supportsFileAttributeView(type: string): boolean;
-
-    /**
-     * Tells whether or not this file store supports the file attributes
-     * identified by the given file attribute view.
-     *
-     * <p> Invoking this method to test if the file store supports {@link
         * BasicFileAttributeView}, identified by the name "{@code basic}" will
      * always return {@code true}. In the case of the default provider, this
      * method cannot guarantee to give the correct result when the file store is
@@ -144,20 +126,19 @@ export abstract class FileStore {
     public abstract supportsFileAttributeView(name: string): boolean;
 
     /**
-     * Returns a {@code FileStoreAttributeView} of the given type.
+     * Returns a {@code FileStoreAttributeView} of the given name.
      *
      * <p> This method is intended to be used where the file store attribute
      * view defines type-safe methods to read or update the file store attributes.
      * The {@code type} parameter is the type of the attribute view required and
      * the method returns an instance of that type if supported.
      *
-     * @param   type
-     *          the {@code Class} object corresponding to the attribute view
+     * @param   name the name of the view
      *
      * @return  a file store attribute view of the specified type or
      *          {@code null} if the attribute view is not available
      */
-    public abstract getFileStoreAttributeView(type: string): FileStoreAttributeView;
+    public abstract getFileStoreAttributeView(name: string): FileStoreAttributeView;
 
     /**
      * Reads the value of a file store attribute.
@@ -177,7 +158,7 @@ export abstract class FileStore {
      * Suppose we want to know if ZFS compression is enabled (assuming the "zfs"
      * view is supported):
      * <pre>
-     *    boolean compression = (Boolean)fs.getAttribute("zfs:compression");
+     *    const compression = fs.getAttribute("zfs:compression") as boolean;
      * </pre>
      *
      * @param   attribute
@@ -192,6 +173,6 @@ export abstract class FileStore {
      * @throws  IOException
      *          if an I/O error occurs
      */
-    public abstract getAttribute(attribute: string): any;
+    public abstract getAttribute(attribute: string): Object;
 
 }
