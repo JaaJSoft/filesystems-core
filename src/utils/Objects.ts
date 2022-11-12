@@ -25,7 +25,7 @@ export class Objects {
     }
 
     public static nonNullUndefined<T>(o: Obj<T>): boolean {
-        return !this.isUndefined(o);
+        return !this.isNullUndefined(o);
     }
 
     public static requireNonNullUndefined<T>(o: Obj<T>): T {

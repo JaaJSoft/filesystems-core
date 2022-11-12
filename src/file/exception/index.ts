@@ -9,3 +9,4 @@ export * from "./FileSystemException";
 export * from "./FileSystemLoopException";
 export * from "./DirectoryIteratorException";
 export * from "./ClosedWatchServiceException";
+export * from "./InvalidPathException";
