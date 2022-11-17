@@ -40,6 +40,7 @@ import {FileVisitResult} from "./FileVisitResult";
 import {FileTreeIterator} from "./FileTreeIterator";
 import {FileSystemProvider, FileTypeDetectors} from "./spi";
 import {followLinks} from "./FileUtils";
+import {Paths} from "./Paths";
 
 /* It provides a set of static methods for working with files and directories */
 export class Files {
@@ -112,10 +113,10 @@ export class Files {
     /**
      * `createFile` creates a file at the given path
      * @param {Path} path - The path to the file to be created.
-     * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
+     * @param {FileAttribute<unknown>[]} [attrs] - FileAttribute<unknown>[]
      * @returns The path
      */
-    public static async createFile(path: Path, attrs?: FileAttribute<any>[]): Promise<Path> { // TODO use  writeableStream ?
+    public static async createFile(path: Path, attrs?: FileAttribute<unknown>[]): Promise<Path> { // TODO use  writeableStream ?
         await this.provider(path).createFile(path, attrs);
         return path;
     }
@@ -123,7 +124,7 @@ export class Files {
     /**
      * > Creates a directory at the given path, with the given attributes
      * @param {Path} dir - Path - The path to the directory to create.
-     * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
+     * @param {FileAttribute<unknown>[]} [attrs] - FileAttribute<unknown>[]
      * @returns The path of the directory that was created.
      */
     public static async createDirectory(dir: Path, attrs?: FileAttribute<unknown>[]): Promise<Path> {
@@ -134,7 +135,7 @@ export class Files {
     /**
      * > Create a directory by creating all nonexistent parent directories first
      * @param {Path} dir - Path
-     * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
+     * @param {FileAttribute<unknown>[]} [attrs] - FileAttribute<unknown>[]
      * @returns The path of the directory that was created.
      */
     public static async createDirectories(dir: Path, attrs?: FileAttribute<unknown>[]): Promise<Path> {
@@ -213,10 +214,10 @@ export class Files {
      * characters long
      * @param {string} suffix - The suffix string to be used in generating the file's name; must be at least three
      * characters long
-     * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
+     * @param {FileAttribute<unknown>[]} [attrs] - FileAttribute<unknown>[]
      */
-    public static async createTempFileIn(path?: Path, prefix?: string, suffix?: string, attrs?: FileAttribute<unknown>[]): Promise<Path> {
-        throw new Error("Method not implemented.");
+    public static async createTempFileIn(path: Path, prefix?: string, suffix?: string, attrs?: FileAttribute<unknown>[]): Promise<Path> {
+        return await this.provider(path).createTempFile(path, prefix, suffix, attrs);
     }
 
     /**
@@ -226,39 +227,41 @@ export class Files {
      * characters long
      * @param {string} suffix - The suffix string to be used in generating the file's name; may be null, in which case the
      * suffix ".tmp" will be used
-     * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
+     * @param {FileAttribute<unknown>[]} [attrs] - FileAttribute<unknown>[]
      * @returns A Path object
      */
-    public static async createTempFile(prefix: string, suffix: string, attrs?: FileAttribute<any>[]): Promise<Path> {
-        return this.createTempFileIn(undefined, prefix, suffix, attrs);
+    public static async createTempFile(prefix: string, suffix: string, attrs?: FileAttribute<unknown>[]): Promise<Path> {
+        const path: Path = await Paths.of(".");
+        return await this.provider(path).createTempFile(undefined, prefix, suffix, attrs);
     }
 
     /**
      * It creates a temporary directory in the given path with the given prefix and attributes.
      * @param {Path} path - The path to the directory in which the temporary directory should be created.
-     * @param {string} prefix - The prefix of the temporary directory's name.
-     * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
+     * @param {string} prefix - The prefix of the temporary dir ctory's name.
+     * @param {FileAttribute<unknown>[]} [attrs] - FileAttribute<unknown>[]
      */
-    public static async createTempDirectoryIn(path?: Path, prefix?: string, attrs?: FileAttribute<unknown>[]): Promise<Path> {
-        throw new Error("Method not implemented.");
+    public static async createTempDirectoryIn(path: Path, prefix?: string, attrs?: FileAttribute<unknown>[]): Promise<Path> {
+        return await this.provider(path).createTempDirectory(path, prefix, attrs);
     }
 
     /**
      * It creates a temporary directory.
      * @param {string} prefix - The prefix string to be used in generating the file's name; must be at least three
      * characters long
-     * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
+     * @param {FileAttribute<unknown>[]} [attrs] - FileAttribute<unknown>[]
      * @returns A Path object
      */
     public static async createTempDirectory(prefix: string, attrs?: FileAttribute<unknown>[]): Promise<Path> {
-        return this.createTempDirectoryIn(undefined, prefix, attrs);
+        const path: Path = await Paths.of(".");
+        return await this.provider(path).createTempDirectory(undefined, prefix, attrs);
     }
 
     /**
      * `createSymbolicLink` creates a symbolic link at the given path to the given target
      * @param {Path} link - Path - The path to the symbolic link to create.
      * @param {Path} target - Path - The target of the link
-     * @param {FileAttribute<any>[]} [attrs] - FileAttribute<any>[]
+     * @param {FileAttribute<unknown>[]} [attrs] - FileAttribute<unknown>[]
      * @returns The link
      */
     public static async createSymbolicLink(link: Path, target: Path, attrs?: FileAttribute<unknown>[]): Promise<Path> {
@@ -426,7 +429,7 @@ export class Files {
      * Set the attribute of the path to the value.
      * @param {Path} path - The path to the file or directory.
      * @param {string} attribute - The attribute to set.
-     * @param {any} value - The value to set the attribute to.
+     * @param {unknown} value - The value to set the attribute to.
      * @param {LinkOption[]} [options] - An array of LinkOption objects.
      * @returns The path that was passed in.
      */
@@ -722,7 +725,7 @@ export class Files {
                         result = visitor.preVisitDirectory(ev.file(), ev.attributes());
 
                         // if SKIP_SIBLINGS and SKIP_SUBTREE is returned then
-                        // there shouldn't be any more events for the current
+                        // there shouldn't be unknown more events for the current
                         // directory.
                         if (result === FileVisitResult.SKIP_SUBTREE ||
                             result === FileVisitResult.SKIP_SIBLINGS)

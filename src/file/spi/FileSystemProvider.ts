@@ -176,4 +176,9 @@ export abstract class FileSystemProvider {
 
     public abstract setAttribute(path: Path, attribute: string, value: unknown, options?: LinkOption[]): Promise<void>;
 
+    public abstract createTempFile(path?: Path, prefix?: string, suffix?: string, attrs?: FileAttribute<unknown>[]): Promise<Path>;
+
+    public abstract createTempDirectory(path?: Path, prefix?: string, attrs?: FileAttribute<unknown>[]): Promise<Path>;
+
 }
+
