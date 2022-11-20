@@ -22,7 +22,7 @@ export interface FileVisitor<T> {
      * @throws  IOException
      *          if an I/O error occurs
      */
-    preVisitDirectory(dir: T, attrs?: BasicFileAttributes): FileVisitResult;
+    preVisitDirectory(dir: T, attrs?: BasicFileAttributes): Promise<FileVisitResult>;
 
     /**
      * Invoked for a file in a directory.
@@ -37,7 +37,7 @@ export interface FileVisitor<T> {
      * @throws  IOException
      *          if an I/O error occurs
      */
-    visitFile(file: T, attrs: BasicFileAttributes): FileVisitResult;
+    visitFile(file: T, attrs: BasicFileAttributes): Promise<FileVisitResult>;
 
     /**
      * Invoked for a file that could not be visited. This method is invoked
@@ -54,7 +54,7 @@ export interface FileVisitor<T> {
      * @throws  IOException
      *          if an I/O error occurs
      */
-    visitFileFailed(file: T, exc: IOException): FileVisitResult;
+    visitFileFailed(file: T, exc: IOException): Promise<FileVisitResult>;
 
     /**
      * Invoked for a directory after entries in the directory, and all of their
@@ -75,5 +75,5 @@ export interface FileVisitor<T> {
      * @throws  IOException
      *          if an I/O error occurs
      */
-    postVisitDirectory(dir: T, exc?: IOException): FileVisitResult;
+    postVisitDirectory(dir: T, exc?: IOException): Promise<FileVisitResult>;
 }

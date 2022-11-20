@@ -715,14 +715,14 @@ export class Files {
                         const ioe = ev.ioeException();
                         if (!ioe) {
                             const attrs = Objects.requireNonNullUndefined(ev.attributes());
-                            result = visitor.visitFile(ev.file(), attrs);
+                            result = await visitor.visitFile(ev.file(), attrs);
                         } else {
-                            result = visitor.visitFileFailed(ev.file(), ioe);
+                            result = await visitor.visitFileFailed(ev.file(), ioe);
                         }
                         break;
                     }
                     case FileTreeWalkerEventType.START_DIRECTORY: {
-                        result = visitor.preVisitDirectory(ev.file(), ev.attributes());
+                        result = await visitor.preVisitDirectory(ev.file(), ev.attributes());
 
                         // if SKIP_SIBLINGS and SKIP_SUBTREE is returned then
                         // there shouldn't be unknown more events for the current
@@ -733,7 +733,7 @@ export class Files {
                         break;
                     }
                     case FileTreeWalkerEventType.END_DIRECTORY: {
-                        result = visitor.postVisitDirectory(ev.file(), ev.ioeException());
+                        result = await visitor.postVisitDirectory(ev.file(), ev.ioeException());
 
                         // SKIP_SIBLINGS is a no-op for postVisitDirectory
                         if (result === FileVisitResult.SKIP_SIBLINGS)
