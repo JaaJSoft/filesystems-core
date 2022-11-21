@@ -59,7 +59,7 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
     public abstract startsWith(other: Path): boolean;
 
     /* Checking if the path starts with the given string. */
-    public async startsWithStr(other: string): Promise<boolean> {
+    public startsWithStr(other: string): boolean {
         const path = this.getFileSystem().getPath(other);
         if (path) {
             return this.startsWith(path);
@@ -69,7 +69,7 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
 
     public abstract endWith(other: Path): boolean;
 
-    public async endWithStr(other: string): Promise<boolean> {
+    public endWithStr(other: string): boolean {
         const path = this.getFileSystem().getPath(other);
         return this.endWith(path);
     }
@@ -85,7 +85,7 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
      * @param {string} other - The path to resolve against this path.
      * @returns A Path object
      */
-    public async resolveFromString(other: string): Promise<Path | null> {
+    public resolveFromString(other: string): Path | null {
         const path = this.getFileSystem().getPath(other);
         if (path) {
             return this.resolve(path);
@@ -132,7 +132,7 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
      * @param {string} other - The other path to resolve against this one.
      * @returns A Path object.
      */
-    public async resolveSiblingFromString(other: string): Promise<Path | null> {
+    public resolveSiblingFromString(other: string): Path | null {
         const path = this.getFileSystem().getPath(other);
         if (path) {
             return this.resolveSibling(path);
