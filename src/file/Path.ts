@@ -1,6 +1,5 @@
 import {FileSystem} from "./FileSystem";
 import {LinkOption} from "./LinkOption";
-import {IllegalArgumentException} from "../exception";
 import {Watchable} from "./Watchable";
 import {Comparable} from "../Comparable";
 
@@ -85,12 +84,9 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
      * @param {string} other - The path to resolve against this path.
      * @returns A Path object
      */
-    public resolveFromString(other: string): Path | null {
+    public resolveFromString(other: string): Path {
         const path = this.getFileSystem().getPath(other);
-        if (path) {
-            return this.resolve(path);
-        }
-        return null;
+        return this.resolve(path);
     }
 
     /**
@@ -121,8 +117,6 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
      * @see #resolve(Path)
      */
     public resolveSibling(other: Path): Path {
-        if (other == null)
-            throw new IllegalArgumentException("null param");
         const parent = this.getParent();
         return (parent == null) ? other : parent.resolve(other);
     }
@@ -132,12 +126,9 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
      * @param {string} other - The other path to resolve against this one.
      * @returns A Path object.
      */
-    public resolveSiblingFromString(other: string): Path | null {
+    public resolveSiblingFromString(other: string): Path {
         const path = this.getFileSystem().getPath(other);
-        if (path) {
-            return this.resolveSibling(path);
-        }
-        return null;
+        return this.resolveSibling(path);
     }
 
     /**
