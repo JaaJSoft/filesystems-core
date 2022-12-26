@@ -33,5 +33,5 @@ export abstract class FileTypeDetector { // TODO
      *
      * @see Files#probeContentType
      */
-    public abstract probeContentType(path: Path): string;
+    public abstract probeContentType(path: Path): string | null;
 }

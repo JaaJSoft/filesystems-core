@@ -380,7 +380,7 @@ export class Files {
      * @param {Path} path - The path to the file to be probed.
      * @returns The content type of the file.
      */
-    public static async probeContentType(path: Path): Promise<string> {
+    public static async probeContentType(path: Path): Promise<string | null> {
         for (const detector of FileTypeDetectors.installedDetectors) {
             const result = detector.probeContentType(path);
             if (result) {
