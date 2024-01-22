@@ -1,7 +1,7 @@
 import {WatchEventKind} from "./WatchEvent";
 import {Path} from "./Path";
 
-class StdWatchEventKind implements WatchEventKind {
+class StdWatchEventKind<T> implements WatchEventKind<T> {
 
     private readonly _name: string;
 
@@ -33,7 +33,7 @@ export class StandardWatchEventKinds {
      *
      * @see WatchService
      */
-    public static readonly OVERFLOW = new StdWatchEventKind("OVERFLOW", typeof Object);
+    public static readonly OVERFLOW = new StdWatchEventKind<Path>("OVERFLOW", typeof Object);
 
     /**
      * Directory entry created.
@@ -43,7 +43,7 @@ export class StandardWatchEventKinds {
      * or renamed into the directory. The event {@link WatchEvent#count count}
      * for this event is always {@code 1}.
      */
-    public static readonly ENTRY_CREATE = new StdWatchEventKind("ENTRY_CREATE", typeof Path);
+    public static readonly ENTRY_CREATE = new StdWatchEventKind<Path>("ENTRY_CREATE", typeof Path);
 
     /**
      * Directory entry deleted.
@@ -53,7 +53,7 @@ export class StandardWatchEventKinds {
      * the directory. The event {@link WatchEvent#count count} for this event
      * is always {@code 1}.
      */
-    public static readonly ENTRY_DELETE = new StdWatchEventKind("ENTRY_DELETE", typeof Path);
+    public static readonly ENTRY_DELETE = new StdWatchEventKind<Path>("ENTRY_DELETE", typeof Path);
 
     /**
      * Directory entry modified.
@@ -63,7 +63,7 @@ export class StandardWatchEventKinds {
      * modified. The event {@link WatchEvent#count count} for this event is
      * {@code 1} or greater.
      */
-    public static readonly ENTRY_MODIFY = new StdWatchEventKind("ENTRY_MODIFY", typeof Path);
+    public static readonly ENTRY_MODIFY = new StdWatchEventKind<Path>("ENTRY_MODIFY", typeof Path);
 
 }
 
