@@ -4,6 +4,7 @@ import {FileStore} from "./FileStore";
 import {PathMatcher} from "./PathMatcher";
 import {AttributeViewName, UserPrincipalLookupService} from "./attribute";
 import {AsyncCloseable} from "../Closeable";
+import {WatchService} from "./WatchService";
 
 /* A common interface for all file systems. */
 export abstract class FileSystem implements AsyncCloseable {
@@ -34,4 +35,7 @@ export abstract class FileSystem implements AsyncCloseable {
     public abstract getUserPrincipalLookupService(): UserPrincipalLookupService;
 
     public abstract getPath(first: string, more?: string[]): Path;
+
+    public abstract newWatchService(): WatchService;
+
 }
