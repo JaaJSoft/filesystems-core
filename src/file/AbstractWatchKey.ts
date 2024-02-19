@@ -126,6 +126,7 @@ export abstract class AbstractWatchKey implements WatchKey {
 
     public abstract isValid(): boolean ;
 
+    public abstract init(): void ;
 
 }
 

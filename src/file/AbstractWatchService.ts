@@ -9,7 +9,6 @@ import {ChronoUnit} from "@js-joda/core";
 
 class CloseKey extends AbstractWatchKey {
 
-
     constructor(dir: Path | null, watcher: AbstractWatchService | null) {
         super(dir as Path, watcher as AbstractWatchService);
     }
@@ -20,6 +19,9 @@ class CloseKey extends AbstractWatchKey {
 
     isValid(): boolean {
         return true;
+    }
+
+    public init(): void {
     }
 
 }
@@ -34,7 +36,9 @@ export abstract class AbstractWatchService implements WatchService {
     private readonly CLOSE_KEY: WatchKey = new CloseKey(null, null);
     private closed = false;
 
-    public abstract register(path: Path, events: WatchEventKind<unknown>[], modifiers?: WatchEventModifier[]): void;
+    public abstract register(path: Path, events: WatchEventKind<unknown>[], modifiers?: WatchEventModifier[]): WatchKey;
+
+    public abstract init(): void;
 
     public enqueueKey(key: WatchKey) {
         this.pendingsKeys.push(key);
@@ -76,6 +80,8 @@ export abstract class AbstractWatchService implements WatchService {
         this.pendingsKeys.push(this.CLOSE_KEY);
     }
 
-    public abstract take(): Promise<WatchKey>
+    public take(): Promise<WatchKey> {
+        throw new Error("Method not implemented.");
+    }
 
 }
