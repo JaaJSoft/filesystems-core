@@ -36,7 +36,7 @@ export abstract class AbstractWatchService implements WatchService {
     private readonly CLOSE_KEY: WatchKey = new CloseKey(null, null);
     private closed = false;
 
-    public abstract register(path: Path, events: WatchEventKind<unknown>[], modifiers?: WatchEventModifier[]): WatchKey;
+    public abstract register(path: Path, events: WatchEventKind<unknown>[], modifiers?: WatchEventModifier[]): Promise<WatchKey>;
 
     public abstract init(): void;
 
