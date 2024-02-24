@@ -2,6 +2,9 @@ import {FileSystem} from "./FileSystem";
 import {LinkOption} from "./LinkOption";
 import {Watchable} from "./Watchable";
 import {Comparable} from "../Comparable";
+import {WatchService} from "./WatchService";
+import {WatchEventKind, WatchEventModifier} from "./WatchEvent";
+import {WatchKey} from "./WatchKey";
 
 /* `Path` is a class that represents a path in a file system. */
 export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path> {
@@ -211,4 +214,5 @@ export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path
             }
         };
     }
+    abstract register(watcher: WatchService, events: WatchEventKind<unknown>[], modifier?: WatchEventModifier[]): Promise<WatchKey>
 }
