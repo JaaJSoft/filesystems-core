@@ -22,6 +22,7 @@ class CloseKey extends AbstractWatchKey {
     }
 
     public init(): void {
+        // empty
     }
 
 }
@@ -57,11 +58,44 @@ export abstract class AbstractWatchService implements WatchService {
         this.checkOpen();
     }
 
-    public async poll(timeout?: bigint, unit?: ChronoUnit): Promise<WatchKey | null> {
+    public async poll(timeout?: number, unit: ChronoUnit = ChronoUnit.MILLIS): Promise<WatchKey | null> {
         this.checkOpen();
-        const key = this.pendingsKeys.pop();
+        let key = this.pendingsKeys.pop();
         this.checkKey(key);
-        return (key ?? null);
+        if (!timeout || !unit) {
+            return (key ?? null);
+        }
+        return new Promise<WatchKey>((resolve, reject) => {
+            setTimeout(() => {
+                try {
+                    key = this.pendingsKeys.pop();
+                    this.checkKey(key);
+                    if (key) {
+                        resolve(key);
+                    }
+                } catch (e) {
+                    reject(e);
+                }
+            }, unit.duration().toMillis() * timeout);
+        });
+    }
+
+    public take(): Promise<WatchKey> {
+        this.checkOpen();
+        let key: WatchKey | undefined;
+        return new Promise<WatchKey>((resolve, reject) => {
+            setInterval(() => {
+                try {
+                    key = this.pendingsKeys.pop();
+                    this.checkKey(key);
+                    if (key) {
+                        resolve(key);
+                    }
+                } catch (e) {
+                    reject(e);
+                }
+            }, 100);
+        });
     }
 
     public isOpen(): boolean {
@@ -80,8 +114,5 @@ export abstract class AbstractWatchService implements WatchService {
         this.pendingsKeys.push(this.CLOSE_KEY);
     }
 
-    public take(): Promise<WatchKey> {
-        throw new Error("Method not implemented.");
-    }
 
 }

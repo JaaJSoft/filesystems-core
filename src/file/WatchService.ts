@@ -8,7 +8,7 @@ export interface WatchService extends AsyncCloseable {
      * Closes this watch service.
      *
      * <p> If a thread is currently blocked in the {@link #take take} or {@link
-        * #poll(long,TimeUnit) poll} methods waiting for a key to be queued then
+     * #poll(long,TimeUnit) poll} methods waiting for a key to be queued then
      * it immediately receives a {@link ClosedWatchServiceException}. Any
      * valid keys associated with this watch service are {@link WatchKey#isValid
      * invalidated}.
@@ -41,7 +41,7 @@ export interface WatchService extends AsyncCloseable {
      * @throws  InterruptedException
      *          if interrupted while waiting
      */
-    poll(timeout?: bigint, unit?: ChronoUnit): Promise<WatchKey | null>;
+    poll(timeout?: number, unit?: ChronoUnit): Promise<WatchKey | null>;
 
     /**
      * Retrieves and removes next watch key, waiting if none are yet present.
