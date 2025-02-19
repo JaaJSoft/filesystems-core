@@ -24,3 +24,6 @@ export * from "./WatchKey";
 export * from "./WatchEvent";
 export * from "./StandardWatchEventKinds";
 export * from "./FileUtils";
+export * from "./AbstractWatchKey";
+export * from "./AbstractWatchService";
+export * from "./Watchable";

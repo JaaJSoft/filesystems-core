@@ -84,11 +84,12 @@ export abstract class AbstractWatchService implements WatchService {
         this.checkOpen();
         let key: WatchKey | undefined;
         return new Promise<WatchKey>((resolve, reject) => {
-            setInterval(() => {
+            const id = setInterval(() => {
                 try {
                     key = this.pendingsKeys.pop();
                     this.checkKey(key);
                     if (key) {
+                        clearInterval(id);
                         resolve(key);
                     }
                 } catch (e) {
