@@ -4,6 +4,7 @@ export * from "./BasicFileAttributeView";
 export * from "./FileAttribute";
 export * from "./FileAttributeView";
 export * from "./FileOwnerAttributeView";
+export * from "./FileStoreAttributeView";
 export * from "./FileTime";
 export * from "./GroupPrincipal";
 export * from "./PosixFileAttributes";
