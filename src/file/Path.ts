@@ -2,9 +2,9 @@ import {FileSystem} from "./FileSystem";
 import {LinkOption} from "./LinkOption";
 import {Watchable} from "./Watchable";
 import {Comparable} from "../Comparable";
-import {WatchService} from "./WatchService";
-import {WatchEventKind, WatchEventModifier} from "./WatchEvent";
-import {WatchKey} from "./WatchKey";
+import {WatchService} from "./watch/WatchService";
+import {WatchEventKind, WatchEventModifier} from "./watch/WatchEvent";
+import {WatchKey} from "./watch/WatchKey";
 
 /* `Path` is a class that represents a path in a file system. */
 export abstract class Path implements Iterable<Path>, Watchable, Comparable<Path> {

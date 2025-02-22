@@ -1,10 +1,10 @@
+import {ChronoUnit} from "@js-joda/core";
+import {AbstractWatchKey} from "./AbstractWatchKey";
+import {Path} from "../Path";
 import {WatchService} from "./WatchService";
 import {WatchKey} from "./WatchKey";
-import {AbstractWatchKey} from "./AbstractWatchKey";
-import {Path} from "./Path";
 import {WatchEventKind, WatchEventModifier} from "./WatchEvent";
-import {ClosedWatchServiceException} from "./exception";
-import {ChronoUnit} from "@js-joda/core";
+import {ClosedWatchServiceException} from "../exception";
 
 
 class CloseKey extends AbstractWatchKey {
@@ -65,13 +65,15 @@ export abstract class AbstractWatchService implements WatchService {
         if (!timeout || !unit) {
             return (key ?? null);
         }
-        return new Promise<WatchKey>((resolve, reject) => {
+        return new Promise<WatchKey | null>((resolve, reject) => {
             setTimeout(() => {
                 try {
                     key = this.pendingsKeys.pop();
                     this.checkKey(key);
                     if (key) {
                         resolve(key);
+                    } else {
+                        resolve(null);
                     }
                 } catch (e) {
                     reject(e);

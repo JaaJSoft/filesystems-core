@@ -1,6 +1,6 @@
-import {WatchKey} from "./WatchKey";
-import {WatchService} from "./WatchService";
-import {WatchEventKind, WatchEventModifier} from "./WatchEvent";
+import {WatchKey} from "./watch/WatchKey";
+import {WatchService} from "./watch/WatchService";
+import {WatchEventKind, WatchEventModifier} from "./watch/WatchEvent";
 
 export interface Watchable {
     register(watcher: WatchService, events: WatchEventKind<unknown>[], modifier?: WatchEventModifier[]): Promise<WatchKey>;

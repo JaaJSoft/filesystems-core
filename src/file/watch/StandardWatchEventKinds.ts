@@ -1,5 +1,5 @@
 import {WatchEventKind} from "./WatchEvent";
-import {Path} from "./Path";
+import {Path} from "../Path";
 
 class StdWatchEventKind<T> implements WatchEventKind<T> {
 

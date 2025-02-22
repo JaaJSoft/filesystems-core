@@ -1,5 +1,5 @@
 import {WatchEvent} from "./WatchEvent";
-import {Watchable} from "./Watchable";
+import {Watchable} from "../Watchable";
 
 export interface WatchKey {
     init(): void;

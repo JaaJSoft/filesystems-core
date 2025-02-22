@@ -1,4 +1,4 @@
-import {AsyncCloseable} from "../Closeable";
+import {AsyncCloseable} from "../../Closeable";
 import {WatchKey} from "./WatchKey";
 import {ChronoUnit} from "@js-joda/core";
 

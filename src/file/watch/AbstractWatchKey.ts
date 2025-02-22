@@ -1,9 +1,9 @@
-import {WatchKey} from "./WatchKey";
-import {WatchEvent, WatchEventKind} from "./WatchEvent";
-import {StandardWatchEventKinds} from "./StandardWatchEventKinds";
-import {AbstractWatchService} from "./AbstractWatchService";
-import {Path} from "./Path";
 import * as assert from "assert";
+import {AbstractWatchService} from "./AbstractWatchService";
+import {WatchKey} from "./WatchKey";
+import {StandardWatchEventKinds} from "./StandardWatchEventKinds";
+import {Path} from "../Path";
+import {WatchEvent, WatchEventKind} from "./WatchEvent";
 
 enum State {
     READY,
@@ -19,7 +19,7 @@ export abstract class AbstractWatchKey implements WatchKey {
     /**
      * Special event to signal overflow
      */
-    public readonly OVERFLOW_EVENT: Event<unknown> = new Event<unknown>(StandardWatchEventKinds.OVERFLOW);
+    public readonly OVERFLOW_EVENT: Event<unknown> = new Event<unknown>(StandardWatchEventKinds.OVERFLOW); // TODO ??
 
     private readonly _watcher: AbstractWatchService;
     private readonly dir: Path;
